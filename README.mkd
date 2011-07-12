@@ -1,0 +1,7 @@
+Hamper is an irc bot to amuse us.
+
+###Authors
+
+-   Daniel Thornton <merthel@gmail.com>
+-   Jordan Evans <evans.jordan.m@gmail.com>
+-   Mike Cooper <mythmon@gmail.com>
