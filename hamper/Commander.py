@@ -57,10 +57,10 @@ class CommanderFactory(protocol.ClientFactory):
         print "Could not connect: %s" % (reason,)
 
 
-def registerCommand(regex):
-    regex = re.compile(regex)
+def registerCommand(regex, directed=True):
+    regex = re.compile(regex, re.IGNORECASE)
 
-    def register(Command, directed=True):
+    def register(Command):
         Commander.commands.append((regex, Command(), directed))
 
     return register
@@ -68,8 +68,6 @@ def registerCommand(regex):
 
 @registerCommand('hi')
 class FriendlyCommand(object):
-    def __init__(self):
-        pass
 
     def __call__(self, commander, user, message):
         commander.say('Hello {0}'.format(user))
@@ -78,13 +76,16 @@ class FriendlyCommand(object):
 @registerCommand('go away')
 class QuitCommand(object):
 
-    def __init__(self):
-        pass
-
     def __call__(self, commander, user, message):
         commander.say('Bye!')
         commander.quit()
         reactor.stop()
+
+@registerCommand('.*pon(y|ies).*', False)
+class OmgPonies(object):
+
+    def __call__(self, commander, user, message):
+        commander.say('OMG PONIES!!!')
 
 
 if __name__ == '__main__':
