@@ -22,7 +22,7 @@ class Commander(irc.IRCClient):
         print "Joined %s." % (channel,)
 
     def privmsg(self, user, channel, msg):
-        print msg
+        print msg,
 
         if not user:
             return
@@ -31,9 +31,11 @@ class Commander(irc.IRCClient):
         if directed:
             msg = re.match(self.nickname + r'[:,]? *(.*)', msg).groups()[0]
 
+        print 'directed: ', directed
+
         for cmd in Commander.commands:
             if cmd[0].match(msg):
-                if (not directed) or cmd[2]:
+                if (directed and cmd[2]) or (not cmd[2]):
                     cmd[1](self, user, msg)
 
     def say(self, msg):
