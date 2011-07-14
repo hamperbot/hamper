@@ -38,6 +38,9 @@ class Commander(irc.IRCClient):
                 if (directed and cmd[2]) or (not cmd[2]):
                     cmd[1](self, user, msg)
 
+    def connectionLost(self, reason):
+        reactor.stop()
+
     def say(self, msg):
         self.msg(self.factory.channel, msg)
 
@@ -79,7 +82,6 @@ class QuitCommand(object):
     def __call__(self, commander, user, message):
         commander.say('Bye!')
         commander.quit()
-        reactor.stop()
 
 @registerCommand('.*pon(y|ies).*', False)
 class OmgPonies(object):
