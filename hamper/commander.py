@@ -6,9 +6,7 @@ from collections import deque
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
-class Commander(irc.IRCClient):
-
-    commands = []
+class CommanderProtocol(irc.IRCClient):
 
     def _get_nickname(self):
         return self.factory.nickname
@@ -52,7 +50,7 @@ class Commander(irc.IRCClient):
             'channel': channel,
         }
 
-        for cmd in Commander.commands:
+        for cmd in self.factory.commands:
             match = cmd.regex.match(msg)
             if match and (directed or (not cmd.onlyDirected)):
                 comm.update({'groups': match.groups()})
@@ -73,7 +71,8 @@ class Commander(irc.IRCClient):
 
 class CommanderFactory(protocol.ClientFactory):
 
-    protocol = Commander
+    protocol = CommanderProtocol
+    commands = set()
 
     def __init__(self, channel, nickname='Hamper'):
         self.channel = channel
@@ -87,11 +86,11 @@ class CommanderFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
 
+    @classmethod
+    def registerCommand(cls, Command):
+        """Register a command. To be used as a decorator."""
+        options = re.I if not Command.caseSensitive else None
+        Command.regex = re.compile(Command.regex, options)
 
-def registerCommand(Command):
-    """Register a command with the Commander. To be used as a decorator."""
-    options = re.I if not Command.caseSensitive else None
-    Command.regex = re.compile(Command.regex, options)
-
-    Commander.commands.append(Command())
-    print 'registered', Command
+        cls.commands.add(Command())
+        print 'registered', Command

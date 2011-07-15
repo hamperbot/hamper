@@ -1,7 +1,6 @@
 import re
 
-from hamper.commander import registerCommand
-
+from hamper.commander import CommanderFactory
 
 class Command(object):
     """Base class for a simple command."""
@@ -15,7 +14,7 @@ class Command(object):
         pass
 
 
-@registerCommand
+@CommanderFactory.registerCommand
 class FriendlyCommand(Command):
 
     regex = 'hi'
@@ -24,7 +23,7 @@ class FriendlyCommand(Command):
         commander.say('Hello {0[user]}'.format(options))
 
 
-@registerCommand
+@CommanderFactory.registerCommand
 class QuitCommand(Command):
 
     regex = 'go away'
@@ -34,7 +33,7 @@ class QuitCommand(Command):
         commander.quit()
 
 
-@registerCommand
+@CommanderFactory.registerCommand
 class OmgPonies(Command):
 
     regex = r'.*pon(y|ies).*'
@@ -43,7 +42,7 @@ class OmgPonies(Command):
     def __call__(self, commander, options):
         commander.say('OMG PONIES!!!')
 
-@registerCommand
+@CommanderFactory.registerCommand
 class Sed(Command):
 
     regex = r'^!s/(.*)/(.*)/(g?i?)'
@@ -63,7 +62,7 @@ class Sed(Command):
                         .format(comm['user'], new_msg))
                 break;
 
-@registerCommand
+@CommanderFactory.registerCommand
 class LetMeGoogleThatForYou(Command):
 
     regex = '.*lmgtfy\s+(.*)'
@@ -74,4 +73,3 @@ class LetMeGoogleThatForYou(Command):
         if options['target']:
             target = options['target'] + ': '
         commander.say(target + 'http://lmgtfy.com/?q=' + options['groups'][0])
-
