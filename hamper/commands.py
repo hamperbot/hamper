@@ -62,3 +62,10 @@ class Sed(Command):
                 commander.say('{0} actually meant: {1}'
                         .format(comm['user'], new_msg))
 
+@registerCommand('.*lmgtfy\s+(.*)', False)
+class LetMeGoogleThatForYou(object):
+    def __call__(self, commander, user, message):
+        regex = r'.*lmgtfy\s+(.*)\s*'
+        match = re.match(regex, message, re.IGNORECASE).groups()[0]
+        commander.say('http://lmgtfy.com/?q=' + match)
+
