@@ -56,16 +56,22 @@ class Sed(Command):
 
         key = options['channel'] if options['channel'] else options['user']
 
-        for comm in commander.factory.history[key]:
+        for comm in reversed(commander.factory.history[key]):
             if usr_regex.search(comm['message']):
                 new_msg = usr_regex.sub(usr_replace, comm['message'])
                 commander.say('{0} actually meant: {1}'
                         .format(comm['user'], new_msg))
+                break;
 
-@registerCommand('.*lmgtfy\s+(.*)', False)
-class LetMeGoogleThatForYou(object):
-    def __call__(self, commander, user, message):
-        regex = r'.*lmgtfy\s+(.*)\s*'
-        match = re.match(regex, message, re.IGNORECASE).groups()[0]
-        commander.say('http://lmgtfy.com/?q=' + match)
+@registerCommand
+class LetMeGoogleThatForYou(Command):
+
+    regex = '.*lmgtfy\s+(.*)'
+    onlyDirected = False
+
+    def __call__(self, commander, options):
+        target = ''
+        if options['target']:
+            target = options['target'] + ': '
+        commander.say(target + 'http://lmgtfy.com/?q=' + options['groups'][0])
 

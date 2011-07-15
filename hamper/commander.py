@@ -39,7 +39,10 @@ class Commander(irc.IRCClient):
             r'^(?:([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
             msg).groups()
 
-        user, mask = user.split('!', 1)
+        if user:
+            user, mask = user.split('!', 1)
+        else:
+            mask = ''
 
         comm = {
             'user': user,
