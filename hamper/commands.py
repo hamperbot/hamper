@@ -1,3 +1,5 @@
+import re
+
 from hamper.commander import registerCommand
 
 
@@ -40,3 +42,23 @@ class OmgPonies(Command):
 
     def __call__(self, commander, options):
         commander.say('OMG PONIES!!!')
+
+@registerCommand
+class Sed(Command):
+
+    regex = r'^!s/(.*)/(.*)/(g?i?)'
+    onlyDirected = False
+    priority = -1
+
+    def __call__(self, commander, options):
+        usr_regex = re.compile(options['groups'][0])
+        usr_replace = options['groups'][1]
+
+        key = options['channel'] if options['channel'] else options['user']
+
+        for comm in commander.factory.history[key]:
+            if usr_regex.search(comm['message']):
+                new_msg = usr_regex.sub(usr_replace, comm['message'])
+                commander.say('{0} actually meant: {1}'
+                        .format(comm['user'], new_msg))
+
