@@ -87,10 +87,16 @@ class OmgPonies(object):
     def __call__(self, commander, user, message):
         commander.say('OMG PONIES!!!')
 
+@registerCommand('.*lmgtfy\s+(.*)', False)
+class LetMeGoogleThatForYou(object):
+    def __call__(self, commander, user, message):
+        regex = r'.*lmgtfy\s+(.*)\s*'
+        match = re.match(regex, message, re.IGNORECASE).groups()[0]
+        commander.say('http://lmgtfy.com/?q=' + match)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        chan = sys.argv
+        chan = sys.argv[1]
     else:
         chan = 'hamper'
 
