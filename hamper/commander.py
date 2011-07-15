@@ -1,6 +1,8 @@
 import sys
 import re
 
+from collections import deque
+
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
@@ -23,9 +25,12 @@ class Commander(irc.IRCClient):
     def privmsg(self, user, channel, msg):
         """On message received (from channel or user)."""
 
+        print user, msg
+
         if not user:
-            # Ignore server messages
+            # ignore server messages
             return
+
 
         directed = msg.startswith(self.nickname)
         # This monster of a regex extracts msg and target from a message, where
@@ -34,12 +39,27 @@ class Commander(irc.IRCClient):
             r'^(?:([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
             msg).groups()
 
-        print user, target, msg
+        user, mask = user.split('!', 1)
+
+        comm = {
+            'user': user,
+            'mask': mask,
+            'target': target,
+            'message': msg,
+            'channel': channel,
+        }
 
         for cmd in Commander.commands:
-            if cmd.regex.match(msg):
-                if directed or (not cmd.onlyDirected):
-                    cmd(self, user, target, msg)
+            match = cmd.regex.match(msg)
+            if match and (directed or (not cmd.onlyDirected)):
+                comm.update({'groups': match.groups()})
+                cmd(self, comm)
+
+        key = channel if channel else user
+        if not key in self.factory.history:
+            self.factory.history[key] = deque(maxlen=100)
+        self.factory.history[key].append(comm)
+
 
     def connectionLost(self, reason):
         reactor.stop()
@@ -55,6 +75,8 @@ class CommanderFactory(protocol.ClientFactory):
     def __init__(self, channel, nickname='Hamper'):
         self.channel = channel
         self.nickname = nickname
+
+        self.history = {}
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
