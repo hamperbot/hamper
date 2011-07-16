@@ -216,7 +216,7 @@ def get_plugins(interface, package, parameters=None):
             except ImportError, ie:
                 log.msg(ie)
 
-def retrieve_plugins(interface, parameters=None):
+def retrieve_plugins(interface, search, parameters=None):
     """
     Look up all plugins for a certain interface.
 
@@ -231,11 +231,12 @@ def retrieve_plugins(interface, parameters=None):
     """
 
     if not parameters and interface in __cache:
+        print("Returning cached plugin.")
         return __cache[interface]
 
     log.msg("Discovering %s..." % interface)
     d = {}
-    for p in get_plugins(interface, "bravo.plugins", parameters):
+    for p in get_plugins(interface, search, parameters):
         try:
             verify_plugin(interface, p)
             d[p.name] = p
@@ -252,7 +253,7 @@ def retrieve_plugins(interface, parameters=None):
 
     return d
 
-def retrieve_named_plugins(interface, names, parameters=None):
+def retrieve_named_plugins(interface, names, search, parameters=None):
     """
     Look up a list of plugins by name.
 
@@ -266,7 +267,7 @@ def retrieve_named_plugins(interface, names, parameters=None):
     :raises PluginException: no plugins could be found for the given interface
     """
 
-    d = retrieve_plugins(interface, parameters)
+    d = retrieve_plugins(interface, search, parameters)
 
     # Handle wildcards and options.
     names = expand_names(d, names)
