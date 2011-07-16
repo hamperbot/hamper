@@ -1,4 +1,5 @@
 import re
+import random
 
 from hamper.commander import CommanderFactory
 
@@ -16,15 +17,27 @@ class Command(object):
 
 @CommanderFactory.registerCommand
 class FriendlyCommand(Command):
+    """Be polite. When people say hello, response."""
 
-    regex = 'hi'
+    regex = '.*'
+    priority = 2
+
+    def __init__(self):
+        self.greetings = ['hi', 'hello', 'hey']
 
     def __call__(self, commander, options):
-        commander.say('Hello {0[user]}'.format(options))
+        if options['message'].strip() in self.greetings:
+            commander.say('{0} {1[user]}'
+                .format(random.choice(self.greetings), options))
+            return False
+
+        return True
+
 
 
 @CommanderFactory.registerCommand
 class QuitCommand(Command):
+    """Know when hamper isn't wanted."""
 
     regex = 'go away'
 
@@ -35,6 +48,7 @@ class QuitCommand(Command):
 
 @CommanderFactory.registerCommand
 class OmgPonies(Command):
+    """The classics never die."""
 
     regex = r'.*pon(y|ies).*'
     onlyDirected = False
@@ -44,6 +58,7 @@ class OmgPonies(Command):
 
 @CommanderFactory.registerCommand
 class Sed(Command):
+    """To be honest, I feel strange in channels that don't have this."""
 
     regex = r'^!s/(.*)/(.*)/(g?i?)'
     onlyDirected = False
@@ -60,10 +75,11 @@ class Sed(Command):
                 new_msg = usr_regex.sub(usr_replace, comm['message'])
                 commander.say('{0} actually meant: {1}'
                         .format(comm['user'], new_msg))
-                break;
+                break
 
 @CommanderFactory.registerCommand
 class LetMeGoogleThatForYou(Command):
+    """Link to the sarcastic letmegooglethatforyou.com."""
 
     regex = '.*lmgtfy\s+(.*)'
     onlyDirected = False
