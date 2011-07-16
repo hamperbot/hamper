@@ -1,12 +1,14 @@
 import sys
 import re
-
 from collections import deque
+import yaml
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
+
 class CommanderProtocol(irc.IRCClient):
+    """Runs the IRC interactions, and calls out to plugins."""
 
     def _get_nickname(self):
         return self.factory.nickname
@@ -22,13 +24,9 @@ class CommanderProtocol(irc.IRCClient):
 
     def privmsg(self, user, channel, msg):
         """On message received (from channel or user)."""
-
-        print user, msg
-
         if not user:
             # ignore server messages
             return
-
 
         directed = msg.startswith(self.nickname)
         # This monster of a regex extracts msg and target from a message, where
@@ -60,7 +58,6 @@ class CommanderProtocol(irc.IRCClient):
         if not key in self.factory.history:
             self.factory.history[key] = deque(maxlen=100)
         self.factory.history[key].append(comm)
-
 
     def connectionLost(self, reason):
         reactor.stop()
