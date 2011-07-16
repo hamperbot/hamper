@@ -23,6 +23,8 @@ class CommanderProtocol(irc.IRCClient):
         print "Joined %s." % (channel,)
 
     def privmsg(self, user, channel, msg):
+        print channel, user, msg
+
         """On message received (from channel or user)."""
         if not user:
             # ignore server messages
@@ -71,7 +73,7 @@ class CommanderFactory(protocol.ClientFactory):
     protocol = CommanderProtocol
     commands = set()
 
-    def __init__(self, channel, nickname='Hamper'):
+    def __init__(self, channel, nickname):
         self.channel = channel
         self.nickname = nickname
 

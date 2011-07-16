@@ -1,9 +1,29 @@
 import re
 
+from zope.interface import implements, Interface, Attribute
+
 from hamper.commander import CommanderFactory
 
+class ICommand(Interface):
+    """Interface for a command.."""
+
+    onlyDirected = Attribute('Only respond to messages directed at the bot.')
+    caseSensitive = Attribute('Compile the regex to be caseSensitive if True.')
+    regex = Attribute('What messages the command will be called for.')
+    priority = Attribute('Higher numbers are called first.')
+
+    def __call__(self, commander, options):
+        """
+        Called when a matching message comes in to the bot.
+
+        Return `True` if the next command should be called, when there are
+        multiple commands with the same priority. Returning `False` or not
+        returing a value will cause execution to stop.
+        """
+
+
 class Command(object):
-    """Base class for a simple command."""
+    implements(ICommand)
 
     onlyDirected = True
     caseSensitive = False
@@ -11,8 +31,7 @@ class Command(object):
     priority = 0
 
     def __call__(self, commander, options):
-        pass
-
+        return True
 
 @CommanderFactory.registerCommand
 class FriendlyCommand(Command):
