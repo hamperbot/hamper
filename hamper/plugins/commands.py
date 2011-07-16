@@ -2,29 +2,14 @@ import re
 
 from zope.interface import implements, Interface, Attribute
 
-from hamper.commander import CommanderFactory
-
-class ICommand(Interface):
-    """Interface for a command.."""
-
-    onlyDirected = Attribute('Only respond to messages directed at the bot.')
-    caseSensitive = Attribute('Compile the regex to be caseSensitive if True.')
-    regex = Attribute('What messages the command will be called for.')
-    priority = Attribute('Higher numbers are called first.')
-
-    def __call__(self, commander, options):
-        """
-        Called when a matching message comes in to the bot.
-
-        Return `True` if the next command should be called, when there are
-        multiple commands with the same priority. Returning `False` or not
-        returing a value will cause execution to stop.
-        """
+from hamper.IHamper import ICommand
 
 
 class Command(object):
+
     implements(ICommand)
 
+    name = 'Generic Command'
     onlyDirected = True
     caseSensitive = False
     regex = ''
@@ -33,18 +18,22 @@ class Command(object):
     def __call__(self, commander, options):
         return True
 
-@CommanderFactory.registerCommand
 class FriendlyCommand(Command):
 
+    implements(ICommand)
+
+    name = 'Friendly'
     regex = 'hi'
 
     def __call__(self, commander, options):
         commander.say('Hello {0[user]}'.format(options))
 
 
-@CommanderFactory.registerCommand
 class QuitCommand(Command):
 
+    implements(ICommand)
+
+    name = 'Quit'
     regex = 'go away'
 
     def __call__(self, commander, options):
@@ -52,18 +41,22 @@ class QuitCommand(Command):
         commander.quit()
 
 
-@CommanderFactory.registerCommand
 class OmgPonies(Command):
 
+    implements(ICommand)
+
+    name = 'OMG!!! Ponies!!!'
     regex = r'.*pon(y|ies).*'
     onlyDirected = False
 
     def __call__(self, commander, options):
-        commander.say('OMG PONIES!!!')
+        commander.say('OMG!!! PONIES!!!')
 
-@CommanderFactory.registerCommand
 class Sed(Command):
 
+    implements(ICommand)
+
+    name = 'sed'
     regex = r'^!s/(.*)/(.*)/(g?i?)'
     onlyDirected = False
     priority = -1
@@ -81,9 +74,11 @@ class Sed(Command):
                         .format(comm['user'], new_msg))
                 break;
 
-@CommanderFactory.registerCommand
 class LetMeGoogleThatForYou(Command):
 
+    implements(ICommand)
+
+    name = 'lmgtfy'
     regex = '.*lmgtfy\s+(.*)'
     onlyDirected = False
 
@@ -92,3 +87,9 @@ class LetMeGoogleThatForYou(Command):
         if options['target']:
             target = options['target'] + ': '
         commander.say(target + 'http://lmgtfy.com/?q=' + options['groups'][0])
+
+lmgtfy = LetMeGoogleThatForYou()
+sed = Sed()
+omgponies = OmgPonies()
+quit = QuitCommand()
+hi = FriendlyCommand()

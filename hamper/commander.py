@@ -6,6 +6,10 @@ import yaml
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
+from bravo.plugin import retrieve_plugins
+
+from hamper.IHamper import ICommand
+
 
 class CommanderProtocol(irc.IRCClient):
     """Runs the IRC interactions, and calls out to plugins."""
@@ -71,7 +75,6 @@ class CommanderProtocol(irc.IRCClient):
 class CommanderFactory(protocol.ClientFactory):
 
     protocol = CommanderProtocol
-    commands = set()
 
     def __init__(self, channel, nickname):
         self.channel = channel
@@ -79,17 +82,20 @@ class CommanderFactory(protocol.ClientFactory):
 
         self.history = {}
 
+        self.commands = set()
+        for _, plugin in retrieve_plugins(ICommand, 'hamper.plugins').items():
+            self.registerCommand(plugin)
+
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
 
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
 
-    @classmethod
-    def registerCommand(cls, Command):
+    def registerCommand(self, command):
         """Register a command. To be used as a decorator."""
-        options = re.I if not Command.caseSensitive else None
-        Command.regex = re.compile(Command.regex, options)
+        options = re.I if not command.caseSensitive else None
+        command.regex = re.compile(command.regex, options)
 
-        cls.commands.add(Command())
-        print 'registered', Command
+        self.commands.add(command)
+        print 'registered', command
