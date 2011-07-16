@@ -18,9 +18,8 @@ class Command(object):
     def __call__(self, commander, options):
         return True
 
-class FriendlyCommand(Command):
 
-    implements(ICommand)
+class FriendlyCommand(Command):
 
     name = 'Friendly'
     regex = 'hi'
@@ -30,8 +29,6 @@ class FriendlyCommand(Command):
 
 
 class QuitCommand(Command):
-
-    implements(ICommand)
 
     name = 'Quit'
     regex = 'go away'
@@ -43,8 +40,6 @@ class QuitCommand(Command):
 
 class OmgPonies(Command):
 
-    implements(ICommand)
-
     name = 'OMG!!! Ponies!!!'
     regex = r'.*pon(y|ies).*'
     onlyDirected = False
@@ -53,8 +48,6 @@ class OmgPonies(Command):
         commander.say('OMG!!! PONIES!!!')
 
 class Sed(Command):
-
-    implements(ICommand)
 
     name = 'sed'
     regex = r'^!s/(.*)/(.*)/(g?i?)'
@@ -75,8 +68,6 @@ class Sed(Command):
                 break;
 
 class LetMeGoogleThatForYou(Command):
-
-    implements(ICommand)
 
     name = 'lmgtfy'
     regex = '.*lmgtfy\s+(.*)'
