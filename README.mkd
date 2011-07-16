@@ -1,4 +1,10 @@
-Hamper is an irc bot to amuse us.
+Hamper is an IRC bot to amuse us.
+
+If this looks like a dead project, check out the develop branch, where we do
+our day to day work. We are following [Git Flow][gitflow], so there won't be
+many commits on the master branch.
+
+[gitflow]: http://nvie.com/posts/a-successful-git-branching-model/
 
 ###Authors
 
