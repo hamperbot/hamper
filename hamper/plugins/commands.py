@@ -2,14 +2,14 @@ import re
 
 from zope.interface import implements, Interface, Attribute
 
-from hamper.IHamper import ICommand
+from hamper.IHamper import IPlugin
 
 
-class Command(object):
+class Plugin(object):
 
-    implements(ICommand)
+    implements(IPlugin)
 
-    name = 'Generic Command'
+    name = 'Generic Plugin'
     onlyDirected = True
     caseSensitive = False
     regex = ''
@@ -19,7 +19,7 @@ class Command(object):
         return True
 
 
-class FriendlyCommand(Command):
+class Friendly(Plugin):
 
     name = 'Friendly'
     regex = 'hi'
@@ -28,7 +28,7 @@ class FriendlyCommand(Command):
         commander.say('Hello {0[user]}'.format(options))
 
 
-class QuitCommand(Command):
+class QuitCommand(Plugin):
 
     name = 'Quit'
     regex = 'go away'
@@ -38,7 +38,7 @@ class QuitCommand(Command):
         commander.quit()
 
 
-class OmgPonies(Command):
+class OmgPonies(Plugin):
 
     name = 'OMG!!! Ponies!!!'
     regex = r'.*pon(y|ies).*'
@@ -47,7 +47,7 @@ class OmgPonies(Command):
     def __call__(self, commander, options):
         commander.say('OMG!!! PONIES!!!')
 
-class Sed(Command):
+class Sed(Plugin):
 
     name = 'sed'
     regex = r'^!s/(.*)/(.*)/(g?i?)'
@@ -67,7 +67,7 @@ class Sed(Command):
                         .format(comm['user'], new_msg))
                 break;
 
-class LetMeGoogleThatForYou(Command):
+class LetMeGoogleThatForYou(Plugin):
 
     name = 'lmgtfy'
     regex = '.*lmgtfy\s+(.*)'
@@ -83,4 +83,4 @@ lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()
 omgponies = OmgPonies()
 quit = QuitCommand()
-hi = FriendlyCommand()
+hi = Friendly()

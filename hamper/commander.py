@@ -8,7 +8,7 @@ from twisted.internet import protocol, reactor
 
 from bravo.plugin import retrieve_plugins
 
-from hamper.IHamper import ICommand
+from hamper.IHamper import IPlugin
 
 
 class CommanderProtocol(irc.IRCClient):
@@ -54,7 +54,7 @@ class CommanderProtocol(irc.IRCClient):
             'channel': channel,
         }
 
-        for cmd in self.factory.commands:
+        for cmd in self.factory.plugins:
             match = cmd.regex.match(msg)
             if match and (directed or (not cmd.onlyDirected)):
                 comm.update({'groups': match.groups()})
@@ -82,9 +82,9 @@ class CommanderFactory(protocol.ClientFactory):
 
         self.history = {}
 
-        self.commands = set()
-        for _, plugin in retrieve_plugins(ICommand, 'hamper.plugins').items():
-            self.registerCommand(plugin)
+        self.plugins = set()
+        for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
+            self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -92,10 +92,10 @@ class CommanderFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
 
-    def registerCommand(self, command):
-        """Register a command. To be used as a decorator."""
-        options = re.I if not command.caseSensitive else None
-        command.regex = re.compile(command.regex, options)
+    def registerPlugin(self, plugin):
+        """Register a plugin. To be used as a decorator."""
+        options = re.I if not plugin.caseSensitive else None
+        plugin.regex = re.compile(plugin.regex, options)
 
-        self.commands.add(command)
-        print 'registered', command
+        self.plugin.add(plugin)
+        print 'registered', plugin.name

@@ -1,9 +1,9 @@
 from zope.interface import implements, Interface, Attribute
 
-from hamper.plugins.commands import Command
+from hamper.plugins.commands import Plugin
 
 
-class PluginUtils(Command):
+class PluginUtils(Plugin):
 
     names = 'Plugin Utils'
     regex = '^plugins?(.*)$'
