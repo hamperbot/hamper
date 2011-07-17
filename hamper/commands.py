@@ -64,18 +64,31 @@ class Sed(Command):
     onlyDirected = False
     priority = -1
 
-    def __call__(self, commander, options):
-        usr_regex = re.compile(options['groups'][0])
-        usr_replace = options['groups'][1]
+    def __call__(self, commander, opts):
+        regex_opts = re.I if 'i' in opts['groups'][2] else 0
+        usr_regex = re.compile(opts['groups'][0], regex_opts)
+        usr_replace = opts['groups'][1]
 
-        key = options['channel'] if options['channel'] else options['user']
+        key = opts['channel'] if opts['channel'] else opts['user']
+
+        if key not in commander.factory.history:
+            commander.say('Who are you?! How did you get in my house?!')
+            return
 
         for comm in reversed(commander.factory.history[key]):
+            # Only look at our own, unless global was specified
+            if 'g' not in opts['groups'][2] and comm['user'] != opts['user']:
+                continue
+            # Don't look at other sed commands
+            if comm['message'].startswith('!s/'):
+                continue
             if usr_regex.search(comm['message']):
                 new_msg = usr_regex.sub(usr_replace, comm['message'])
                 commander.say('{0} actually meant: {1}'
                         .format(comm['user'], new_msg))
                 break
+        else:
+            commander.say("Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
 
 @CommanderFactory.registerCommand
 class LetMeGoogleThatForYou(Command):

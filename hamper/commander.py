@@ -48,11 +48,6 @@ class CommanderProtocol(irc.IRCClient):
             'channel': channel,
         }
 
-        key = channel if channel else user
-        if not key in self.factory.history:
-            self.factory.history[key] = deque(maxlen=100)
-        self.factory.history[key].append(comm)
-
         matchedPlugins = []
         for cmd in self.factory.commands:
             match = cmd.regex.match(msg)
@@ -63,10 +58,16 @@ class CommanderProtocol(irc.IRCClient):
         matchedPlugins.sort(key=lambda x: x[1].priority, reverse=True)
 
         for match, cmd in matchedPlugins:
-            comm.update({'groups': match.groups()})
-            if not cmd(self, comm):
+            proc_comm = comm.copy()
+            proc_comm.update({'groups': match.groups()})
+            if not cmd(self, proc_comm):
                 # The plugin asked us to not run any more.
                 break
+
+        key = channel if channel else user
+        if not key in self.factory.history:
+            self.factory.history[key] = deque(maxlen=100)
+        self.factory.history[key].append(comm)
 
     def connectionLost(self, reason):
         reactor.stop()
@@ -95,7 +96,7 @@ class CommanderFactory(protocol.ClientFactory):
     @classmethod
     def registerCommand(cls, Command):
         """Register a command. To be used as a decorator."""
-        options = re.I if not Command.caseSensitive else None
+        options = re.I if not Command.caseSensitive else 0
         Command.regex = re.compile(Command.regex, options)
 
         cls.commands.add(Command())
