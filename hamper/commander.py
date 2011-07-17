@@ -6,6 +6,10 @@ import yaml
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
+from bravo.plugin import retrieve_plugins
+
+from hamper.IHamper import IPlugin
+
 
 class CommanderProtocol(irc.IRCClient):
     """Runs the IRC interactions, and calls out to plugins."""
@@ -23,6 +27,8 @@ class CommanderProtocol(irc.IRCClient):
         print "Joined %s." % (channel,)
 
     def privmsg(self, user, channel, msg):
+        print channel, user, msg
+
         """On message received (from channel or user)."""
         if not user:
             # ignore server messages
@@ -49,7 +55,7 @@ class CommanderProtocol(irc.IRCClient):
         }
 
         matchedPlugins = []
-        for cmd in self.factory.commands:
+        for cmd in self.factory.plugins:
             match = cmd.regex.match(msg)
             if match and (directed or (not cmd.onlyDirected)):
                 matchedPlugins.append((match, cmd))
@@ -69,23 +75,45 @@ class CommanderProtocol(irc.IRCClient):
             self.factory.history[key] = deque(maxlen=100)
         self.factory.history[key].append(comm)
 
+        # We can't remove/add plugins while we are in the loop, so do it here.
+        while self.factory.pluginsToRemove:
+            self.factory.plugins.remove(self.factory.pluginsToRemove.pop())
+
+        while self.factory.pluginsToAdd:
+            self.factory.registerPlugin(self.factory.pluginsToAdd.pop())
+
     def connectionLost(self, reason):
         reactor.stop()
 
     def say(self, msg):
         self.msg(self.factory.channel, msg)
 
+    def removePlugin(self, plugin):
+        self.factory.pluginsToRemove.add(plugin)
+
+    def addPlugin(self, plugin):
+        self.factory.pluginsToAdd.add(plugin)
+
 
 class CommanderFactory(protocol.ClientFactory):
 
     protocol = CommanderProtocol
-    commands = set()
 
-    def __init__(self, channel, nickname='Hamper'):
+    def __init__(self, channel, nickname):
         self.channel = channel
         self.nickname = nickname
 
         self.history = {}
+
+        self.plugins = set()
+        # These are so plugins can be added/removed at run time. The
+        # addition/removal will happen at a time when the set isn't being
+        # iterated, so nothing breaks.
+        self.pluginsToAdd = set()
+        self.pluginsToRemove = set()
+
+        for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
+            self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -93,11 +121,14 @@ class CommanderFactory(protocol.ClientFactory):
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
 
-    @classmethod
-    def registerCommand(cls, Command):
-        """Register a command. To be used as a decorator."""
-        options = re.I if not Command.caseSensitive else 0
-        Command.regex = re.compile(Command.regex, options)
+    def registerPlugin(self, plugin):
+        """
+        Registers a plugin.
 
-        cls.commands.add(Command())
-        print 'registered', Command
+        Also sets up the regex and other options for the plugin.
+        """
+        options = re.I if not plugin.caseSensitive else 0
+        plugin.regex = re.compile(plugin.regex, options)
+
+        self.plugins.add(plugin)
+        print 'registered', plugin.name

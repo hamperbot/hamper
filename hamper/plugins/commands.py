@@ -1,24 +1,29 @@
 import re
 import random
 
-from hamper.commander import CommanderFactory
+from zope.interface import implements, Interface, Attribute
 
-class Command(object):
-    """Base class for a simple command."""
+from hamper.IHamper import IPlugin
 
+
+class Plugin(object):
+
+    implements(IPlugin)
+
+    name = 'Generic Plugin'
     onlyDirected = True
     caseSensitive = False
     regex = ''
     priority = 0
 
     def __call__(self, commander, options):
-        pass
+        return True
 
 
-@CommanderFactory.registerCommand
-class FriendlyCommand(Command):
+class Friendly(Plugin):
     """Be polite. When people say hello, response."""
 
+    name = 'Friendly'
     regex = '.*'
     priority = 2
 
@@ -34,11 +39,10 @@ class FriendlyCommand(Command):
         return True
 
 
-
-@CommanderFactory.registerCommand
-class QuitCommand(Command):
+class QuitCommand(Plugin):
     """Know when hamper isn't wanted."""
 
+    name = 'Quit'
     regex = 'go away'
 
     def __call__(self, commander, options):
@@ -46,20 +50,20 @@ class QuitCommand(Command):
         commander.quit()
 
 
-@CommanderFactory.registerCommand
-class OmgPonies(Command):
+class OmgPonies(Plugin):
     """The classics never die."""
 
+    name = 'OMG!!! Ponies!!!'
     regex = r'.*pon(y|ies).*'
     onlyDirected = False
 
     def __call__(self, commander, options):
-        commander.say('OMG PONIES!!!')
+        commander.say('OMG!!! PONIES!!!')
 
-@CommanderFactory.registerCommand
-class Sed(Command):
+class Sed(Plugin):
     """To be honest, I feel strange in channels that don't have this."""
 
+    name = 'sed'
     regex = r'^!s/(.*)/(.*)/(g?i?)'
     onlyDirected = False
     priority = -1
@@ -90,10 +94,10 @@ class Sed(Command):
         else:
             commander.say("Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
 
-@CommanderFactory.registerCommand
-class LetMeGoogleThatForYou(Command):
+class LetMeGoogleThatForYou(Plugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
 
+    name = 'lmgtfy'
     regex = '.*lmgtfy\s+(.*)'
     onlyDirected = False
 
@@ -102,3 +106,9 @@ class LetMeGoogleThatForYou(Command):
         if options['target']:
             target = options['target'] + ': '
         commander.say(target + 'http://lmgtfy.com/?q=' + options['groups'][0])
+
+lmgtfy = LetMeGoogleThatForYou()
+sed = Sed()
+omgponies = OmgPonies()
+quit = QuitCommand()
+hi = Friendly()
