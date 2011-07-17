@@ -231,7 +231,6 @@ def retrieve_plugins(interface, search, parameters=None):
     """
 
     if not parameters and interface in __cache:
-        print("Returning cached plugin.")
         return __cache[interface]
 
     log.msg("Discovering %s..." % interface)

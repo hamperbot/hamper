@@ -65,11 +65,24 @@ class CommanderProtocol(irc.IRCClient):
             self.factory.history[key] = deque(maxlen=100)
         self.factory.history[key].append(comm)
 
+        # We can't remove/add plugins while we are in the loop, so do it here.
+        while self.factory.pluginsToRemove:
+            self.factory.plugins.remove(self.factory.pluginsToRemove.pop())
+
+        while self.factory.pluginsToAdd:
+            self.factory.registerPlugin(self.factory.pluginsToAdd.pop())
+
     def connectionLost(self, reason):
         reactor.stop()
 
     def say(self, msg):
         self.msg(self.factory.channel, msg)
+
+    def removePlugin(self, plugin):
+        self.factory.pluginsToRemove.add(plugin)
+
+    def addPlugin(self, plugin):
+        self.factory.pluginsToAdd.add(plugin)
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -83,6 +96,12 @@ class CommanderFactory(protocol.ClientFactory):
         self.history = {}
 
         self.plugins = set()
+        # These are so plugins can be added/removed at run time. The
+        # addition/removal will happen at a time when the set isn't being
+        # iterated, so nothing breaks.
+        self.pluginsToAdd = set()
+        self.pluginsToRemove = set()
+
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
             self.registerPlugin(plugin)
 
@@ -93,9 +112,13 @@ class CommanderFactory(protocol.ClientFactory):
         print "Could not connect: %s" % (reason,)
 
     def registerPlugin(self, plugin):
-        """Register a plugin. To be used as a decorator."""
+        """
+        Registers a plugin.
+
+        Also sets up the regex and other options for the plugin.
+        """
         options = re.I if not plugin.caseSensitive else None
         plugin.regex = re.compile(plugin.regex, options)
 
-        self.plugin.add(plugin)
+        self.plugins.add(plugin)
         print 'registered', plugin.name

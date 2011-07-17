@@ -25,7 +25,7 @@ class Friendly(Plugin):
     regex = 'hi'
 
     def __call__(self, commander, options):
-        commander.say('Hello {0[user]}'.format(options))
+        commander.say('Hello {0[user]}!'.format(options))
 
 
 class QuitCommand(Plugin):
