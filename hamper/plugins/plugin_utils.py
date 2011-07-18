@@ -1,4 +1,4 @@
-from zope.interface import implements, Interface, Attribute
+from zope.interface import implements
 
 from bravo import plugin
 

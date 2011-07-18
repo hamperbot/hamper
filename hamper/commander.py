@@ -5,9 +5,10 @@ import yaml
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
+import sqlalchemy
+from sqlalchemy import orm
 
 from bravo.plugin import retrieve_plugins
-
 from hamper.IHamper import IPlugin
 
 
@@ -99,21 +100,29 @@ class CommanderFactory(protocol.ClientFactory):
 
     protocol = CommanderProtocol
 
-    def __init__(self, channel, nickname):
-        self.channel = channel
-        self.nickname = nickname
+    def __init__(self, config):
+        self.channel = config['channel']
+        self.nickname = config['nickname']
 
         self.history = {}
-
         self.plugins = set()
-        # These are so plugins can be added/removed at run time. The
-        # addition/removal will happen at a time when the set isn't being
-        # iterated, so nothing breaks.
+
         self.pluginsToAdd = set()
         self.pluginsToRemove = set()
 
+        if 'db' in config:
+            engine = sqlalchemy.create_engine(config['db'])
+        else:
+            engine = sqlalchemy.create_engine('sqlite:///:memory:')
+        self.DBSession = orm.sessionmaker(engine)
+
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
             self.registerPlugin(plugin)
+
+    def buildProtocol(self, addr):
+        p = protocol.ClientFactory.buildProtocol(self, addr)
+        p.db = self.DBSession()
+        return p
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
