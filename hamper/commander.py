@@ -36,9 +36,9 @@ class CommanderProtocol(irc.IRCClient):
 
         directed = msg.startswith(self.nickname)
         # This monster of a regex extracts msg and target from a message, where
-        # the target may not be there.
+        # the target may not be there, and the target is a valid irc name.
         target, msg = re.match(
-            r'^(?:([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
+            r'^(?:([A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
             msg).groups()
 
         if user:
