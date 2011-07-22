@@ -6,7 +6,30 @@ many commits on the master branch.
 
 [gitflow]: http://nvie.com/posts/a-successful-git-branching-model/
 
-###Authors
+Installation
+============
+As of right now, you can't install hamper, unless you are clever.
+
+Configuration
+=============
+Make a file named `hamper.conf`. This should be a YAML file containing these,
+hopefully self-explanatory, fields:
+
+-   `nickname`
+-   `channel`
+-   `server`
+-   `port`
+
+For an example check out `hamper.conf.dist`.
+
+Usage
+=====
+Then, with `hamper.conf` in your current directory and hamper on your python
+path, run `main.py`. I like to use this command
+
+    PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/main.py
+
+###Credits
 
 -   Daniel Thornton <merthel@gmail.com>
 -   Jordan Evans <evans.jordan.m@gmail.com>
