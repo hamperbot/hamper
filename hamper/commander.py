@@ -7,18 +7,21 @@ from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 import sqlalchemy
 from sqlalchemy import orm
-
 from bravo.plugin import retrieve_plugins
-from hamper.IHamper import IPlugin
+
+from hamper.interfaces import IPlugin
 
 
 class CommanderProtocol(irc.IRCClient):
-    """Runs the IRC interactions, and calls out to plugins."""
+    """Interacts with a single server, and delegates to the plugins."""
 
     def _get_nickname(self):
         return self.factory.nickname
-
     nickname = property(_get_nickname)
+
+    def _get_db(self):
+        return self.factory.db
+    db = property(_get_db)
 
     def signedOn(self):
         self.join(self.factory.channel)
@@ -28,18 +31,26 @@ class CommanderProtocol(irc.IRCClient):
         print "Joined %s." % (channel,)
 
     def privmsg(self, user, channel, msg):
+        """I received a message."""
         print channel, user, msg
 
-        """On message received (from channel or user)."""
         if not user:
             # ignore server messages
             return
 
-        directed = msg.startswith(self.nickname)
+        pm = channel == self.nickname
+        directed = msg.startswith(self.nickname) or pm
+        if msg.startswith('!'):
+            msg = msg[1:]
+            directed = True
+
         # This monster of a regex extracts msg and target from a message, where
-        # the target may not be there.
+        # the target may not be there, and the target is a valid irc name.  A
+        # valid nickname consists of letters, numbers, _-[]\^{}|`, and cannot
+        # start with a number. Valid ways to target someone are "<nick>: ..."
+        # and "<nick>, ..."
         target, msg = re.match(
-            r'^(?:([a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
+            r'^(?:([A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
             msg).groups()
 
         if user:
@@ -53,28 +64,35 @@ class CommanderProtocol(irc.IRCClient):
             'target': target,
             'message': msg,
             'channel': channel,
+            'directed': directed,
+            'pm': pm,
         }
 
-        matchedPlugins = []
-        for cmd in self.factory.plugins:
-            match = cmd.regex.match(msg)
-            if match and (directed or (not cmd.onlyDirected)):
-                matchedPlugins.append((match, cmd))
-
-        # High priority plugins first
-        matchedPlugins.sort(key=lambda x: x[1].priority, reverse=True)
-
-        for match, cmd in matchedPlugins:
-            proc_comm = comm.copy()
-            proc_comm.update({'groups': match.groups()})
-            if not cmd(self, proc_comm):
-                # The plugin asked us to not run any more.
+        # Plugins are already sorted by priority
+        for plugin in self.factory.plugins:
+            stop = plugin.process(self, comm)
+            if stop:
                 break
 
-        key = channel if channel else user
-        if not key in self.factory.history:
-            self.factory.history[key] = deque(maxlen=100)
-        self.factory.history[key].append(comm)
+        #matchedPlugins = []
+        #for cmd in self.factory.plugins:
+        #    match = cmd.regex.match(msg)
+        #    if match and (directed or (not cmd.onlyDirected)):
+        #        matchedPlugins.append((match, cmd))
+
+        ## High priority plugins first
+        #matchedPlugins.sort(key=lambda x: x[1].priority, reverse=True)
+
+        #for match, cmd in matchedPlugins:
+        #    proc_comm = comm.copy()
+        #    proc_comm.update({'groups': match.groups()})
+        #    if not cmd(self, proc_comm):
+        #        # The plugin asked us to not run any more.
+        #        break
+
+        if not channel in self.factory.history:
+            self.factory.history[channel] = deque(maxlen=100)
+        self.factory.history[channel].append(comm)
 
         # We can't remove/add plugins while we are in the loop, so do it here.
         while self.factory.pluginsToRemove:
@@ -90,10 +108,15 @@ class CommanderProtocol(irc.IRCClient):
         self.msg(self.factory.channel, msg)
 
     def removePlugin(self, plugin):
-        self.factory.pluginsToRemove.add(plugin)
+        self.factory.pluginsToRemove.append(plugin)
 
     def addPlugin(self, plugin):
-        self.factory.pluginsToAdd.add(plugin)
+        self.factory.pluginsToAdd.append(plugin)
+
+    def leaveChannel(self, channel):
+        """Leave the specified channel."""
+        # For now just quit.
+        self.quit()
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -105,10 +128,12 @@ class CommanderFactory(protocol.ClientFactory):
         self.nickname = config['nickname']
 
         self.history = {}
-        self.plugins = set()
-
-        self.pluginsToAdd = set()
-        self.pluginsToRemove = set()
+        self.plugins = []
+        # These are so plugins can be added/removed at run time. The
+        # addition/removal will happen at a time when the list isn't being
+        # iterated, so nothing breaks.
+        self.pluginsToAdd = []
+        self.pluginsToRemove = []
 
         if 'db' in config:
             engine = sqlalchemy.create_engine(config['db'])
@@ -133,11 +158,7 @@ class CommanderFactory(protocol.ClientFactory):
     def registerPlugin(self, plugin):
         """
         Registers a plugin.
-
-        Also sets up the regex and other options for the plugin.
         """
-        options = re.I if not plugin.caseSensitive else 0
-        plugin.regex = re.compile(plugin.regex, options)
-
-        self.plugins.add(plugin)
-        print 'registered', plugin.name
+        self.plugins.append(plugin)
+        self.plugins.sort()
+        print 'registered plugin', plugin.name

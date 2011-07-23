@@ -6,33 +6,34 @@ from sqlalchemy import Integer, String, Date, Column
 from sqlalchemy.ext.declarative import declarative_base
 import sqlalchemy
 
-from hamper.plugins.commands import Plugin
+from hamper.interfaces import Command
 
 
-class Quotes(Plugin):
+class Quotes(Command):
     '''Remember quotes, and recall on demand.'''
 
     name = 'quotes'
-    regex = r'^quote(.*)'
+    priority = 0
+    regex = r'^quote(.*)$'
 
     def __init__(self):
-        pass
+        super(Quotes, self).__init__()
         # TODO: make sure the tables we care about are in the db. how?
 
 
-    def __call__(self, commander, opts):
-        args = opts['groups'][0].strip()
+    def command(self, bot, comm, groups):
+        args = groups[0].strip()
 
         if args.startswith('--add '):
             # Add a quote
             text = args.split(' ', 1)[1]
             quote = Quote(text, opts['user'])
-            commander.db.add(quote)
+            bot.db.add(quote)
         else:
             # Deliver a quote
-            index = random.randrange(0, commander.db.query(Quote).count())
-            quote = commander.db.query(Quote)[rand]
-            commander.say(quote.text)
+            index = random.randrange(0, bot.db.query(Quote).count())
+            quote = bot.db.query(Quote)[rand]
+            bot.say(quote.text)
 
 
 Base = declarative_base()
