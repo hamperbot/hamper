@@ -1,19 +1,23 @@
-from zope.interface import implements, Interface, Attribute
+import re
 
+from zope.interface import implements
 from bravo import plugin
 
-from hamper.plugins.commands import Plugin
-from hamper.IHamper import IPlugin
+from hamper.interfaces import IPlugin
 
 
-class PluginUtils(Plugin):
+class PluginUtils(object):
+    implements(IPlugin)
 
-    name = 'Plugin Utils'
-    regex = '^plugins?(.*)$'
+    name = 'plugins'
+    priority = 0
 
-    def __call__(self, commander, options):
+    def process(self, bot, comm):
+        match = re.match('^plugins?\w+(.*)$', comm['message'])
+        if not match:
+            return
 
-        args = options['groups'][0].split(' ')
+        args = match.groups()[0].split(' ')
         args = [a.strip() for a in args]
         args = [a for a in args if a]
 
@@ -22,22 +26,24 @@ class PluginUtils(Plugin):
             'reload': self.reloadPlugin,
         }
 
-        dispatch[args[0]](commander, args[1:])
+        if args[0] in dispatch:
+            dispatch[args[0]](bot, *args[1:])
+            return True
 
-    def listPlugins(self, commander, args):
+    def listPlugins(self, bot, *args):
         """Reply with a list of all currently loaded plugins."""
-        commander.say('Loaded Plugins: {0}.'.format(
-            ', '.join([c.name for c in commander.factory.plugins])))
+        bot.say('Loaded Plugins: {0}.'.format(
+            ', '.join([c.name for c in bot.factory.plugins])))
 
-    def reloadPlugin(self, commander, args):
+    def reloadPlugin(self, bot, *args):
         """Reload a named plugin."""
         name = ' '.join(args)
 
-        ps = commander.factory.plugins
+        ps = bot.factory.plugins
 
         matched_plugins = [p for p in ps if p.name == name]
         if len(matched_plugins) == 0:
-            commander.say("I can't find a plugin named %s!" % name)
+            bot.say("I can't find a plugin named %s!" % name)
             return
 
         target_plugin = matched_plugins[0]
@@ -45,8 +51,9 @@ class PluginUtils(Plugin):
         new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
                 'hamper.plugins', {'fresh': True})[0]
 
-        commander.removePlugin(target_plugin)
-        commander.addPlugin(new_plugin)
-        commander.say('Request reload of {0}.'.format(new_plugin))
+        bot.removePlugin(target_plugin)
+        bot.addPlugin(new_plugin)
+        bot.say('Request reload of {0}.'.format(new_plugin))
+
 
 plugin_utils = PluginUtils()
