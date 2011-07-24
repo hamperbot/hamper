@@ -9,37 +9,41 @@ import sqlalchemy
 from hamper.interfaces import Command
 
 
+SQLAlchemyBase = declarative_base()
+
 class Quotes(Command):
     '''Remember quotes, and recall on demand.'''
 
     name = 'quotes'
     priority = 0
-    regex = r'^quote(.*)$'
+    regex = r'^quotes?(?: +(.*))?$'
 
-    def __init__(self):
-        super(Quotes, self).__init__()
-        # TODO: make sure the tables we care about are in the db. how?
-
+    def setup(self, factory):
+        SQLAlchemyBase.metadata.create_all(factory.db_engine)
 
     def command(self, bot, comm, groups):
-        args = groups[0].strip()
+        if groups[0]:
+            args = groups[0].strip()
+        else:
+            args = ''
 
-        if args.startswith('--add '):
+        if args.startswith('--add'):
             # Add a quote
             text = args.split(' ', 1)[1]
-            quote = Quote(text, opts['user'])
-            bot.db.add(quote)
+            print('trying to add quote: "{}".'.format(text))
+            quote = Quote(text, comm['user'])
+            bot.factory.db.add(quote)
+            bot.say('Succesfully added quote.')
         else:
             # Deliver a quote
+            print('trying to repeat a quote')
             index = random.randrange(0, bot.db.query(Quote).count())
-            quote = bot.db.query(Quote)[rand]
-            bot.say(quote.text)
+            quote = bot.factory.db.query(Quote)[index]
+            # Lame twisted irc doesn't support unicode.
+            bot.say(str(quote.text))
 
 
-Base = declarative_base()
-
-
-class Quote(Base):
+class Quote(SQLAlchemyBase):
     '''The object that will get persisted by the database.'''
 
     __tablename__ = 'quotes'
