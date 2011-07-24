@@ -37,20 +37,25 @@ class CommanderProtocol(irc.IRCClient):
             # ignore server messages
             return
 
-        pm = channel == self.nickname
-        directed = msg.startswith(self.nickname) or pm
-        if msg.startswith('!'):
-            msg = msg[1:]
-            directed = True
-
         # This monster of a regex extracts msg and target from a message, where
         # the target may not be there, and the target is a valid irc name.  A
         # valid nickname consists of letters, numbers, _-[]\^{}|`, and cannot
         # start with a number. Valid ways to target someone are "<nick>: ..."
         # and "<nick>, ..."
         target, msg = re.match(
-            r'^(?:([A-Za-z_\-\[\]\\^{}|`][A-Za-z0-9_\-\[\]\\^{}|`]*)[:,] )? *(.*)$',
-            msg).groups()
+            r'^(?:([a-z_\-\[\]\\^{}|`]' # First letter can't be a number
+            '[a-z0-9_\-\[\]\\^{}|`]*)'  # The rest can be many things
+            '[:,] )? *(.*)$',           # The actual message
+            msg, re.I).groups()
+
+        pm = channel == self.nickname
+        if target:
+            directed = target.lower() == self.nickname.lower()
+        else:
+            directed = False
+        if msg.startswith('!'):
+            msg = msg[1:]
+            directed = True
 
         if user:
             user, mask = user.split('!', 1)
@@ -95,10 +100,14 @@ class CommanderProtocol(irc.IRCClient):
 
         # We can't remove/add plugins while we are in the loop, so do it here.
         while self.factory.pluginsToRemove:
-            self.factory.plugins.remove(self.factory.pluginsToRemove.pop())
+            p = self.factory.pluginsToRemove.pop()
+            print("Unloading " + repr(p))
+            self.factory.plugins.remove(p)
 
         while self.factory.pluginsToAdd:
-            self.factory.registerPlugin(self.factory.pluginsToAdd.pop())
+            p = self.factory.pluginsToAdd.pop()
+            print('Loading ' + repr(p))
+            self.factory.registerPlugin(p)
 
     def connectionLost(self, reason):
         reactor.stop()
