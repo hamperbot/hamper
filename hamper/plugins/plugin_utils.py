@@ -3,21 +3,17 @@ import re
 from zope.interface import implements
 from bravo import plugin
 
-from hamper.interfaces import IPlugin
+from hamper.interfaces import Command, IPlugin
 
 
-class PluginUtils(object):
-    implements(IPlugin)
+class PluginUtils(Command):
 
     name = 'plugins'
     priority = 0
+    regex = r'^plugins?\W+(.*)$'
 
-    def process(self, bot, comm):
-        match = re.match('^plugins?\w+(.*)$', comm['message'])
-        if not match:
-            return
-
-        args = match.groups()[0].split(' ')
+    def command(self, bot, comm, groups):
+        args = groups[0].split(' ')
         args = [a.strip() for a in args]
         args = [a for a in args if a]
 
@@ -25,9 +21,14 @@ class PluginUtils(object):
             'list': self.listPlugins,
             'reload': self.reloadPlugin,
         }
+        print args
+
+        if len(args) == 0:
+            self.listPlugins(bot, *args)
+            return True
 
         if args[0] in dispatch:
-            dispatch[args[0]](bot, *args[1:])
+            dispatch[args[0]](bot, *args)
             return True
 
     def listPlugins(self, bot, *args):
@@ -37,7 +38,7 @@ class PluginUtils(object):
 
     def reloadPlugin(self, bot, *args):
         """Reload a named plugin."""
-        name = ' '.join(args)
+        name = ' '.join(args[1:])
 
         ps = bot.factory.plugins
 
@@ -53,7 +54,7 @@ class PluginUtils(object):
 
         bot.removePlugin(target_plugin)
         bot.addPlugin(new_plugin)
-        bot.say('Request reload of {0}.'.format(new_plugin))
+        bot.say('Reloading {0}.'.format(new_plugin))
 
 
 plugin_utils = PluginUtils()
