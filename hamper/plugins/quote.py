@@ -23,24 +23,27 @@ class Quotes(Command):
 
     def command(self, bot, comm, groups):
         if groups[0]:
-            args = groups[0].strip()
+            args = groups[0].split(' ')
+            args = [a.strip() for a in args if a.strip()]
         else:
-            args = ''
+            args = []
 
-        if args.startswith('--add'):
-            # Add a quote
-            text = args.split(' ', 1)[1]
-            print('trying to add quote: "{}".'.format(text))
-            quote = Quote(text, comm['user'])
-            bot.factory.db.add(quote)
-            bot.say('Succesfully added quote.')
-        else:
+        if len(args) == 0:
             # Deliver a quote
-            print('trying to repeat a quote')
-            index = random.randrange(0, bot.db.query(Quote).count())
+            index = random.randrange(0, bot.db.query(Quote).count() + 1)
             quote = bot.factory.db.query(Quote)[index]
             # Lame twisted irc doesn't support unicode.
             bot.say(str(quote.text))
+        elif args[0] == '--args':
+            # Add a quote
+            text = ' '.join(args[1:])
+            quote = Quote(text, comm['user'])
+            bot.factory.db.add(quote)
+            bot.say('Succesfully added quote.')
+        elif args[0] == '--count':
+            bot.say('I know {0} quotes.'.format(bot.db.query(Quote).count()))
+        else:
+            bot.say('Wait, what?')
 
 
 class Quote(SQLAlchemyBase):
