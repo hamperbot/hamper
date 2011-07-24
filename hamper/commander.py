@@ -102,6 +102,7 @@ class CommanderProtocol(irc.IRCClient):
             self.factory.registerPlugin(self.factory.pluginsToAdd.pop())
 
     def connectionLost(self, reason):
+        self.factory.db.commit()
         reactor.stop()
 
     def say(self, msg):
@@ -136,18 +137,16 @@ class CommanderFactory(protocol.ClientFactory):
         self.pluginsToRemove = []
 
         if 'db' in config:
-            engine = sqlalchemy.create_engine(config['db'])
+            print('Loading db from config: ' + config['db'])
+            self.db_engine = sqlalchemy.create_engine(config['db'])
         else:
-            engine = sqlalchemy.create_engine('sqlite:///:memory:')
-        self.DBSession = orm.sessionmaker(engine)
+            print('Using in-memory db')
+            self.db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
+        DBSession = orm.sessionmaker(self.db_engine)
+        self.db = DBSession()
 
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
             self.registerPlugin(plugin)
-
-    def buildProtocol(self, addr):
-        p = protocol.ClientFactory.buildProtocol(self, addr)
-        p.db = self.DBSession()
-        return p
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -159,6 +158,7 @@ class CommanderFactory(protocol.ClientFactory):
         """
         Registers a plugin.
         """
+        plugin.setup(self)
         self.plugins.append(plugin)
         self.plugins.sort()
         print 'registered plugin', plugin.name
