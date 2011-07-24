@@ -5,7 +5,8 @@ import yaml
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
-
+import sqlalchemy
+from sqlalchemy import orm
 from bravo.plugin import retrieve_plugins
 
 from hamper.interfaces import IPlugin
@@ -110,6 +111,7 @@ class CommanderProtocol(irc.IRCClient):
             self.factory.registerPlugin(p)
 
     def connectionLost(self, reason):
+        self.factory.db.commit()
         reactor.stop()
 
     def say(self, msg):
@@ -131,18 +133,26 @@ class CommanderFactory(protocol.ClientFactory):
 
     protocol = CommanderProtocol
 
-    def __init__(self, channel, nickname):
-        self.channel = channel
-        self.nickname = nickname
+    def __init__(self, config):
+        self.channel = config['channel']
+        self.nickname = config['nickname']
 
         self.history = {}
-
         self.plugins = []
         # These are so plugins can be added/removed at run time. The
         # addition/removal will happen at a time when the list isn't being
         # iterated, so nothing breaks.
         self.pluginsToAdd = []
         self.pluginsToRemove = []
+
+        if 'db' in config:
+            print('Loading db from config: ' + config['db'])
+            self.db_engine = sqlalchemy.create_engine(config['db'])
+        else:
+            print('Using in-memory db')
+            self.db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
+        DBSession = orm.sessionmaker(self.db_engine)
+        self.db = DBSession()
 
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
             self.registerPlugin(plugin)
@@ -157,6 +167,7 @@ class CommanderFactory(protocol.ClientFactory):
         """
         Registers a plugin.
         """
+        plugin.setup(self)
         self.plugins.append(plugin)
         self.plugins.sort()
         print 'registered plugin', plugin.name

@@ -9,6 +9,11 @@ class IPlugin(Interface):
     name = Attribute('Human readable name for the plugin.')
     priority = Attribute('Priority of plugins. High numbers are called first')
 
+    def setup(factory):
+        """
+        Called when the factory loads the plugin.
+        """
+
     def process(bot, comm):
         """
         Called when a matching message comes in to the bot.
@@ -34,6 +39,9 @@ class Command(object):
             opts = 0 if self.caseSensitive else re.I
             self.regex = re.compile(self.regex, opts)
 
+    def setup(self, factory):
+        pass
+
     def process(self, bot, comm):
         if self.onlyDirected and not comm['directed']:
             return
@@ -42,5 +50,5 @@ class Command(object):
             self.command(bot, comm, match.groups())
             return True
 
-    def command(self, comm, groups):
+    def command(self, bot, comm, groups):
         pass

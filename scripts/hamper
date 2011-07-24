@@ -19,5 +19,5 @@ if __name__ == '__main__':
             sys.exit();
 
     reactor.connectTCP(config['server'], config['port'],
-            CommanderFactory(config['channel'], config['nickname']))
+            CommanderFactory(config))
     reactor.run()

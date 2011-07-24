@@ -14,7 +14,7 @@ class Friendly(object):
     name = 'friendly'
     priority = 2
 
-    def __init__(self):
+    def setup(self, factory):
         self.greetings = ['hi', 'hello', 'hey']
 
     def process(self, bot, comm):
@@ -36,8 +36,9 @@ class OmgPonies(object):
 
     cooldown = 30 #seconds
 
-    def __init__(self):
+    def setup(self, factory):
         self.last_pony_time = datetime.now()
+        pass
 
     def process(self, bot, comm):
         if re.match(r'.*pon(y|ies).*', comm['message'], re.I):
