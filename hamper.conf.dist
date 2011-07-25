@@ -1,4 +1,5 @@
-nickname: hamper
-channel: #hamper
+nickname: cool_bot
+channel: #awesome-channel
 server: irc.freenode.net
 port: 6667
+db: "sqlite:///hamper.db"
