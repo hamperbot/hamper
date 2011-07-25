@@ -7,7 +7,7 @@ from hamper import version
 setup(name='hamper',
       version=version.encode('utf8'),
       description='Yet another IRC bot',
-      install_requires=['pyyaml', 'Twisted'],
+      install_requires=['pyyaml', 'Twisted', 'SQLAlchemy'],
       author='Mike Cooper',
       author_email='mythmon@gmail.com',
       url='https://www.github.com/hamperbot/hamper',

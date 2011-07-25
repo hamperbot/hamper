@@ -2,29 +2,62 @@ Hamper is an IRC bot to amuse us.
 
 Installation
 ============
-As of right now, you can't install hamper, unless you are clever.
+You can install the latest official version of hamper from the [Python Package
+Index][pypi]. I suggest using `pip`, but I am told `easy_install` will work as
+well.
+
+    sudo pip install hamper
+
+If you want the git version of hamper, then checkout out the develop branch,
+and run
+
+    sudo python setup.py install
+
+[pypi]: http://pypi.python.org/pypi
+
+Dependencies
+------------
+These dependencies will be taken care of automatically if you install with
+`pip`. They are only a concern if you install from git.
+
+-   Twisted
+-   SQLAlchemy
+-   PyYaml
+-   The plugin loader of [Bravo][bravo] (included)
+-   Exocet (included)
+
+[bravo]: https://github.com/MostAwesomeDude/bravo
 
 Configuration
 =============
-Make a file named `hamper.conf`. This should be a YAML file containing these,
-hopefully self-explanatory, fields:
+Make a file named `hamper.conf`. This should be a YAML file containing these
+fields:
 
 -   `nickname`
 -   `channel`
 -   `server`
 -   `port`
+-   `db` - A database URL as described [here][dburl]
 
 For an example check out `hamper.conf.dist`.
 
+[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
+
 Usage
 =====
-Then, with `hamper.conf` in your current directory and hamper on your python
-path, run `main.py`. I like to use this command
+Run hamper from a directory containing `hamper.conf`. If you installed it with
+pip, you can just say `hamper`, but if you are running from git, you need to
+make sure that hamper is on your python path. I like to use this command:
 
-    PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/main.py
+    PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/scripts/hamper
 
 ###Credits
 
+Code and design:
+
+-   Mike Cooper <mythmon@gmail.com>
+
+Ideas, but no code yet:
+
 -   Daniel Thornton <merthel@gmail.com>
 -   Jordan Evans <evans.jordan.m@gmail.com>
--   Mike Cooper <mythmon@gmail.com>
