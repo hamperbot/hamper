@@ -60,7 +60,6 @@ class PluginUtils(Command):
     def loadPlugin(self, bot, comm, *args):
         """Load a named plugin."""
         name = ' '.join(args[1:])
-t
         ps = bot.factory.plugins
         matched_plugins = [p for p in ps if p.name == name]
         if len(matched_plugins) != 0:

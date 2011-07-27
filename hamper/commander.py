@@ -1,8 +1,9 @@
 import sys
 import re
 from collections import deque
-import yaml
+import traceback
 
+import yaml
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 import sqlalchemy
@@ -75,10 +76,16 @@ class CommanderProtocol(irc.IRCClient):
         }
 
         # Plugins are already sorted by priority
+        stop = False
         for plugin in self.factory.plugins:
-            stop = plugin.process(self, comm)
-            if stop:
-                break
+            try:
+                stop = plugin.process(self, comm)
+                if stop:
+                    break
+            except:
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                traceback.print_tb(exc_traceback)
+
 
         #matchedPlugins = []
         #for cmd in self.factory.plugins:
