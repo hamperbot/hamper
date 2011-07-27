@@ -20,6 +20,8 @@ class PluginUtils(Command):
         dispatch = {
             'list': self.listPlugins,
             'reload': self.reloadPlugin,
+            'load': self.loadPlugin,
+            'unload': self.unloadPlugin,
         }
         print args
 
@@ -53,7 +55,37 @@ class PluginUtils(Command):
 
         bot.removePlugin(target_plugin)
         bot.addPlugin(new_plugin)
-        bot.say('Reloading {0}.'.format(new_plugin))
+        bot.msg(comm['channel'], 'Reloading {0}.'.format(new_plugin))
+
+    def loadPlugin(self, bot, comm, *args):
+        """Load a named plugin."""
+        name = ' '.join(args[1:])
+t
+        ps = bot.factory.plugins
+        matched_plugins = [p for p in ps if p.name == name]
+        if len(matched_plugins) != 0:
+            bot.msg(comm['channel'], "%s is already loaded." % name)
+            return
+
+        new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
+                'hamper.plugins', {'fresh': True})[0]
+        bot.addPlugin(new_plugin)
+        bot.msg(comm['channel'], 'Loading {0}.'.format(new_plugin))
+
+    def unloadPlugin(self, bot, comm, *args):
+        """Unload a named plugin."""
+        name = ' '.join(args[1:])
+
+        ps = bot.factory.plugins
+        matched_plugins = [p for p in ps if p.name == name]
+        if len(matched_plugins) == 0:
+            bot.msg(comm['channel'], "I can't find a plugin named %s!" % name)
+            return
+
+        target_plugin = matched_plugins[0]
+
+        bot.removePlugin(target_plugin)
+        bot.msg(comm['channel'], 'Unloading {0}.'.format(new_plugin))
 
 
 plugin_utils = PluginUtils()
