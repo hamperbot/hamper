@@ -53,5 +53,29 @@ class OmgPonies(object):
         return False
 
 
+class BotSnack(object):
+    """Reward a good bot."""
+    implements(IPlugin)
+
+    name = 'botsnack'
+    priority = 0
+
+    def setup(self, factory):
+        self.rewards = {
+            'botsnack': ['yummy', 'my favorite!'],
+            'goodhamper': ['^_^', ':D'],
+        }
+
+    def process(self, bot, comm):
+        slug = comm['message'].lower().replace(' ', '')
+        for k, v in self.rewards.items():
+            if k in slug:
+                bot.say(comm['channel'], random.choice(v))
+                return True
+
+        return False
+
+
 friendly = Friendly()
 omgponies = OmgPonies()
+botsnack = BotSnack()
