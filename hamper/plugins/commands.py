@@ -13,7 +13,7 @@ class QuitCommand(Command):
     regex = 'go away'
 
     def command(self, bot, comm, groups):
-        bot.say('Bye!')
+        bot.msg(comm['channel'], 'Bye!')
         bot.leaveChannel(comm['channel'])
         return True
 
@@ -37,7 +37,7 @@ class Sed(Command):
 
         key = comm['channel']
         if key not in bot.factory.history:
-            bot.say('Who are you?! How did you get in my house?!')
+            bot.msg(comm['channel'], 'Who are you?! How did you get in my house?!')
             return
 
         for hist in reversed(bot.factory.history[key]):
@@ -50,11 +50,11 @@ class Sed(Command):
 
             if usr_regex.search(hist['message']):
                 new_msg = usr_regex.sub(usr_replace, hist['message'], count)
-                bot.say('{0} actually meant: {1}'
+                bot.msg(comm['channel'], '{0} actually meant: {1}'
                         .format(hist['user'], new_msg))
                 break
         else:
-            bot.say("Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
+            bot.msg(comm['channel'], "Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
 
 class LetMeGoogleThatForYou(Command):
     """Link to the sarcastic letmegooglethatforyou.com."""
@@ -68,7 +68,7 @@ class LetMeGoogleThatForYou(Command):
         if comm['target']:
             target = comm['target'] + ': '
         args = groups[0].replace(' ', '+')
-        bot.say(target + 'http://lmgtfy.com/?q=' + args)
+        bot.msg(comm['channel'], target + 'http://lmgtfy.com/?q=' + args)
 
 lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()

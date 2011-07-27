@@ -24,27 +24,26 @@ class PluginUtils(Command):
         print args
 
         if len(args) == 0:
-            self.listPlugins(bot, *args)
+            self.listPlugins(bot, comm, *args)
             return True
 
         if args[0] in dispatch:
-            dispatch[args[0]](bot, *args)
+            dispatch[args[0]](bot, comm, *args)
             return True
 
-    def listPlugins(self, bot, *args):
+    def listPlugins(self, bot, comm, *args):
         """Reply with a list of all currently loaded plugins."""
-        bot.say('Loaded Plugins: {0}.'.format(
+        bot.msg(comm['channel'], 'Loaded Plugins: {0}.'.format(
             ', '.join([c.name for c in bot.factory.plugins])))
 
-    def reloadPlugin(self, bot, *args):
+    def reloadPlugin(self, bot, comm, *args):
         """Reload a named plugin."""
         name = ' '.join(args[1:])
 
         ps = bot.factory.plugins
-
         matched_plugins = [p for p in ps if p.name == name]
         if len(matched_plugins) == 0:
-            bot.say("I can't find a plugin named %s!" % name)
+            bot.msg(comm['channel'], "I can't find a plugin named %s!" % name)
             return
 
         target_plugin = matched_plugins[0]

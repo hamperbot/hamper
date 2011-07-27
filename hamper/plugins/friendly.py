@@ -15,14 +15,14 @@ class Friendly(object):
     priority = 2
 
     def setup(self, factory):
-        self.greetings = ['hi', 'hello', 'hey']
+        self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola']
 
     def process(self, bot, comm):
         if not comm['directed']:
             return
 
         if comm['message'].strip() in self.greetings:
-            bot.say('{0} {1[user]}'
+            bot.msg(comm['channel'], '{0} {1[user]}'
                 .format(random.choice(self.greetings), comm))
             return True
 
@@ -38,14 +38,13 @@ class OmgPonies(object):
 
     def setup(self, factory):
         self.last_pony_time = datetime.now()
-        pass
 
     def process(self, bot, comm):
         if re.match(r'.*pon(y|ies).*', comm['message'], re.I):
             now = datetime.now()
             since_last_pony = now - self.last_pony_time
             if since_last_pony.total_seconds() >= self.cooldown:
-                bot.say('OMG!!! PONIES!!!')
+                bot.msg(comm['channel'], 'OMG!!! PONIES!!!')
                 self.last_pony_time = now
             else:
                 print('too many ponies')

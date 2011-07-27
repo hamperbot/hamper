@@ -33,17 +33,18 @@ class Quotes(Command):
             index = random.randrange(0, bot.db.query(Quote).count() + 1)
             quote = bot.factory.db.query(Quote)[index]
             # Lame twisted irc doesn't support unicode.
-            bot.say(str(quote.text))
+            bot.msg(comm['channel'], str(quote.text))
         elif args[0] == '--args':
             # Add a quote
             text = ' '.join(args[1:])
             quote = Quote(text, comm['user'])
             bot.factory.db.add(quote)
-            bot.say('Succesfully added quote.')
+            bot.msg(comm['channel'], 'Succesfully added quote.')
         elif args[0] == '--count':
-            bot.say('I know {0} quotes.'.format(bot.db.query(Quote).count()))
+            count = bot.db.query(Quote).count()
+            bot.msg(comm['channel'], 'I know {0} quotes.'.format(count))
         else:
-            bot.say('Wait, what?')
+            bot.msg(comm['channel'], 'Wait, what?')
 
 
 class Quote(SQLAlchemyBase):

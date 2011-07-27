@@ -24,11 +24,12 @@ class CommanderProtocol(irc.IRCClient):
     db = property(_get_db)
 
     def signedOn(self):
-        self.join(self.factory.channel)
+        for c in self.factory.channels:
+            self.join(c)
         print "Signed on as %s." % (self.nickname,)
 
     def joined(self, channel):
-        print "Joined %s." % (channel,)
+        print "Joined {}.".format(channel)
 
     def privmsg(self, user, channel, msg):
         """I received a message."""
@@ -114,9 +115,6 @@ class CommanderProtocol(irc.IRCClient):
         self.factory.db.commit()
         reactor.stop()
 
-    def say(self, msg):
-        self.msg(self.factory.channel, msg)
-
     def removePlugin(self, plugin):
         self.factory.pluginsToRemove.append(plugin)
 
@@ -134,7 +132,7 @@ class CommanderFactory(protocol.ClientFactory):
     protocol = CommanderProtocol
 
     def __init__(self, config):
-        self.channel = config['channel']
+        self.channels = config['channels']
         self.nickname = config['nickname']
 
         self.history = {}
