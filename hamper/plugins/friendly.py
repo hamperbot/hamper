@@ -42,8 +42,10 @@ class OmgPonies(object):
     def process(self, bot, comm):
         if re.match(r'.*pon(y|ies).*', comm['message'], re.I):
             now = datetime.now()
-            since_last_pony = now - self.last_pony_time
-            if since_last_pony.total_seconds() >= self.cooldown:
+            since_last = now - self.last_pony_time
+            since_last = since_last.seconds + 24*3600*since_last.days
+
+            if since_last >= self.cooldown:
                 bot.msg(comm['channel'], 'OMG!!! PONIES!!!')
                 self.last_pony_time = now
             else:
