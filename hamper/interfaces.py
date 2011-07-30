@@ -24,23 +24,66 @@ class IPlugin(Interface):
         """
 
 
-class Command(object):
-    """Specialized plugin to implement a simple command"""
+class Plugin(object):
+    """
+    Base class for a plugin.
+
+    If any of a classes children are Command classes, automatically call out to
+    them.
+    """
     implements(IPlugin)
 
     priority = 0
 
+    def __init__(self):
+        self.commands = []
+        for name in dir(self):
+            cls = self.__getattribute__(name)
+            try:
+                if ICommand.implementedBy(cls):
+                    self.commands.append(cls())
+            except (AttributeError, TypeError):
+                pass
+
+    def setup(self, factory):
+        pass
+
+    def process(self, bot, comm):
+        for cmd in self.commands:
+            stop = cmd.process(bot, comm)
+            if stop:
+                return stop
+
+
+class ICommand(Interface):
+    """Interface for a command."""
+
+    regex = Attribute('The regex to trigger this command for.')
+    caseSensitive = Attribute("The case sensitivity of the trigger regex.")
+    onlyDirected = Attribute("Only respond to command directed at the bot.")
+
+    def process(bot, comm):
+        """Chooses whether or not to trigger the command."""
+
+    def command(bot, comm, groups):
+        """This function gets called when the command is triggered."""
+
+
+class Command(object):
+    """
+    A convenience wrapper to implement a single command.
+
+    To use it, define a clas that inherits from Command inside a Plugin.
+    """
+    implements(ICommand)
+
     caseSensitive = False
-    regex = ''
     onlyDirected = True
 
     def __init__(self):
         if type(self.regex) == str:
             opts = 0 if self.caseSensitive else re.I
             self.regex = re.compile(self.regex, opts)
-
-    def setup(self, factory):
-        pass
 
     def process(self, bot, comm):
         if self.onlyDirected and not comm['directed']:
@@ -49,6 +92,3 @@ class Command(object):
         if match:
             self.command(bot, comm, match.groups())
             return True
-
-    def command(self, bot, comm, groups):
-        pass

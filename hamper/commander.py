@@ -86,23 +86,6 @@ class CommanderProtocol(irc.IRCClient):
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 traceback.print_tb(exc_traceback)
 
-
-        #matchedPlugins = []
-        #for cmd in self.factory.plugins:
-        #    match = cmd.regex.match(msg)
-        #    if match and (directed or (not cmd.onlyDirected)):
-        #        matchedPlugins.append((match, cmd))
-
-        ## High priority plugins first
-        #matchedPlugins.sort(key=lambda x: x[1].priority, reverse=True)
-
-        #for match, cmd in matchedPlugins:
-        #    proc_comm = comm.copy()
-        #    proc_comm.update({'groups': match.groups()})
-        #    if not cmd(self, proc_comm):
-        #        # The plugin asked us to not run any more.
-        #        break
-
         if not channel in self.factory.history:
             self.factory.history[channel] = deque(maxlen=100)
         self.factory.history[channel].append(comm)

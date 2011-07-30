@@ -4,12 +4,11 @@ from datetime import datetime
 
 from zope.interface import implements
 
-from hamper.interfaces import IPlugin
+from hamper.interfaces import Plugin
 
 
-class Friendly(object):
+class Friendly(Plugin):
     """Be polite. When people say hello, response."""
-    implements(IPlugin)
 
     name = 'friendly'
     priority = 2
@@ -27,9 +26,8 @@ class Friendly(object):
             return True
 
 
-class OmgPonies(object):
+class OmgPonies(Plugin):
     """The classics never die."""
-    implements(IPlugin)
 
     name = 'ponies'
     priority = 3
@@ -55,9 +53,8 @@ class OmgPonies(object):
         return False
 
 
-class BotSnack(object):
+class BotSnack(Plugin):
     """Reward a good bot."""
-    implements(IPlugin)
 
     name = 'botsnack'
     priority = 0
