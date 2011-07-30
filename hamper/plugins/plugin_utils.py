@@ -3,18 +3,18 @@ import re
 from zope.interface import implements
 from bravo import plugin
 
-from hamper.interfaces import Command, Plugin
+from hamper.interfaces import Command, Plugin, IPlugin
 
 
 class PluginUtils(Plugin):
 
     name = 'plugins'
-    priority = 0
-    regex = r'^plugins?\W+(.*)$'
 
     def process(self, bot, comm):
         if re.match('^plugins?', comm['message']):
             comm['message'] = comm['message'].split(' ', 1)[1]
+        super(PluginUtils, self).process(bot, comm)
+
 
     class ListPlugins(Command):
         regex = r'(^$)|(^list$)'

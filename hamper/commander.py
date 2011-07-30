@@ -83,8 +83,7 @@ class CommanderProtocol(irc.IRCClient):
                 if stop:
                     break
             except:
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_tb(exc_traceback)
+                traceback.print_exc()
 
         if not channel in self.factory.history:
             self.factory.history[channel] = deque(maxlen=100)
