@@ -4,3 +4,12 @@ port: 6667
 db: "sqlite:///hamper.db"
 
 channels: ["#awesome-channel", "#cool-channel"]
+plugins:
+    - quit
+    - sed
+    - lmgtfy
+    - friendly
+    - ponies
+    - botsnack
+    - plugins
+

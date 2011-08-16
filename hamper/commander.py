@@ -142,7 +142,8 @@ class CommanderFactory(protocol.ClientFactory):
         self.db = DBSession()
 
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
-            self.registerPlugin(plugin)
+            if plugin.name in config['plugins']:
+                self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
