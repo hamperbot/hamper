@@ -9,15 +9,10 @@ from hamper.interfaces import Command, Plugin, IPlugin
 class PluginUtils(Plugin):
 
     name = 'plugins'
-
-    def process(self, bot, comm):
-        if re.match('^plugins?', comm['message']):
-            comm['message'] = comm['message'].split(' ', 1)[1]
-        super(PluginUtils, self).process(bot, comm)
-
+    priority = 0
 
     class ListPlugins(Command):
-        regex = r'(^$)|(^list$)'
+        regex = r'^plugins?(?: list)?$'
 
         def command(self, bot, comm, groups):
             """Reply with a list of all currently loaded plugins."""
@@ -26,7 +21,7 @@ class PluginUtils(Plugin):
             return True
 
     class ReloadPlugins(Command):
-        regex = r'^reload (.*)$'
+        regex = r'^plugins? reload (.*)$'
         def command(self, bot, comm, groups):
             """Reload a named plugin."""
             name = groups[0]
@@ -49,7 +44,7 @@ class PluginUtils(Plugin):
             return True
 
     class LoadPlugin(Command):
-        regex = r'^load (.*)$'
+        regex = r'^plugins? load (.*)$'
         def command(self, bot, comm, groups):
             """Load a named plugin."""
             name = ' '.join(args[1:])
@@ -66,7 +61,7 @@ class PluginUtils(Plugin):
             return True
 
     class UnloadPlugin(Command):
-        regex = r'^unload (.*)$'
+        regex = r'^plugins? unload (.*)$'
         def unloadPlugin(self, bot, comm, groups):
             """Unload a named plugin."""
             name = groups[0]
