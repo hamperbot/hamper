@@ -50,6 +50,11 @@ pip, you can just say `hamper`, but if you are running from git, you need to
 make sure that hamper is on your python path. I like to use this command:
 
     PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/scripts/hamper
+    
+Plugin Development
+==================
+Read `hamper/plugins/friendly.py`. Add a file to `hamper/plugins`, and write
+plugins in it. Don't forget to create an instance of each one at the bottom.
 
 ###Credits
 
