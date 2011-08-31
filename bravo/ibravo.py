@@ -1,5 +1,4 @@
 from twisted.python.components import registerAdapter
-from twisted.web.resource import IResource
 from zope.interface import implements, invariant, Attribute, Interface
 
 from bravo.errors import InvariantException
@@ -449,8 +448,3 @@ class IAutomaton(IBravoPlugin):
         After this method is called, the automaton should not continue
         processing data; it needs to stop immediately.
         """
-
-class IWorldResource(IBravoPlugin, IResource):
-    """
-    Interface for a world specific web resource.
-    """

@@ -1,52 +1,82 @@
-from zope.interface import implements, Interface, Attribute
+import re
 
+from zope.interface import implements
 from bravo import plugin
 
-from hamper.plugins.commands import Plugin
-from hamper.IHamper import IPlugin
+from hamper.interfaces import Command, Plugin, IPlugin
 
 
 class PluginUtils(Plugin):
 
-    name = 'Plugin Utils'
-    regex = '^plugins?(.*)$'
+    name = 'plugins'
+    priority = 0
 
-    def __call__(self, commander, options):
+    class ListPlugins(Command):
+        regex = r'^plugins?(?: list)?$'
 
-        args = options['groups'][0].split(' ')
-        args = [a.strip() for a in args]
-        args = [a for a in args if a]
+        def command(self, bot, comm, groups):
+            """Reply with a list of all currently loaded plugins."""
+            bot.msg(comm['channel'], 'Loaded Plugins: {0}.'.format(
+                ', '.join([c.name for c in bot.factory.plugins])))
+            return True
 
-        dispatch = {
-            'list': self.listPlugins,
-            'reload': self.reloadPlugin,
-        }
+    class ReloadPlugins(Command):
+        regex = r'^plugins? reload (.*)$'
+        def command(self, bot, comm, groups):
+            """Reload a named plugin."""
+            name = groups[0]
 
-        dispatch[args[0]](commander, args[1:])
+            ps = bot.factory.plugins
+            matched_plugins = [p for p in ps if p.name == name]
+            if len(matched_plugins) == 0:
+                bot.msg(comm['channel'], "I can't find a plugin named {0}!"
+                    .format(name))
+                return False
 
-    def listPlugins(self, commander, args):
-        """Reply with a list of all currently loaded plugins."""
-        commander.say('Loaded Plugins: {0}.'.format(
-            ', '.join([c.name for c in commander.factory.plugins])))
+            target_plugin = matched_plugins[0]
+            # Fun fact: the fresh thing is just a dummy. It just can't be None
+            new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
+                    'hamper.plugins', {'fresh': True})[0]
 
-    def reloadPlugin(self, commander, args):
-        """Reload a named plugin."""
-        name = ' '.join(args)
+            bot.removePlugin(target_plugin)
+            bot.addPlugin(new_plugin)
+            bot.msg(comm['channel'], 'Reloading {0}.'.format(new_plugin))
+            return True
 
-        ps = commander.factory.plugins
+    class LoadPlugin(Command):
+        regex = r'^plugins? load (.*)$'
+        def command(self, bot, comm, groups):
+            """Load a named plugin."""
+            name = ' '.join(args[1:])
+            ps = bot.factory.plugins
+            matched_plugins = [p for p in ps if p.name == name]
+            if len(matched_plugins) != 0:
+                bot.msg(comm['channel'], "%s is already loaded." % name)
+                return False
 
-        matched_plugins = [p for p in ps if p.name == name]
-        if len(matched_plugins) == 0:
-            commander.say("I can't find a plugin named %s!" % name)
-            return
+            new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
+                    'hamper.plugins', {'fresh': True})[0]
+            bot.addPlugin(new_plugin)
+            bot.msg(comm['channel'], 'Loading {0}.'.format(new_plugin))
+            return True
 
-        target_plugin = matched_plugins[0]
-        # Fun fact: the fresh thing is just a dummy. It just can't be None
-        new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
-                'hamper.plugins', {'fresh': True})[0]
+    class UnloadPlugin(Command):
+        regex = r'^plugins? unload (.*)$'
+        def unloadPlugin(self, bot, comm, groups):
+            """Unload a named plugin."""
+            name = groups[0]
+            ps = bot.factory.plugins
+            matched_plugins = [p for p in ps if p.name == name]
+            if len(matched_plugins) == 0:
+                bot.msg(comm['channel'], "I can't find a plugin named {0}!"
+                    .format(name))
+                return False
 
-        commander.removePlugin(target_plugin)
-        commander.addPlugin(new_plugin)
-        commander.say('Request reload of {0}.'.format(new_plugin))
+            target_plugin = matched_plugins[0]
+
+            bot.removePlugin(target_plugin)
+            bot.msg(comm['channel'], 'Unloading {0}.'.format(new_plugin))
+            return True
+
 
 plugin_utils = PluginUtils()

@@ -13,11 +13,11 @@ if __name__ == '__main__':
 
     config = yaml.load(open('hamper.conf'))
 
-    for key in ['server', 'port', 'nickname', 'channel']:
+    for key in ['server', 'port', 'nickname', 'channels']:
         if (key not in config) or (not config[key]):
             print('You need to define {0} in the config file.'.format(key))
             sys.exit();
 
     reactor.connectTCP(config['server'], config['port'],
-            CommanderFactory(config['channel'], config['nickname']))
+            CommanderFactory(config))
     reactor.run()

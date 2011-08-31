@@ -3,112 +3,81 @@ import random
 
 from zope.interface import implements, Interface, Attribute
 
-from hamper.IHamper import IPlugin
+from hamper.interfaces import Command, Plugin
 
 
-class Plugin(object):
-
-    implements(IPlugin)
-
-    name = 'Generic Plugin'
-    onlyDirected = True
-    caseSensitive = False
-    regex = ''
-    priority = 0
-
-    def __call__(self, commander, options):
-        return True
-
-
-class Friendly(Plugin):
-    """Be polite. When people say hello, response."""
-
-    name = 'Friendly'
-    regex = '.*'
-    priority = 2
-
-    def __init__(self):
-        self.greetings = ['hi', 'hello', 'hey']
-
-    def __call__(self, commander, options):
-        if options['message'].strip() in self.greetings:
-            commander.say('{0} {1[user]}'
-                .format(random.choice(self.greetings), options))
-            return False
-
-        return True
-
-
-class QuitCommand(Plugin):
+class Quit(Plugin):
     """Know when hamper isn't wanted."""
+    name = 'quit'
 
-    name = 'Quit'
-    regex = 'go away'
+    class QuitCommand(Command):
+        regex = 'go away'
 
-    def __call__(self, commander, options):
-        commander.say('Bye!')
-        commander.quit()
+        def command(self, bot, comm, groups):
+            bot.msg(comm['channel'], 'Bye!')
+            bot.leaveChannel(comm['channel'])
+            return True
 
-
-class OmgPonies(Plugin):
-    """The classics never die."""
-
-    name = 'OMG!!! Ponies!!!'
-    regex = r'.*pon(y|ies).*'
-    onlyDirected = False
-
-    def __call__(self, commander, options):
-        commander.say('OMG!!! PONIES!!!')
 
 class Sed(Plugin):
     """To be honest, I feel strange in channels that don't have this."""
 
     name = 'sed'
-    regex = r'^!s/(.*)/(.*)/(g?i?)'
-    onlyDirected = False
     priority = -1
 
-    def __call__(self, commander, opts):
-        regex_opts = re.I if 'i' in opts['groups'][2] else 0
-        usr_regex = re.compile(opts['groups'][0], regex_opts)
-        usr_replace = opts['groups'][1]
+    class SedCommand(Command):
+        regex = r's/(.*)/(.*)/(g?i?m?)'
+        onlyDirected = False
 
-        key = opts['channel'] if opts['channel'] else opts['user']
+        def command(self, bot, comm, groups):
+            options = groups[2]
 
-        if key not in commander.factory.history:
-            commander.say('Who are you?! How did you get in my house?!')
-            return
+            regex_opts = re.I if 'i' in options else 0
+            usr_regex = re.compile(groups[0], regex_opts)
+            usr_replace = groups[1]
 
-        for comm in reversed(commander.factory.history[key]):
-            # Only look at our own, unless global was specified
-            if 'g' not in opts['groups'][2] and comm['user'] != opts['user']:
-                continue
-            # Don't look at other sed commands
-            if comm['message'].startswith('!s/'):
-                continue
-            if usr_regex.search(comm['message']):
-                new_msg = usr_regex.sub(usr_replace, comm['message'])
-                commander.say('{0} actually meant: {1}'
-                        .format(comm['user'], new_msg))
-                break
-        else:
-            commander.say("Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
+            g = 0 if 'g' in options else 1
+
+            key = comm['channel']
+            if key not in bot.factory.history:
+                bot.msg(comm['channel'], 'Who are you?! How did you get in my '
+                                         'house?!')
+                return False
+
+            for hist in reversed(bot.factory.history[key]):
+                if 'm' in options and hist['user'] != comm['user']:
+                    # Only look at the user's messages
+                    continue
+
+                # Don't look at other sed commands
+                if hist['directed'] and hist['message'].startswith('s/'):
+                    continue
+
+                if usr_regex.search(hist['message']):
+                    new_msg = usr_regex.sub(usr_replace, hist['message'], g)
+                    bot.msg(comm['channel'], '{0} actually meant: {1}'
+                            .format(hist['user'], new_msg))
+                    break
+            else:
+                bot.msg(comm['channel'],
+                    "Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
 
 class LetMeGoogleThatForYou(Plugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
 
     name = 'lmgtfy'
-    regex = '.*lmgtfy\s+(.*)'
-    onlyDirected = False
 
-    def __call__(self, commander, options):
-        target = ''
-        if options['target']:
-            target = options['target'] + ': '
-        commander.say(target + 'http://lmgtfy.com/?q=' + options['groups'][0])
+    class LMGTFYCommand(Command):
+        regex = '^lmgtfy\s+(.*)'
+        onlyDirected = False
+
+        def command(self, bot, comm, groups):
+            target = ''
+            if comm['target']:
+                target = comm['target'] + ': '
+            args = groups[0].replace(' ', '+')
+            bot.msg(comm['channel'], target + 'http://lmgtfy.com/?q=' + args)
 
 lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()
-omgponies = OmgPonies()
-quit = QuitCommand()
-hi = Friendly()
+quit = Quit()
