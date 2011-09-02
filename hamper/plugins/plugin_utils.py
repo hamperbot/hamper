@@ -47,15 +47,17 @@ class PluginUtils(Plugin):
         regex = r'^plugins? load (.*)$'
         def command(self, bot, comm, groups):
             """Load a named plugin."""
-            name = ' '.join(args[1:])
+            name = groups[0]
             ps = bot.factory.plugins
             matched_plugins = [p for p in ps if p.name == name]
             if len(matched_plugins) != 0:
                 bot.msg(comm['channel'], "%s is already loaded." % name)
                 return False
 
+            # Fun fact: the fresh thing is just a dummy. It just can't be None
             new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
                     'hamper.plugins', {'fresh': True})[0]
+
             bot.addPlugin(new_plugin)
             bot.msg(comm['channel'], 'Loading {0}.'.format(new_plugin))
             return True

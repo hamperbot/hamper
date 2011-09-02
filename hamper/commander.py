@@ -30,7 +30,7 @@ class CommanderProtocol(irc.IRCClient):
         print "Signed on as %s." % (self.nickname,)
 
     def joined(self, channel):
-        print "Joined {}.".format(channel)
+        print "Joined {0}.".format(channel)
 
     def privmsg(self, user, channel, msg):
         """I received a message."""
@@ -60,9 +60,9 @@ class CommanderProtocol(irc.IRCClient):
             msg = msg[1:]
             directed = True
 
-        if user:
+        try:
             user, mask = user.split('!', 1)
-        else:
+        except:
             mask = ''
 
         comm = {

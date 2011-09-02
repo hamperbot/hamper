@@ -35,7 +35,7 @@ class Quotes(Plugin):
         """Add a quote."""
         regex = r'^quotes? --add (.*)$'
         def command(self, bot, comm, groups):
-            text = ' '.join(groups[0])
+            text = groups[0]
             quote = Quote(text, comm['user'])
             bot.factory.db.add(quote)
             bot.msg(comm['channel'], 'Succesfully added quote.')

@@ -14,6 +14,10 @@ class Quit(Plugin):
         regex = 'go away'
 
         def command(self, bot, comm, groups):
+            if comm['pm']:
+                bot.msg(comm['channel'], "You can't do that from PM.")
+                return False
+
             bot.msg(comm['channel'], 'Bye!')
             bot.leaveChannel(comm['channel'])
             return True
