@@ -64,7 +64,7 @@ class PluginUtils(Plugin):
 
     class UnloadPlugin(Command):
         regex = r'^plugins? unload (.*)$'
-        def unloadPlugin(self, bot, comm, groups):
+        def command(self, bot, comm, groups):
             """Unload a named plugin."""
             name = groups[0]
             ps = bot.factory.plugins
@@ -77,7 +77,7 @@ class PluginUtils(Plugin):
             target_plugin = matched_plugins[0]
 
             bot.removePlugin(target_plugin)
-            bot.msg(comm['channel'], 'Unloading {0}.'.format(new_plugin))
+            bot.msg(comm['channel'], 'Unloading {0}.'.format(target_plugin))
             return True
 
 
