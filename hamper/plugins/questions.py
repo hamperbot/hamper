@@ -54,8 +54,7 @@ class Questions(Plugin):
             for resp, prob in self.responses:
                 r -= prob
                 if r < 0:
-                    bot.say(comm['channel'], '{0}: {1}'
-                            .format(comm['user'], resp))
+                    bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
                     return True
         return False
 

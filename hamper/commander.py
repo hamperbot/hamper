@@ -115,6 +115,12 @@ class CommanderProtocol(irc.IRCClient):
         # For now just quit.
         self.quit()
 
+    def reply(self, comm, message):
+        if comm['pm']:
+            self.msg(comm['user'], message)
+        else:
+            self.msg(comm['channel'], message)
+
 
 class CommanderFactory(protocol.ClientFactory):
 

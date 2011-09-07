@@ -18,7 +18,7 @@ class Quit(Plugin):
                 bot.msg(comm['channel'], "You can't do that from PM.")
                 return False
 
-            bot.msg(comm['channel'], 'Bye!')
+            bot.reply(comm, 'Bye!')
             bot.leaveChannel(comm['channel'])
             return True
 
@@ -44,8 +44,7 @@ class Sed(Plugin):
 
             key = comm['channel']
             if key not in bot.factory.history:
-                bot.msg(comm['channel'], 'Who are you?! How did you get in my '
-                                         'house?!')
+                bot.reply(comm, 'Who are you?! How did you get in my house?!')
                 return False
 
             for hist in reversed(bot.factory.history[key]):
@@ -59,12 +58,12 @@ class Sed(Plugin):
 
                 if usr_regex.search(hist['message']):
                     new_msg = usr_regex.sub(usr_replace, hist['message'], g)
-                    bot.msg(comm['channel'], '{0} actually meant: {1}'
-                            .format(hist['user'], new_msg))
+                    bot.reply(comm, '{0} actually meant: {1}'
+                                .format(hist['user'], new_msg))
                     break
             else:
-                bot.msg(comm['channel'],
-                    "Sorry, I couldn't match /{0}/.".format(usr_regex.pattern))
+                bot.reply(comm, "Sorry, I couldn't match /{0}/."
+                        .format(usr_regex.pattern))
 
 class LetMeGoogleThatForYou(Plugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
@@ -80,7 +79,7 @@ class LetMeGoogleThatForYou(Plugin):
             if comm['target']:
                 target = comm['target'] + ': '
             args = groups[0].replace(' ', '+')
-            bot.msg(comm['channel'], target + 'http://lmgtfy.com/?q=' + args)
+            bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
 
 lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()

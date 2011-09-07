@@ -21,7 +21,7 @@ class Friendly(Plugin):
             return
 
         if comm['message'].strip() in self.greetings:
-            bot.msg(comm['channel'], '{0} {1[user]}'
+            bot.reply(comm, '{0} {1[user]}'
                 .format(random.choice(self.greetings), comm))
             return True
 
@@ -44,7 +44,7 @@ class OmgPonies(Plugin):
             since_last = since_last.seconds + 24*3600*since_last.days
 
             if since_last >= self.cooldown:
-                bot.msg(comm['channel'], 'OMG!!! PONIES!!!')
+                bot.reply(comm, 'OMG!!! PONIES!!!')
                 self.last_pony_time = now
             else:
                 print('too many ponies')
@@ -69,7 +69,7 @@ class BotSnack(Plugin):
         slug = comm['message'].lower().replace(' ', '')
         for k, v in self.rewards.items():
             if k in slug:
-                bot.say(comm['channel'], random.choice(v))
+                bot.reply(comm, random.choice(v))
                 return True
 
         return False
