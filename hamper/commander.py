@@ -38,42 +38,45 @@ class CommanderProtocol(irc.IRCClient):
         """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
 
-    def privmsg(self, user, channel, msg):
+    def privmsg(self, raw_user, channel, raw_message):
         """Called when a message is received from a channel or user."""
-        print channel, user, msg
+        print channel, raw_user, raw_message
 
-        if not user:
+        if not raw_user:
             # ignore server messages
             return
 
         # This monster of a regex extracts msg and target from a message, where
         # the target may not be there, and the target is a valid irc name.
         # Valid ways to target someone are "<nick>: ..." and "<nick>, ..."
-        target, msg = re.match(
+        target, message = re.match(
             r'^(?:([a-z_\-\[\]\\^{}|`]' # First letter can't be a number
             '[a-z0-9_\-\[\]\\^{}|`]*)'  # The rest can be many things
             '[:,] )? *(.*)$',           # The actual message
-            msg, re.I).groups()
+            raw_message, re.I).groups()
 
         pm = channel == self.nickname
         if target:
             directed = target.lower() == self.nickname.lower()
         else:
             directed = False
-        if msg.startswith('!'):
-            msg = msg[1:]
+        if message.startswith('!'):
+            message = message[1:]
             directed = True
 
         try:
-            user, mask = user.split('!', 1)
+            user, mask = raw_user.split('!', 1)
         except:
+            user = raw_user
             mask = ''
 
         comm = {
+            'raw_message': raw_message,
+            'message': message,
+            'raw_user': raw_user,
             'user': user,
             'mask': mask,
             'target': target,
-            'message': msg,
             'channel': channel,
             'directed': directed,
             'pm': pm,

@@ -53,11 +53,11 @@ class Sed(Plugin):
                     continue
 
                 # Don't look at other sed commands
-                if hist['directed'] and hist['message'].startswith('s/'):
+                if hist['directed'] and hist['raw_message'].startswith('s/'):
                     continue
 
-                if usr_regex.search(hist['message']):
-                    new_msg = usr_regex.sub(usr_replace, hist['message'], g)
+                if usr_regex.search(hist['raw_message']):
+                    new_msg = usr_regex.sub(usr_replace, hist['raw_message'], g)
                     bot.reply(comm, '{0} actually meant: {1}'
                                 .format(hist['user'], new_msg))
                     break
