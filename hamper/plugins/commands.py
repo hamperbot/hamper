@@ -93,16 +93,15 @@ def roll(num, sides, add):
 class Dice(Plugin):
     """Random dice rolls!"""
     name = 'dice'
-    onlyDirected = True
-    priority = 3
-    regex = '((\d*)d)?(\d*)(\+(\d*))?'
+    priority = 0
 
     class DiceCommand(Command):
         onlyDirected = True
-        regex = '((\d*)d)?(\d*)(\+(\d*))?'
+        #regex = '^(\d*)d(?:ice)?(\d*)(\+(\d*))?$'
+        regex = '^(\d*)d(?:ice)?(\d*)\+?(\d*)$'
 
         def command(self, bot, com, groups):
-            _, num, sides,_, add = groups
+            num, sides, add = groups
 
             if not num:
                 num = 1
