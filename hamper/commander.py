@@ -2,6 +2,7 @@ import sys
 import re
 from collections import deque
 import traceback
+from fnmatch import fnmatch
 
 import yaml
 from twisted.words.protocols import irc
@@ -150,9 +151,11 @@ class CommanderFactory(protocol.ClientFactory):
         DBSession = orm.sessionmaker(self.db_engine)
         self.db = DBSession()
 
+        # Load all plugins mentioned in the config file. Allow globbing.
         for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
-            if plugin.name in config['plugins']:
-                self.registerPlugin(plugin)
+            for pattern in config['plugins']:
+                if fnmatch(plugin.name, pattern):
+                    self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
