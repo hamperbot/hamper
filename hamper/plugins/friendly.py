@@ -66,6 +66,8 @@ class BotSnack(Plugin):
         }
 
     def process(self, bot, comm):
+        if not comm['directed']:
+            return
         slug = comm['message'].lower().replace(' ', '')
         for k, v in self.rewards.items():
             if k in slug:
