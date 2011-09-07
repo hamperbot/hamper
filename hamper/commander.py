@@ -16,24 +16,29 @@ from hamper.interfaces import IPlugin
 class CommanderProtocol(irc.IRCClient):
     """Interacts with a single server, and delegates to the plugins."""
 
-    def _get_nickname(self):
+    ##### Properties #####
+    @property
+    def nickname(self):
         return self.factory.nickname
-    nickname = property(_get_nickname)
 
-    def _get_db(self):
+    @property
+    def db(self):
         return self.factory.db
-    db = property(_get_db)
+
+    ##### Twisted events #####
 
     def signedOn(self):
+        """Called after successfully signing on to the server."""
+        print "Signed on as %s." % (self.nickname,)
         for c in self.factory.channels:
             self.join(c)
-        print "Signed on as %s." % (self.nickname,)
 
     def joined(self, channel):
+        """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
 
     def privmsg(self, user, channel, msg):
-        """I received a message."""
+        """Called when a message is received from a channel or user."""
         print channel, user, msg
 
         if not user:
@@ -41,10 +46,8 @@ class CommanderProtocol(irc.IRCClient):
             return
 
         # This monster of a regex extracts msg and target from a message, where
-        # the target may not be there, and the target is a valid irc name.  A
-        # valid nickname consists of letters, numbers, _-[]\^{}|`, and cannot
-        # start with a number. Valid ways to target someone are "<nick>: ..."
-        # and "<nick>, ..."
+        # the target may not be there, and the target is a valid irc name.
+        # Valid ways to target someone are "<nick>: ..." and "<nick>, ..."
         target, msg = re.match(
             r'^(?:([a-z_\-\[\]\\^{}|`]' # First letter can't be a number
             '[a-z0-9_\-\[\]\\^{}|`]*)'  # The rest can be many things
@@ -75,9 +78,26 @@ class CommanderProtocol(irc.IRCClient):
             'pm': pm,
         }
 
+        self.dispatch(comm)
+
+        if not channel in self.factory.history:
+            self.factory.history[channel] = deque(maxlen=100)
+        self.factory.history[channel].append(comm)
+
+    def connectionLost(self, reason):
+        """Called when the connection is lost to the server."""
+        self.factory.db.commit()
+        reactor.stop()
+
+    ##### Hamper specific functions. #####
+
+    def dispatch(self, comm):
+        """Take a comm that has been parsed and dispatch it to plugins."""
+
         # Plugins are already sorted by priority
         stop = False
         for plugin in self.factory.plugins:
+            # If a plugin throws an exception, we should catch it gracefully.
             try:
                 stop = plugin.process(self, comm)
                 if stop:
@@ -85,30 +105,13 @@ class CommanderProtocol(irc.IRCClient):
             except:
                 traceback.print_exc()
 
-        if not channel in self.factory.history:
-            self.factory.history[channel] = deque(maxlen=100)
-        self.factory.history[channel].append(comm)
-
-        # We can't remove/add plugins while we are in the loop, so do it here.
-        while self.factory.pluginsToRemove:
-            p = self.factory.pluginsToRemove.pop()
-            print("Unloading " + repr(p))
-            self.factory.plugins.remove(p)
-
-        while self.factory.pluginsToAdd:
-            p = self.factory.pluginsToAdd.pop()
-            print('Loading ' + repr(p))
-            self.factory.registerPlugin(p)
-
-    def connectionLost(self, reason):
-        self.factory.db.commit()
-        reactor.stop()
-
     def removePlugin(self, plugin):
-        self.factory.pluginsToRemove.append(plugin)
+        print("Unloading %r" % plugin)
+        self.factory.plugins.remove(plugin)
 
     def addPlugin(self, plugin):
-        self.factory.pluginsToAdd.append(plugin)
+        print("Loading %r" % plugin)
+        self.factory.registerPlugin(plugin)
 
     def leaveChannel(self, channel):
         """Leave the specified channel."""
