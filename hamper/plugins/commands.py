@@ -81,6 +81,57 @@ class LetMeGoogleThatForYou(Plugin):
             args = groups[0].replace(' ', '+')
             bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
 
+def roll(num, sides, add):
+    """Rolls a die of sides sides, num times, sums them, and adds add"""
+    rolls = []
+    for i in range(num):
+        rolls.append(random.randint(1,sides))
+    rolls.append(add)
+    return rolls
+
+class Dice(Plugin):
+    """Random dice rolls!"""
+    name = 'dice'
+    priority = 0
+
+    class DiceCommand(Command):
+        onlyDirected = True
+        #regex = '^(\d*)d(?:ice)?(\d*)(\+(\d*))?$'
+        regex = '^(\d*)d(?:ice)?(\d*)\+?(\d*)$'
+
+        def command(self, bot, com, groups):
+            num, sides, add = groups
+
+            if not num:
+                num = 1
+            else:
+                num = int(num)
+
+            if not sides:
+                sides = 6
+            else:
+                sides = int (sides)
+
+            if not add:
+                add = 0
+            else:
+                add = int(add)
+
+            result = roll(num,sides,add)
+            output = ""
+            output += "%s: You rolled %sd%s+%s and got " %(com['user']
+                , num, sides, add)
+            if len(result) < 11:
+                # the last one is the constant to add
+                for die in result[:-1]:
+                    output += "%s, " % die
+            else:
+                output += "a lot of dice "
+
+            output += "for a total of %s" % sum(result)
+
+            bot.say(com['channel'], output)
 lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()
 quit = Quit()
+dice = Dice()
