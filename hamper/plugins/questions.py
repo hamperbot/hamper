@@ -1,11 +1,12 @@
-from random import random
+import random
 
-from hamper.interfaces import Plugin
+from hamper.interfaces import Plugin, Command
 
 
-class Questions(Plugin):
+class YesNoPlugin(Plugin):
 
-    name = 'questions'
+    name = 'yesno'
+    priority = -1
 
     def setup(self, *args):
         """
@@ -20,7 +21,7 @@ class Questions(Plugin):
             ('I think... Yes.', 'eq'), ('Maybe. Possibly. It could be.', 'eq'),
             ("No. No, I don't think so.", 'eq'), ("I don't know.", 'eq'),
             ('Ask again later.', 'eq/2'), ('Without a doubt.', 'eq/2'),
-            ('Heck yes!', 'eq/2'), ("I'm sorry, I was thinking of bananas", .01),
+            ('Heck yes!', 'eq/2'), ("I'm sorry, I was thinking of bananas", .03),
         ]
 
         total_prob = 0
@@ -50,7 +51,7 @@ class Questions(Plugin):
 
     def process(self, bot, comm):
         if comm['directed'] and comm['message'].strip()[-1] == '?':
-            r = random()
+            r = random.random()
             for resp, prob in self.responses:
                 r -= prob
                 if r < 0:
@@ -58,4 +59,56 @@ class Questions(Plugin):
                     return True
         return False
 
-questions = Questions()
+class ChoicesPlugin(Plugin):
+    """
+    Answers questions like "apples or bananas?" "this, that or the other
+    things", and "should I do homework or play videogames?"
+    """
+
+    name = "choices"
+    priority = 1
+
+    class ChoicesCommand(Command):
+        regex = r'^.* or .*$'
+
+        def command(self, bot, comm, groups):
+            choice = random.choice(self.parse(comm['message'])) + '.'
+            if random.random() <= 0.05:
+                choice = "Neither."
+            bot.reply(comm, '{0}: {1}'.format(comm['user'], choice))
+
+        @staticmethod
+        def parse(question):
+            """
+            Parses out choices in a 'or' based, possible comma-ed list.
+
+            >>> ChoicesPlugin.ChoicesCommand.parse('x or y?')
+            ['x', 'y']
+            >>> ChoicesPlugin.ChoicesCommand.parse('x, y or z?')
+            ['x', 'y', 'z']
+            >>> ChoicesPlugin.ChoicesCommand.parse('this thing, that thing or the other thing?')
+            ['this thing', 'that thing', 'the other thing']
+            >>> ChoicesPlugin.ChoicesCommand.parse('door or window?')
+            ['door', 'window']
+            >>> ChoicesPlugin.ChoicesCommand.parse('should i do homework or play video games?')
+            ['do homework', 'play video games']
+            """
+            # Handle things like "should ___ X or Y"
+            if question.lower().startswith('should'):
+                question = ' '.join(question.split()[2:])
+
+            question = question.strip('?')
+            # split on both ',' and ' or '
+            choices = question.split(',')
+            choices = sum((c.split(' or ') for c in choices), [])
+            # Get rid of empty strings
+            choices = filter(bool, (c.strip() for c in choices))
+            return choices
+
+
+yesno = YesNoPlugin()
+choices = ChoicesPlugin()
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
