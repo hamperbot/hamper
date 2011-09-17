@@ -9,9 +9,9 @@ from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 import sqlalchemy
 from sqlalchemy import orm
-from bravo.plugin import retrieve_plugins
+from bravo.plugin import retrieve_named_plugins, verify_plugin
 
-from hamper.interfaces import IPlugin
+from hamper.interfaces import *
 
 
 class CommanderProtocol(irc.IRCClient):
@@ -100,10 +100,10 @@ class CommanderProtocol(irc.IRCClient):
 
         # Plugins are already sorted by priority
         stop = False
-        for plugin in self.factory.plugins:
+        for plugin in self.factory.plugins['chat']:
             # If a plugin throws an exception, we should catch it gracefully.
             try:
-                stop = plugin.process(self, comm)
+                stop = plugin.message(self, comm)
                 if stop:
                     break
             except:
@@ -116,11 +116,6 @@ class CommanderProtocol(irc.IRCClient):
     def addPlugin(self, plugin):
         print("Loading %r" % plugin)
         self.factory.registerPlugin(plugin)
-
-    def leaveChannel(self, channel):
-        """Leave the specified channel."""
-        # For now just quit.
-        self.quit()
 
     def reply(self, comm, message):
         if comm['pm']:
@@ -138,12 +133,7 @@ class CommanderFactory(protocol.ClientFactory):
         self.nickname = config['nickname']
 
         self.history = {}
-        self.plugins = []
-        # These are so plugins can be added/removed at run time. The
-        # addition/removal will happen at a time when the list isn't being
-        # iterated, so nothing breaks.
-        self.pluginsToAdd = []
-        self.pluginsToRemove = []
+        self.plugins = {}
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -155,10 +145,9 @@ class CommanderFactory(protocol.ClientFactory):
         self.db = DBSession()
 
         # Load all plugins mentioned in the config file. Allow globbing.
-        for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
-            for pattern in config['plugins']:
-                if fnmatch(plugin.name, pattern):
-                    self.registerPlugin(plugin)
+        plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
+        for plugin in plugins:
+            self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -170,7 +159,24 @@ class CommanderFactory(protocol.ClientFactory):
         """
         Registers a plugin.
         """
+
+        plugin_types = {
+            "presence": IPresencePlugin,
+            "chat": IChatPlugin,
+            "population": IPopulationPlugin,
+        }
+
+        valid_types = ['baseplugin']
+        for t, interface in plugin_types.iteritems():
+            try:
+                if t not in self.plugins:
+                    self.plugins[t] = []
+                self.plugins[t].append(verify_plugin(interface, plugin))
+                self.plugins[t].sort()
+                valid_types.append(t)
+            except:
+                pass
+
         plugin.setup(self)
-        self.plugins.append(plugin)
-        self.plugins.sort()
-        print 'registered plugin', plugin.name
+
+        print 'registered plugin {0} as {1}'.format(plugin.name, valid_types)

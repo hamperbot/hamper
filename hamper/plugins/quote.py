@@ -4,15 +4,19 @@ import random
 from zope.interface import implements
 from sqlalchemy import Integer, String, Date, Column
 from sqlalchemy.ext.declarative import declarative_base
-import sqlalchemy
 
-from hamper.interfaces import Command, Plugin
+try:
+    import sqlalchemy
+except RuntimeWarning:
+    pass
+
+from hamper.interfaces import Command, ChatCommandPlugin
 
 
 SQLAlchemyBase = declarative_base()
 
 
-class Quotes(Plugin):
+class Quotes(ChatCommandPlugin):
     '''Remember quotes, and recall on demand.'''
 
     name = 'quotes'

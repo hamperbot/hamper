@@ -1,9 +1,9 @@
 import random
 
-from hamper.interfaces import Plugin, Command
+from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 
 
-class YesNoPlugin(Plugin):
+class YesNoPlugin(ChatPlugin):
 
     name = 'yesno'
     priority = -1
@@ -49,7 +49,7 @@ class YesNoPlugin(Plugin):
 
         self.responses = real_resp
 
-    def process(self, bot, comm):
+    def message(self, bot, comm):
         if comm['directed'] and comm['message'].strip()[-1] == '?':
             r = random.random()
             for resp, prob in self.responses:
@@ -59,7 +59,8 @@ class YesNoPlugin(Plugin):
                     return True
         return False
 
-class ChoicesPlugin(Plugin):
+
+class ChoicesPlugin(ChatCommandPlugin):
     """
     Answers questions like "apples or bananas?" "this, that or the other
     things", and "should I do homework or play videogames?"
@@ -108,6 +109,7 @@ class ChoicesPlugin(Plugin):
 
 yesno = YesNoPlugin()
 choices = ChoicesPlugin()
+
 
 if __name__ == '__main__':
     import doctest

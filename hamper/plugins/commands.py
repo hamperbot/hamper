@@ -3,15 +3,15 @@ import random
 
 from zope.interface import implements, Interface, Attribute
 
-from hamper.interfaces import Command, Plugin
+from hamper.interfaces import *
 
 
-class Quit(Plugin):
+class Quit(ChatCommandPlugin):
     """Know when hamper isn't wanted."""
     name = 'quit'
 
-    class QuitCommand(Command):
-        regex = 'go away'
+    class LeaveCommand(Command):
+        regex = '(go away)|(leave)|(part)'
 
         def command(self, bot, comm, groups):
             if comm['pm']:
@@ -19,11 +19,24 @@ class Quit(Plugin):
                 return False
 
             bot.reply(comm, 'Bye!')
-            bot.leaveChannel(comm['channel'])
+            bot.leave(comm['channel'])
             return True
 
 
-class Sed(Plugin):
+    class QuitCommand(Command):
+        regex = 'quit'
+
+        def command(self, bot, comm, groups):
+            if comm['pm']:
+                bot.msg(comm['channel'], "You can't do that from PM.")
+                return False
+
+            bot.reply(comm, 'Bye!')
+            bot.quit()
+            return True
+
+
+class Sed(ChatCommandPlugin):
     """To be honest, I feel strange in channels that don't have this."""
 
     name = 'sed'
@@ -65,7 +78,7 @@ class Sed(Plugin):
                 bot.reply(comm, "Sorry, I couldn't match /{0}/."
                         .format(usr_regex.pattern))
 
-class LetMeGoogleThatForYou(Plugin):
+class LetMeGoogleThatForYou(ChatCommandPlugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
 
     name = 'lmgtfy'
@@ -81,6 +94,7 @@ class LetMeGoogleThatForYou(Plugin):
             args = groups[0].replace(' ', '+')
             bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
 
+
 def roll(num, sides, add):
     """Rolls a die of sides sides, num times, sums them, and adds add"""
     rolls = []
@@ -89,7 +103,8 @@ def roll(num, sides, add):
     rolls.append(add)
     return rolls
 
-class Dice(Plugin):
+
+class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
     name = 'dice'
     priority = 0
@@ -131,6 +146,8 @@ class Dice(Plugin):
             output += "for a total of %s" % sum(result)
 
             bot.say(com['channel'], output)
+
+
 lmgtfy = LetMeGoogleThatForYou()
 sed = Sed()
 quit = Quit()

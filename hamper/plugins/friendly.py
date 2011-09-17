@@ -4,19 +4,20 @@ from datetime import datetime
 
 from zope.interface import implements
 
-from hamper.interfaces import Plugin
+from hamper.interfaces import ChatPlugin
 
 
-class Friendly(Plugin):
+class Friendly(ChatPlugin):
     """Be polite. When people say hello, response."""
 
     name = 'friendly'
     priority = 2
 
     def setup(self, factory):
-        self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola']
+        self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola', 'ping', 'pong']
 
-    def process(self, bot, comm):
+    def message(self, bot, comm):
+        print 'message get!'
         if not comm['directed']:
             return
 
@@ -26,7 +27,7 @@ class Friendly(Plugin):
             return True
 
 
-class OmgPonies(Plugin):
+class OmgPonies(ChatPlugin):
     """The classics never die."""
 
     name = 'ponies'
@@ -37,7 +38,7 @@ class OmgPonies(Plugin):
     def setup(self, factory):
         self.last_pony_time = datetime.now()
 
-    def process(self, bot, comm):
+    def message(self, bot, comm):
         if re.match(r'.*pon(y|ies).*', comm['message'], re.I):
             now = datetime.now()
             since_last = now - self.last_pony_time
@@ -53,7 +54,7 @@ class OmgPonies(Plugin):
         return False
 
 
-class BotSnack(Plugin):
+class BotSnack(ChatPlugin):
     """Reward a good bot."""
 
     name = 'botsnack'
@@ -65,7 +66,7 @@ class BotSnack(Plugin):
             'goodhamper': ['^_^', ':D'],
         }
 
-    def process(self, bot, comm):
+    def message(self, bot, comm):
         if not comm['directed']:
             return
         slug = comm['message'].lower().replace(' ', '')

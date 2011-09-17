@@ -7,16 +7,28 @@ class IPlugin(Interface):
     """Interface for a plugin.."""
 
     name = Attribute('Human readable name for the plugin.')
-    priority = Attribute('Priority of plugins. High numbers are called first')
 
     def setup(factory):
         """
         Called when the factory loads the plugin.
         """
 
-    def process(bot, comm):
+class Plugin(object):
+    implements(IPlugin)
+    name = "genericplugin"
+
+    def setup(self, factory):
+        pass
+
+
+class IChatPlugin(IPlugin):
+    """Interface for a chat plugin."""
+
+    priority = Attribute('Priority of plugins. High numbers are called first')
+
+    def message(bot, comm):
         """
-        Called when a matching message comes in to the bot.
+        Called when a message comes in to the bot.
 
         Return `True` if execution of plugins should stop after this. A return
         value of `False` or no return value (implicit `None`) will cause the
@@ -24,33 +36,42 @@ class IPlugin(Interface):
         """
 
 
-class Plugin(object):
+class ChatPlugin(Plugin):
     """
-    Base class for a plugin.
+    Base class for a chat plugin.
+    """
+    implements(IChatPlugin)
+
+    priority = 0
+
+    def message(self, bot, comm):
+        pass
+
+
+class ChatCommandPlugin(ChatPlugin):
+    """
+    Helper class for a ChatCommand plugin
 
     If any of a classes children are Command classes, automatically call out to
     them.
     """
-    implements(IPlugin)
 
-    priority = 0
+    def __init__(self, *args, **kwargs):
+        super(ChatCommandPlugin, self).__init__(*args, **kwargs)
 
-    def __init__(self):
         self.commands = []
         for name in dir(self):
             cls = self.__getattribute__(name)
             try:
                 if ICommand.implementedBy(cls):
-                    self.commands.append(cls())
+                    self.commands.append(cls(self))
             except (AttributeError, TypeError):
                 pass
 
-    def setup(self, factory):
-        pass
-
-    def process(self, bot, comm):
+    def message(self, bot, comm):
+        super(ChatCommandPlugin, self).message(bot, comm)
         for cmd in self.commands:
-            stop = cmd.process(bot, comm)
+            stop = cmd.message(bot, comm)
             if stop:
                 return stop
 
@@ -62,7 +83,7 @@ class ICommand(Interface):
     caseSensitive = Attribute("The case sensitivity of the trigger regex.")
     onlyDirected = Attribute("Only respond to command directed at the bot.")
 
-    def process(bot, comm):
+    def message(bot, comm):
         """Chooses whether or not to trigger the command."""
 
     def command(bot, comm, groups):
@@ -80,15 +101,81 @@ class Command(object):
     caseSensitive = False
     onlyDirected = True
 
-    def __init__(self):
+    def __init__(self, plugin):
+        self.plugin = plugin
         if type(self.regex) == str:
             opts = 0 if self.caseSensitive else re.I
             self.regex = re.compile(self.regex, opts)
 
-    def process(self, bot, comm):
+    def message(self, bot, comm):
         if self.onlyDirected and not comm['directed']:
             return
         match = self.regex.match(comm['message'])
         if match:
             self.command(bot, comm, match.groups())
             return True
+
+
+class IPresencePlugin(IPlugin):
+    """A plugin that gets events about the bot joining and leaving channels."""
+
+    def joined(channel):
+        """
+        Called when I finish joining a channel.
+
+        Channel has the starting character (# or &) intact.
+        """
+
+    def left(channel):
+        """
+        Called when I have left a channel.
+
+        Channel has the starting character (# or &) intact.
+        """
+
+    def signedOn():
+        """Called after sucesfully signing on to the server."""
+
+
+class PresencePlugin(Plugin):
+    implements(IPresencePlugin)
+
+    def joined(self, channel):
+        pass
+
+    def left(self, channel):
+        pass
+
+    def signedOn(self):
+        pass
+
+class IPopulationPlugin(IPlugin):
+    """A plugin that recieves events about the population of channels."""
+
+    def userJoined(user, channel):
+        """Called when I see another user joinging a channel."""
+
+    def userLeft(user, channe):
+        """Called when I see another user leaving a channel."""
+
+    def userQuit(user, quitMessage):
+        """Called when I see another user disconnect from the network."""
+
+    def userKicked(user, kickee, channel, kicker, message):
+        """Called when I see someone else being kicked from a channel."""
+
+
+class PopulationPlugin(Plugin):
+    implements(IPopulationPlugin)
+
+    def userJoined(self, user, channel):
+        pass
+
+    def userLeft(self, user, channe):
+        pass
+
+    def userQuit(self, user, quitMessage):
+        pass
+
+    def userKicked(self, user, kickee, channel, kicker, message):
+        pass

@@ -3,10 +3,10 @@ import re
 from zope.interface import implements
 from bravo import plugin
 
-from hamper.interfaces import Command, Plugin, IPlugin
+from hamper.interfaces import Command, ChatCommandPlugin, IPlugin
 
 
-class PluginUtils(Plugin):
+class PluginUtils(ChatCommandPlugin):
 
     name = 'plugins'
     priority = 0
