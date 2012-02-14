@@ -31,12 +31,19 @@ class CommanderProtocol(irc.IRCClient):
     def signedOn(self):
         """Called after successfully signing on to the server."""
         print "Signed on as %s." % (self.nickname,)
+        self.dispatch('presence', 'signedOn')
         for c in self.factory.channels:
             self.join(c)
 
     def joined(self, channel):
         """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
+        self.dispatch('presence', 'joined', channel)
+
+    def left(self, channel):
+        """Called after leaving a channel."""
+        print "Left {0}.".format(channel)
+        self.dispatch('presence', 'left', channel)
 
     def privmsg(self, raw_user, channel, raw_message):
         """Called when a message is received from a channel or user."""
@@ -82,7 +89,7 @@ class CommanderProtocol(irc.IRCClient):
             'pm': pm,
         }
 
-        self.dispatch(comm)
+        self.dispatch('chat', 'message', comm)
 
         if not channel in self.factory.history:
             self.factory.history[channel] = deque(maxlen=100)
@@ -93,17 +100,33 @@ class CommanderProtocol(irc.IRCClient):
         self.factory.db.commit()
         reactor.stop()
 
+    def userJoined(self, user, channel):
+        """Called when I see another user joining a channel."""
+        self.dispatch('population', 'userJoined', user, channel)
+
+    def userLeft(self, user, channel):
+        """Called when I see another user leaving a channel."""
+        self.dispatch('population', 'userLeft', user, channel)
+
+    def userQuit(self, user, quitmessage):
+        """Called when I see another user quitting."""
+        self.dispatch('population', 'userQuit', user, quitmessage)
+
+    def userKicked(self, kickee, channel, kicker, message):
+        """Called when I see another user get kicked."""
+        self.dispatch('population', 'userKicked', kickee, channel, kicker, message)
+
     ##### Hamper specific functions. #####
 
-    def dispatch(self, comm):
+    def dispatch(self, category, func, *args):
         """Take a comm that has been parsed and dispatch it to plugins."""
 
         # Plugins are already sorted by priority
         stop = False
-        for plugin in self.factory.plugins['chat']:
+        for plugin in self.factory.plugins[category]:
             # If a plugin throws an exception, we should catch it gracefully.
             try:
-                stop = plugin.message(self, comm)
+                stop = getattr(plugin, func)(self, *args)
                 if stop:
                     break
             except:

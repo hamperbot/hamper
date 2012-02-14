@@ -119,63 +119,63 @@ class Command(object):
 class IPresencePlugin(IPlugin):
     """A plugin that gets events about the bot joining and leaving channels."""
 
-    def joined(channel):
+    def joined(bot, channel):
         """
         Called when I finish joining a channel.
 
         Channel has the starting character (# or &) intact.
         """
 
-    def left(channel):
+    def left(bot, channel):
         """
         Called when I have left a channel.
 
         Channel has the starting character (# or &) intact.
         """
 
-    def signedOn():
+    def signedOn(bot):
         """Called after sucesfully signing on to the server."""
 
 
 class PresencePlugin(Plugin):
     implements(IPresencePlugin)
 
-    def joined(self, channel):
+    def joined(self, bot, channel):
         pass
 
-    def left(self, channel):
+    def left(self, bot, channel):
         pass
 
-    def signedOn(self):
+    def signedOn(self, bot):
         pass
 
 class IPopulationPlugin(IPlugin):
     """A plugin that recieves events about the population of channels."""
 
-    def userJoined(user, channel):
+    def userJoined(bot, user, channel):
         """Called when I see another user joinging a channel."""
 
-    def userLeft(user, channe):
+    def userLeft(bot, user, channe):
         """Called when I see another user leaving a channel."""
 
-    def userQuit(user, quitMessage):
+    def userQuit(bot, user, quitMessage):
         """Called when I see another user disconnect from the network."""
 
-    def userKicked(user, kickee, channel, kicker, message):
+    def userKicked(bot, kickee, channel, kicker, message):
         """Called when I see someone else being kicked from a channel."""
 
 
 class PopulationPlugin(Plugin):
     implements(IPopulationPlugin)
 
-    def userJoined(self, user, channel):
+    def userJoined(self, bot, user, channel):
         pass
 
-    def userLeft(self, user, channe):
+    def userLeft(self, bot, user, channe):
         pass
 
-    def userQuit(self, user, quitMessage):
+    def userQuit(self, bot, user, quitMessage):
         pass
 
-    def userKicked(self, user, kickee, channel, kicker, message):
+    def userKicked(self, bot, kickee, channel, kicker, message):
         pass
