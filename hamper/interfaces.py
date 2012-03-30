@@ -1,6 +1,8 @@
 import re
 
 from zope.interface import implements, Interface, Attribute
+from zope.interface.tests.test_verify import verifyClass
+from zope.interface.exceptions import DoesNotImplement
 
 
 class IPlugin(Interface):
@@ -38,11 +40,12 @@ class Plugin(object):
     def __init__(self):
         self.commands = []
         for name in dir(self):
-            cls = self.__getattribute__(name)
+            cls = getattr(self, name)
             try:
-                if ICommand.implementedBy(cls):
+                if verifyClass(ICommand, cls):
+                    print "Loading command {0}".format(cls)
                     self.commands.append(cls())
-            except (AttributeError, TypeError):
+            except (DoesNotImplement, TypeError, AttributeError):
                 pass
 
     def setup(self, factory):
