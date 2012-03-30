@@ -72,7 +72,9 @@ class ChoicesPlugin(Plugin):
         regex = r'^.* or .*$'
 
         def command(self, bot, comm, groups):
-            choice = random.choice(self.parse(comm['message'])) + '.'
+            choices = self.parse(comm['message'])
+            choice = random.choice(choices) + '.'
+            print choices
             if random.random() <= 0.05:
                 choice = "Neither."
             bot.reply(comm, '{0}: {1}'.format(comm['user'], choice))
