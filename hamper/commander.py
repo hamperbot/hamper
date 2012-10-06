@@ -2,118 +2,149 @@ import sys
 import re
 from collections import deque
 import traceback
+from fnmatch import fnmatch
 
 import yaml
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 import sqlalchemy
 from sqlalchemy import orm
-from bravo.plugin import retrieve_plugins
+from bravo.plugin import retrieve_named_plugins, verify_plugin
 
-from hamper.interfaces import IPlugin
+from hamper.interfaces import *
 
 
 class CommanderProtocol(irc.IRCClient):
     """Interacts with a single server, and delegates to the plugins."""
 
-    def _get_nickname(self):
+    ##### Properties #####
+    @property
+    def nickname(self):
         return self.factory.nickname
-    nickname = property(_get_nickname)
 
-    def _get_db(self):
+    @property
+    def db(self):
         return self.factory.db
-    db = property(_get_db)
+
+    ##### Twisted events #####
 
     def signedOn(self):
+        """Called after successfully signing on to the server."""
+        print "Signed on as %s." % (self.nickname,)
+        self.dispatch('presence', 'signedOn')
         for c in self.factory.channels:
             self.join(c)
-        print "Signed on as %s." % (self.nickname,)
 
     def joined(self, channel):
-        print "Joined {}.".format(channel)
+        """Called after successfully joining a channel."""
+        print "Joined {0}.".format(channel)
+        self.dispatch('presence', 'joined', channel)
 
-    def privmsg(self, user, channel, msg):
-        """I received a message."""
-        print channel, user, msg
+    def left(self, channel):
+        """Called after leaving a channel."""
+        print "Left {0}.".format(channel)
+        self.dispatch('presence', 'left', channel)
 
-        if not user:
+    def privmsg(self, raw_user, channel, raw_message):
+        """Called when a message is received from a channel or user."""
+        print channel, raw_user, raw_message
+
+        if not raw_user:
             # ignore server messages
             return
 
         # This monster of a regex extracts msg and target from a message, where
-        # the target may not be there, and the target is a valid irc name.  A
-        # valid nickname consists of letters, numbers, _-[]\^{}|`, and cannot
-        # start with a number. Valid ways to target someone are "<nick>: ..."
-        # and "<nick>, ..."
-        target, msg = re.match(
+        # the target may not be there, and the target is a valid irc name.
+        # Valid ways to target someone are "<nick>: ..." and "<nick>, ..."
+        target, message = re.match(
             r'^(?:([a-z_\-\[\]\\^{}|`]' # First letter can't be a number
             '[a-z0-9_\-\[\]\\^{}|`]*)'  # The rest can be many things
             '[:,] )? *(.*)$',           # The actual message
-            msg, re.I).groups()
+            raw_message, re.I).groups()
 
         pm = channel == self.nickname
         if target:
             directed = target.lower() == self.nickname.lower()
         else:
             directed = False
-        if msg.startswith('!'):
-            msg = msg[1:]
+        if message.startswith('!'):
+            message = message[1:]
             directed = True
 
-        if user:
-            user, mask = user.split('!', 1)
-        else:
+        try:
+            user, mask = raw_user.split('!', 1)
+        except:
+            user = raw_user
             mask = ''
 
         comm = {
+            'raw_message': raw_message,
+            'message': message,
+            'raw_user': raw_user,
             'user': user,
             'mask': mask,
             'target': target,
-            'message': msg,
             'channel': channel,
             'directed': directed,
             'pm': pm,
         }
 
-        # Plugins are already sorted by priority
-        stop = False
-        for plugin in self.factory.plugins:
-            try:
-                stop = plugin.process(self, comm)
-                if stop:
-                    break
-            except:
-                traceback.print_exc()
+        self.dispatch('chat', 'message', comm)
 
         if not channel in self.factory.history:
             self.factory.history[channel] = deque(maxlen=100)
         self.factory.history[channel].append(comm)
 
-        # We can't remove/add plugins while we are in the loop, so do it here.
-        while self.factory.pluginsToRemove:
-            p = self.factory.pluginsToRemove.pop()
-            print("Unloading " + repr(p))
-            self.factory.plugins.remove(p)
-
-        while self.factory.pluginsToAdd:
-            p = self.factory.pluginsToAdd.pop()
-            print('Loading ' + repr(p))
-            self.factory.registerPlugin(p)
-
     def connectionLost(self, reason):
+        """Called when the connection is lost to the server."""
         self.factory.db.commit()
         reactor.stop()
 
+    def userJoined(self, user, channel):
+        """Called when I see another user joining a channel."""
+        self.dispatch('population', 'userJoined', user, channel)
+
+    def userLeft(self, user, channel):
+        """Called when I see another user leaving a channel."""
+        self.dispatch('population', 'userLeft', user, channel)
+
+    def userQuit(self, user, quitmessage):
+        """Called when I see another user quitting."""
+        self.dispatch('population', 'userQuit', user, quitmessage)
+
+    def userKicked(self, kickee, channel, kicker, message):
+        """Called when I see another user get kicked."""
+        self.dispatch('population', 'userKicked', kickee, channel, kicker, message)
+
+    ##### Hamper specific functions. #####
+
+    def dispatch(self, category, func, *args):
+        """Take a comm that has been parsed and dispatch it to plugins."""
+
+        # Plugins are already sorted by priority
+        stop = False
+        for plugin in self.factory.plugins[category]:
+            # If a plugin throws an exception, we should catch it gracefully.
+            try:
+                stop = getattr(plugin, func)(self, *args)
+                if stop:
+                    break
+            except:
+                traceback.print_exc()
+
     def removePlugin(self, plugin):
-        self.factory.pluginsToRemove.append(plugin)
+        print("Unloading %r" % plugin)
+        self.factory.plugins.remove(plugin)
 
     def addPlugin(self, plugin):
-        self.factory.pluginsToAdd.append(plugin)
+        print("Loading %r" % plugin)
+        self.factory.registerPlugin(plugin)
 
-    def leaveChannel(self, channel):
-        """Leave the specified channel."""
-        # For now just quit.
-        self.quit()
+    def reply(self, comm, message):
+        if comm['pm']:
+            self.msg(comm['user'], message)
+        else:
+            self.msg(comm['channel'], message)
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -125,12 +156,7 @@ class CommanderFactory(protocol.ClientFactory):
         self.nickname = config['nickname']
 
         self.history = {}
-        self.plugins = []
-        # These are so plugins can be added/removed at run time. The
-        # addition/removal will happen at a time when the list isn't being
-        # iterated, so nothing breaks.
-        self.pluginsToAdd = []
-        self.pluginsToRemove = []
+        self.plugins = {}
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -141,9 +167,10 @@ class CommanderFactory(protocol.ClientFactory):
         DBSession = orm.sessionmaker(self.db_engine)
         self.db = DBSession()
 
-        for _, plugin in retrieve_plugins(IPlugin, 'hamper.plugins').items():
-            if plugin.name in config['plugins']:
-                self.registerPlugin(plugin)
+        # Load all plugins mentioned in the config file. Allow globbing.
+        plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
+        for plugin in plugins:
+            self.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -155,7 +182,24 @@ class CommanderFactory(protocol.ClientFactory):
         """
         Registers a plugin.
         """
+
+        plugin_types = {
+            "presence": IPresencePlugin,
+            "chat": IChatPlugin,
+            "population": IPopulationPlugin,
+        }
+
+        valid_types = ['baseplugin']
+        for t, interface in plugin_types.iteritems():
+            try:
+                if t not in self.plugins:
+                    self.plugins[t] = []
+                self.plugins[t].append(verify_plugin(interface, plugin))
+                self.plugins[t].sort()
+                valid_types.append(t)
+            except:
+                pass
+
         plugin.setup(self)
-        self.plugins.append(plugin)
-        self.plugins.sort()
-        print 'registered plugin', plugin.name
+
+        print 'registered plugin {0} as {1}'.format(plugin.name, valid_types)

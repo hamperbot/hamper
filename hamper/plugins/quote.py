@@ -4,15 +4,19 @@ import random
 from zope.interface import implements
 from sqlalchemy import Integer, String, Date, Column
 from sqlalchemy.ext.declarative import declarative_base
-import sqlalchemy
 
-from hamper.interfaces import Command, Plugin
+try:
+    import sqlalchemy
+except RuntimeWarning:
+    pass
+
+from hamper.interfaces import Command, ChatCommandPlugin
 
 
 SQLAlchemyBase = declarative_base()
 
 
-class Quotes(Plugin):
+class Quotes(ChatCommandPlugin):
     '''Remember quotes, and recall on demand.'''
 
     name = 'quotes'
@@ -28,24 +32,24 @@ class Quotes(Plugin):
             index = random.randrange(0, bot.db.query(Quote).count() + 1)
             quote = bot.factory.db.query(Quote)[index]
             # Lame twisted irc doesn't support unicode.
-            bot.msg(comm['channel'], str(quote.text))
+            bot.reply(comm, str(quote.text))
             return True
 
     class AddQuote(Command):
         """Add a quote."""
         regex = r'^quotes? --add (.*)$'
         def command(self, bot, comm, groups):
-            text = ' '.join(groups[0])
+            text = groups[0]
             quote = Quote(text, comm['user'])
             bot.factory.db.add(quote)
-            bot.msg(comm['channel'], 'Succesfully added quote.')
+            bot.reply(comm, 'Succesfully added quote.')
 
     class CountQuotes(Command):
         """Count how many quotes the bot knows."""
         regex = r'^quotes? --count$'
         def command(self, bot, comm, groups):
             count = bot.db.query(Quote).count()
-            bot.msg(comm['channel'], 'I know {0} quotes.'.format(count))
+            bot.reply(comm, 'I know {0} quotes.'.format(count))
 
 
 class Quote(SQLAlchemyBase):
