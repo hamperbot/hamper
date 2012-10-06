@@ -3,3 +3,6 @@
 .*.swo
 hamper.conf
 hamper.db
+bin/
+include/
+lib/

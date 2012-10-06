@@ -1,0 +1,4 @@
+PyYAML==3.10
+SQLAlchemy==0.7.9
+Twisted==12.2.0
+zope.interface==4.0.1
