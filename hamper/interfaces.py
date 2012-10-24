@@ -1,8 +1,10 @@
 import re
 
 from zope.interface import implements, Interface, Attribute
-from zope.interface.tests.test_verify import verifyClass
 from zope.interface.exceptions import DoesNotImplement
+from zope.interface.declarations import implementedBy
+
+from bravo.plugin import verify_plugin
 
 
 class IPlugin(Interface):
@@ -14,6 +16,7 @@ class IPlugin(Interface):
         """
         Called when the factory loads the plugin.
         """
+
 
 class Plugin(object):
     implements(IPlugin)
@@ -65,7 +68,7 @@ class ChatCommandPlugin(ChatPlugin):
         for name in dir(self):
             cls = getattr(self, name)
             try:
-                if verifyClass(ICommand, cls):
+                if 'ICommand' in implementedBy(cls):
                     print "Loading command {0}".format(cls)
                     self.commands.append(cls(self))
             except (DoesNotImplement, TypeError, AttributeError):

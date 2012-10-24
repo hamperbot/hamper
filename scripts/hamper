@@ -7,11 +7,13 @@ from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 
 from hamper.commander import CommanderFactory
+from hamper import log
 
 
 if __name__ == '__main__':
 
     config = yaml.load(open('hamper.conf'))
+    log.setup_logging()
 
     for key in ['server', 'port', 'nickname', 'channels']:
         if (key not in config) or (not config[key]):

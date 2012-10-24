@@ -1,17 +1,22 @@
-import sys
-import re
 from collections import deque
+import logging
+import re
 import traceback
-from fnmatch import fnmatch
 
-import yaml
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
+
+from zope.interface.exceptions import DoesNotImplement
+
 import sqlalchemy
 from sqlalchemy import orm
-from bravo.plugin import retrieve_named_plugins, verify_plugin
 
-from hamper.interfaces import *
+from bravo.plugin import retrieve_named_plugins, verify_plugin, PluginException
+
+from hamper.interfaces import IPlugin, IPresencePlugin, IChatPlugin, IPopulationPlugin
+
+
+log = logging.getLogger('hamper')
 
 
 class CommanderProtocol(irc.IRCClient):
@@ -30,7 +35,7 @@ class CommanderProtocol(irc.IRCClient):
 
     def signedOn(self):
         """Called after successfully signing on to the server."""
-        print "Signed on as %s." % (self.nickname,)
+        log.info("Signed on as %s.", self.nickname)
         self.dispatch('presence', 'signedOn')
         for c in self.factory.channels:
             self.join(c)
@@ -57,9 +62,9 @@ class CommanderProtocol(irc.IRCClient):
         # the target may not be there, and the target is a valid irc name.
         # Valid ways to target someone are "<nick>: ..." and "<nick>, ..."
         target, message = re.match(
-            r'^(?:([a-z_\-\[\]\\^{}|`]' # First letter can't be a number
-            '[a-z0-9_\-\[\]\\^{}|`]*)'  # The rest can be many things
-            '[:,] )? *(.*)$',           # The actual message
+            r'^(?:([a-z_\-\[\]\\^{}|`]'  # First letter can't be a number
+            '[a-z0-9_\-\[\]\\^{}|`]*)'   # The rest can be many things
+            '[:,] )? *(.*)$',            # The actual message
             raw_message, re.I).groups()
 
         pm = channel == self.nickname
@@ -98,7 +103,8 @@ class CommanderProtocol(irc.IRCClient):
     def connectionLost(self, reason):
         """Called when the connection is lost to the server."""
         self.factory.db.commit()
-        reactor.stop()
+        if reactor.running:
+            reactor.stop()
 
     def userJoined(self, user, channel):
         """Called when I see another user joining a channel."""
@@ -197,9 +203,12 @@ class CommanderFactory(protocol.ClientFactory):
                 self.plugins[t].append(verify_plugin(interface, plugin))
                 self.plugins[t].sort()
                 valid_types.append(t)
-            except:
+            except DoesNotImplement:
+                # This means this plugin does not declare to  be a `t`.
                 pass
+            except PluginException:
+                log.error('Plugin %s claims to be a %s, but is not!', plugin.name, t)
 
         plugin.setup(self)
 
-        print 'registered plugin {0} as {1}'.format(plugin.name, valid_types)
+        log.info('registered plugin %s as %s', plugin.name, valid_types)

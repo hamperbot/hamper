@@ -1,12 +1,7 @@
-import re
-
-from zope.interface import implements
-from bravo import plugin
-
-from hamper.interfaces import Command, Plugin
+from hamper.interfaces import Command, ChatCommandPlugin
 
 
-class ChannelUtils(Plugin):
+class ChannelUtils(ChatCommandPlugin):
 
     name = 'channelutils'
     priority = 0
