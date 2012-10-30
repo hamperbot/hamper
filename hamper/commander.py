@@ -89,7 +89,7 @@ class CommanderProtocol(irc.IRCClient):
 
         try:
             user, mask = raw_user.split('!', 1)
-        except:
+        except ValueError:
             user = raw_user
             mask = ''
 
@@ -146,7 +146,9 @@ class CommanderProtocol(irc.IRCClient):
                 stop = getattr(plugin, func)(self, *args)
                 if stop:
                     break
-            except:
+            except Exception:
+                # A plugin should not be able to crasht the bot.
+                # Catch and log all errors.
                 traceback.print_exc()
 
     def removePlugin(self, plugin):

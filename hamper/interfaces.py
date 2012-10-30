@@ -4,8 +4,6 @@ from zope.interface import implements, Interface, Attribute
 from zope.interface.exceptions import DoesNotImplement
 from zope.interface.declarations import implementedBy
 
-from bravo.plugin import verify_plugin
-
 
 class IPlugin(Interface):
     """Interface for a plugin.."""
@@ -154,6 +152,7 @@ class PresencePlugin(Plugin):
 
     def signedOn(self, bot):
         pass
+
 
 class IPopulationPlugin(IPlugin):
     """A plugin that recieves events about the population of channels."""

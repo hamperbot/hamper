@@ -1,6 +1,6 @@
-from zope.interface import implements, Interface, Attribute
+from hamper.interfaces import (ChatCommandPlugin, PresencePlugin,
+                               PopulationPlugin)
 
-from hamper.interfaces import *
 
 class Test(ChatCommandPlugin, PresencePlugin, PopulationPlugin):
     name = "test"

@@ -1,6 +1,3 @@
-import re
-
-from zope.interface import implements
 from bravo import plugin
 
 from hamper.interfaces import Command, ChatCommandPlugin, IPlugin
@@ -22,6 +19,7 @@ class PluginUtils(ChatCommandPlugin):
 
     class ReloadPlugins(Command):
         regex = r'^plugins? reload (.*)$'
+
         def command(self, bot, comm, groups):
             """Reload a named plugin."""
             name = groups[0]
@@ -45,6 +43,7 @@ class PluginUtils(ChatCommandPlugin):
 
     class LoadPlugin(Command):
         regex = r'^plugins? load (.*)$'
+
         def command(self, bot, comm, groups):
             """Load a named plugin."""
             name = groups[0]
@@ -64,6 +63,7 @@ class PluginUtils(ChatCommandPlugin):
 
     class UnloadPlugin(Command):
         regex = r'^plugins? unload (.*)$'
+
         def command(self, bot, comm, groups):
             """Unload a named plugin."""
             name = groups[0]

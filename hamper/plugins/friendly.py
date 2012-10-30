@@ -2,8 +2,6 @@ import random
 import re
 from datetime import datetime
 
-from zope.interface import implements
-
 from hamper.interfaces import ChatPlugin
 
 
@@ -33,7 +31,7 @@ class OmgPonies(ChatPlugin):
     name = 'ponies'
     priority = 3
 
-    cooldown = 30 #seconds
+    cooldown = 30  # Seconds
 
     def setup(self, factory):
         self.last_pony_time = datetime.now()
@@ -42,7 +40,7 @@ class OmgPonies(ChatPlugin):
         if re.match(r'.*pon(y|ies).*', comm['message'], re.I):
             now = datetime.now()
             since_last = now - self.last_pony_time
-            since_last = since_last.seconds + 24*3600*since_last.days
+            since_last = since_last.seconds + 24 * 60 * 60 * since_last.days
 
             if since_last >= self.cooldown:
                 bot.reply(comm, 'OMG!!! PONIES!!!')

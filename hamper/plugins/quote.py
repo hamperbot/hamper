@@ -1,14 +1,8 @@
 from datetime import datetime
 import random
 
-from zope.interface import implements
 from sqlalchemy import Integer, String, Date, Column
 from sqlalchemy.ext.declarative import declarative_base
-
-try:
-    import sqlalchemy
-except RuntimeWarning:
-    pass
 
 from hamper.interfaces import Command, ChatCommandPlugin
 
@@ -28,6 +22,7 @@ class Quotes(ChatCommandPlugin):
     class DeliverQuote(Command):
         """Deliver a quote."""
         regex = r'^quotes?$'
+
         def command(self, bot, comm, groups):
             index = random.randrange(0, bot.db.query(Quote).count() + 1)
             quote = bot.factory.db.query(Quote)[index]
@@ -38,6 +33,7 @@ class Quotes(ChatCommandPlugin):
     class AddQuote(Command):
         """Add a quote."""
         regex = r'^quotes? --add (.*)$'
+
         def command(self, bot, comm, groups):
             text = groups[0]
             quote = Quote(text, comm['user'])
@@ -47,6 +43,7 @@ class Quotes(ChatCommandPlugin):
     class CountQuotes(Command):
         """Count how many quotes the bot knows."""
         regex = r'^quotes? --count$'
+
         def command(self, bot, comm, groups):
             count = bot.db.query(Quote).count()
             bot.reply(comm, 'I know {0} quotes.'.format(count))

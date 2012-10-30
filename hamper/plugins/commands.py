@@ -1,9 +1,7 @@
 import re
 import random
 
-from zope.interface import implements, Interface, Attribute
-
-from hamper.interfaces import *
+from hamper.interfaces import Command, ChatCommandPlugin
 
 
 class Quit(ChatCommandPlugin):
@@ -21,7 +19,6 @@ class Quit(ChatCommandPlugin):
             bot.reply(comm, 'Bye!')
             bot.leave(comm['channel'])
             return True
-
 
     class QuitCommand(Command):
         regex = 'quit'
@@ -78,6 +75,7 @@ class Sed(ChatCommandPlugin):
                 bot.reply(comm, "Sorry, I couldn't match /{0}/."
                         .format(usr_regex.pattern))
 
+
 class LetMeGoogleThatForYou(ChatCommandPlugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
 
@@ -99,7 +97,7 @@ def roll(num, sides, add):
     """Rolls a die of sides sides, num times, sums them, and adds add"""
     rolls = []
     for i in range(num):
-        rolls.append(random.randint(1,sides))
+        rolls.append(random.randint(1, sides))
     rolls.append(add)
     return rolls
 
@@ -125,17 +123,16 @@ class Dice(ChatCommandPlugin):
             if not sides:
                 sides = 6
             else:
-                sides = int (sides)
+                sides = int(sides)
 
             if not add:
                 add = 0
             else:
                 add = int(add)
 
-            result = roll(num,sides,add)
-            output = ""
-            output += "%s: You rolled %sd%s+%s and got " %(com['user']
-                , num, sides, add)
+            result = roll(num, sides, add)
+            output = '%s: You rolled %sd%s+%s and got ' % (com['user'], num,
+                                                           sides, add)
             if len(result) < 11:
                 # the last one is the constant to add
                 for die in result[:-1]:

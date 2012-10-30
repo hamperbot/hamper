@@ -35,7 +35,7 @@ class YesNoPlugin(ChatPlugin):
                         evens.append((resp, 1))
                     else:
                         div = int(sp[1])
-                        evens.append((resp, 1.0/div))
+                        evens.append((resp, 1.0 / div))
 
             else:
                 real_resp.append((resp, prob))
@@ -45,7 +45,7 @@ class YesNoPlugin(ChatPlugin):
         # probability of a "eq/2" probability.
         share = (1 - total_prob) / sum(div for _, div in evens)
         for resp, divisor in evens:
-            real_resp.append((resp, share*divisor))
+            real_resp.append((resp, share * divisor))
 
         self.responses = real_resp
 
