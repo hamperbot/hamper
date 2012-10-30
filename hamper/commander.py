@@ -13,10 +13,21 @@ from sqlalchemy import orm
 
 from bravo.plugin import retrieve_named_plugins, verify_plugin, PluginException
 
+import hamper.config
+import hamper.log
 from hamper.interfaces import IPlugin, IPresencePlugin, IChatPlugin, IPopulationPlugin
 
 
 log = logging.getLogger('hamper')
+
+
+def main():
+    config = hamper.config.load()
+    hamper.log.setup_logging()
+
+    reactor.connectTCP(config['server'], config['port'],
+            CommanderFactory(config))
+    reactor.run()
 
 
 class CommanderProtocol(irc.IRCClient):
@@ -173,7 +184,7 @@ class CommanderFactory(protocol.ClientFactory):
         DBSession = orm.sessionmaker(self.db_engine)
         self.db = DBSession()
 
-        # Load all plugins mentioned in the config file. Allow globbing.
+        # Load all plugins mentioned in the configuration. Allow globbing.
         plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
         for plugin in plugins:
             self.registerPlugin(plugin)
