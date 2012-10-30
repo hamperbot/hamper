@@ -173,7 +173,11 @@ class CommanderFactory(protocol.ClientFactory):
         self.nickname = config['nickname']
 
         self.history = {}
-        self.plugins = {}
+        self.plugins = {
+            'presence': [],
+            'chat': [],
+            'population': [],
+        }
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -196,22 +200,22 @@ class CommanderFactory(protocol.ClientFactory):
         print "Could not connect: %s" % (reason,)
 
     def registerPlugin(self, plugin):
-        """
-        Registers a plugin.
-        """
+        """Registers a plugin."""
 
         plugin_types = {
-            "presence": IPresencePlugin,
-            "chat": IChatPlugin,
-            "population": IPopulationPlugin,
+            'presence': IPresencePlugin,
+            'chat': IChatPlugin,
+            'population': IPopulationPlugin,
         }
 
+        # Everything is, at least, a base plugin.
         valid_types = ['baseplugin']
+        # Loop through the types of plugins and check for implentation of each.
         for t, interface in plugin_types.iteritems():
             try:
-                if t not in self.plugins:
-                    self.plugins[t] = []
-                self.plugins[t].append(verify_plugin(interface, plugin))
+                verified_plugin = verify_plugin(interface, plugin)
+                # If the above succeeded, then `plugin` implementes `interface`.
+                self.plugins[t].append(verified_plugin)
                 self.plugins[t].sort()
                 valid_types.append(t)
             except DoesNotImplement:
