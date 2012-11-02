@@ -15,7 +15,6 @@ class Friendly(ChatPlugin):
         self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola', 'ping', 'pong']
 
     def message(self, bot, comm):
-        print 'message get!'
         if not comm['directed']:
             return
 

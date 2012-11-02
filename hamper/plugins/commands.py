@@ -1,7 +1,10 @@
 import re
 import random
 
+from zope.interface import implements
+
 from hamper.interfaces import Command, ChatCommandPlugin
+from hamper.plugins.help import IHelpfulCommand
 
 
 class Quit(ChatCommandPlugin):
@@ -9,7 +12,8 @@ class Quit(ChatCommandPlugin):
     name = 'quit'
 
     class LeaveCommand(Command):
-        regex = '(go away)|(leave)|(part)'
+        name = 'leave'
+        regex = 'leave'
 
         def command(self, bot, comm, groups):
             if comm['pm']:
@@ -35,13 +39,22 @@ class Quit(ChatCommandPlugin):
 
 class Sed(ChatCommandPlugin):
     """To be honest, I feel strange in channels that don't have this."""
-
     name = 'sed'
     priority = -1
 
     class SedCommand(Command):
+        name = 'sed'
         regex = r's/(.*)/(.*)/(g?i?m?)'
         onlyDirected = False
+
+        implements(IHelpfulCommand)
+        trigger = 's'
+        short_desc = 'Perform sed style find and replace.'
+        long_desc = ('Use like "!s/foo/bar/" to search for "foo" and replace it '
+                     'with "bar". \n'
+                     'Flags: Add these flags to the end of the command: \n'
+                     'm - Restrict the search to only your messages\n'
+                     'i - Case insensitive searching.')
 
         def command(self, bot, comm, groups):
             options = groups[2]
@@ -78,12 +91,19 @@ class Sed(ChatCommandPlugin):
 
 class LetMeGoogleThatForYou(ChatCommandPlugin):
     """Link to the sarcastic letmegooglethatforyou.com."""
-
     name = 'lmgtfy'
 
     class LMGTFYCommand(Command):
+        name = 'lmgtfy'
         regex = '^lmgtfy\s+(.*)'
         onlyDirected = False
+
+        implements(IHelpfulCommand)
+        trigger = 'lmgtfy'
+        short_desc = 'Show someone where to find something.'
+        long_desc = ('This command will be triggered at the beginning of a '
+                     'message to anyone, so you can use it like "Bob: lmgtfy '
+                     'rtfm" to show Bob how to search for "rtfm".')
 
         def command(self, bot, comm, groups):
             target = ''
@@ -93,24 +113,33 @@ class LetMeGoogleThatForYou(ChatCommandPlugin):
             bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
 
 
-def roll(num, sides, add):
-    """Rolls a die of sides sides, num times, sums them, and adds add"""
-    rolls = []
-    for i in range(num):
-        rolls.append(random.randint(1, sides))
-    rolls.append(add)
-    return rolls
-
-
 class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
     name = 'dice'
     priority = 0
 
+    @classmethod
+    def roll(cls, num, sides, add):
+        """Rolls a die of sides sides, num times, sums them, and adds add"""
+        rolls = []
+        for i in range(num):
+            rolls.append(random.randint(1, sides))
+        rolls.append(add)
+        return rolls
+
     class DiceCommand(Command):
-        onlyDirected = True
-        #regex = '^(\d*)d(?:ice)?(\d*)(\+(\d*))?$'
+        name = 'dice'
         regex = '^(\d*)d(?:ice)?(\d*)\+?(\d*)$'
+        onlyDirected = True
+
+        implements(IHelpfulCommand)
+        trigger = 'dice'
+        short_desc = 'Roll dice using d20 notation'
+        long_desc = ('Use like XdY+Z to roll X Y sided dice and add Z. Any '
+                     'number may be left off.\n'
+                     'Example: "!1d20+5" to roll a single twenty sided die and '
+                     'add 5 to the result. You don\'t have to direct this to '
+                     'the bot.')
 
         def command(self, bot, com, groups):
             num, sides, add = groups
@@ -130,7 +159,7 @@ class Dice(ChatCommandPlugin):
             else:
                 add = int(add)
 
-            result = roll(num, sides, add)
+            result = Dice.roll(num, sides, add)
             output = '%s: You rolled %sd%s+%s and got ' % (com['user'], num,
                                                            sides, add)
             if len(result) < 11:

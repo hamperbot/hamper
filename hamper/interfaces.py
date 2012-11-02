@@ -1,8 +1,12 @@
+import logging
 import re
 
 from zope.interface import implements, Interface, Attribute
 from zope.interface.exceptions import DoesNotImplement
 from zope.interface.declarations import implementedBy
+
+
+log = logging.getLogger('hamper.interfaces')
 
 
 class IPlugin(Interface):
@@ -11,14 +15,15 @@ class IPlugin(Interface):
     name = Attribute('Human readable name for the plugin.')
 
     def setup(factory):
-        """
-        Called when the factory loads the plugin.
-        """
+        """Called when the factory loads the plugin."""
 
 
 class Plugin(object):
     implements(IPlugin)
     name = "genericplugin"
+
+    def __init__(self):
+        self.commands = []
 
     def setup(self, factory):
         pass
@@ -40,9 +45,7 @@ class IChatPlugin(IPlugin):
 
 
 class ChatPlugin(Plugin):
-    """
-    Base class for a chat plugin.
-    """
+    """Base class for a chat plugin."""
     implements(IChatPlugin)
 
     priority = 0
@@ -59,15 +62,14 @@ class ChatCommandPlugin(ChatPlugin):
     them.
     """
 
-    def __init__(self, *args, **kwargs):
-        super(ChatCommandPlugin, self).__init__(*args, **kwargs)
+    def setup(self, *args, **kwargs):
+        super(ChatCommandPlugin, self).setup(*args, **kwargs)
 
-        self.commands = []
         for name in dir(self):
             cls = getattr(self, name)
             try:
-                if 'ICommand' in implementedBy(cls):
-                    print "Loading command {0}".format(cls)
+                if ICommand in implementedBy(cls):
+                    log.info("Loading command {0}".format(cls))
                     self.commands.append(cls(self))
             except (DoesNotImplement, TypeError, AttributeError):
                 pass
@@ -83,6 +85,7 @@ class ChatCommandPlugin(ChatPlugin):
 class ICommand(Interface):
     """Interface for a command."""
 
+    name = Attribute('The name of the command, for code purposes.')
     regex = Attribute('The regex to trigger this command for.')
     caseSensitive = Attribute("The case sensitivity of the trigger regex.")
     onlyDirected = Attribute("Only respond to command directed at the bot.")
