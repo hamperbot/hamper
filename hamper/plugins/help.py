@@ -1,9 +1,7 @@
+import re
 import logging
 
 from zope.interface import Interface, Attribute, implements
-from zope.interface.exceptions import DoesNotImplement
-
-from bravo.plugin import verify_plugin, PluginException
 
 from hamper.interfaces import Command, ChatCommandPlugin
 
@@ -33,19 +31,7 @@ class Help(ChatCommandPlugin):
 
     @classmethod
     def is_helpful(self, command):
-        try:
-            verify_plugin(IHelpfulCommand, command)
-            # If the above succeeded, then `command` implements
-            # `IHelpfulCommand`.
-            return True
-        except DoesNotImplement as e:
-            log.debug('{0} is not helpful'.format(command))
-            log.debug(e)
-            return False
-        except PluginException:
-            log.error('Command %s claims to be helpful, but is not!',
-                      type(command))
-            return False
+        return IHelpfulCommand(command, None) is not None
 
     @classmethod
     def helpful_commands(cls, bot):
@@ -57,9 +43,7 @@ class Help(ChatCommandPlugin):
             for plugin in plugins:
                 cls._command_cache.extend(plugin.commands)
 
-        log.debug(cls._command_cache)
         cls._command_cache = filter(cls.is_helpful, cls._command_cache)
-        log.debug(cls._command_cache)
         return cls._command_cache
 
     class HelpMainMenu(Command):
@@ -98,5 +82,3 @@ class Help(ChatCommandPlugin):
 
             bot.reply(comm, '{0.name} - {0.short_desc}\n{0.long_desc}'
                             .format(command))
-
-help = Help()
