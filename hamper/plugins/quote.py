@@ -23,6 +23,12 @@ class Quotes(ChatCommandPlugin):
         """Deliver a quote."""
         regex = r'^quotes?$'
 
+        name = 'quote'
+        short_desc = 'quote - Show, add, or count quotes.'
+        long_desc = ('quote - Show a quote\n'
+                     'quote --add QUOTE - Add a quote\n'
+                     'quote --count - Count quotes\n')
+
         def command(self, bot, comm, groups):
             index = random.randrange(0, bot.db.query(Quote).count() + 1)
             quote = bot.factory.db.query(Quote)[index]

@@ -23,6 +23,14 @@ class PluginUtils(ChatCommandPlugin):
     class ListPlugins(Command):
         regex = r'^plugins?(?: list)?$'
 
+        name = 'plugins'
+        short_desc = 'plugins subcommand - See extended help for more details.'
+        long_desc = ('Manipulate plugins\n'
+                     'list - List all loaded plugins\n'
+                     'reload name - Reload a plugin by name.\n'
+                     'unload name - Unload a plugin by name.\n'
+                     'load name - Load a plugin by name.\n')
+
         def command(self, bot, comm, groups):
             """Reply with a list of all currently loaded plugins."""
             plugins = PluginUtils.get_plugins(bot)

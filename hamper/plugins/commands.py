@@ -14,19 +14,6 @@ class Quit(ChatCommandPlugin):
     """Know when hamper isn't wanted."""
     name = 'quit'
 
-    class LeaveCommand(Command):
-        name = 'leave'
-        regex = 'leave'
-
-        def command(self, bot, comm, groups):
-            if comm['pm']:
-                bot.msg(comm['channel'], "You can't do that from PM.")
-                return False
-
-            bot.reply(comm, 'Bye!')
-            bot.leave(comm['channel'])
-            return True
-
     class QuitCommand(Command):
         regex = 'quit'
 
@@ -50,7 +37,7 @@ class Sed(ChatCommandPlugin):
         regex = r's/(.*)/(.*)/(g?i?m?)'
         onlyDirected = False
 
-        short_desc = '!s/find/replace/ - Perform sed style find and replace.'
+        short_desc = 's/find/replace/ - Perform sed style find and replace.'
         long_desc = ('Use like "!s/foo/bar/" to search for "foo" and replace it '
                      'with "bar". \n'
                      'Flags: Add these flags to the end of the command: \n'

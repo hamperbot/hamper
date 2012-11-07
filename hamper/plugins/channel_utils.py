@@ -9,6 +9,10 @@ class ChannelUtils(ChatCommandPlugin):
     class JoinCommand(Command):
         regex = r'^join (.*)$'
 
+        name = 'join'
+        short_desc = 'join #channel - Ask the bot to join a channel.'
+        long_desc = None
+
         def command(self, bot, comm, groups):
             """Join a channel, and say you did."""
             chan = groups[0]
@@ -28,6 +32,10 @@ class ChannelUtils(ChatCommandPlugin):
 
     class LeaveCommand(Command):
         regex = r'^leave (#?[-_a-zA-Z0-9])?$'
+
+        name = 'leave'
+        short_desc = 'leave [#channel] - Ask the bot to leave.'
+        long_desc = 'If channel is ommited, leave the current channel.'
 
         def command(self, bot, comm, groups):
             """Join a channel, and say you did."""

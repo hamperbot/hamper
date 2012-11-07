@@ -33,7 +33,7 @@ class Help(ChatCommandPlugin):
         name = 'help'
         regex = 'help$'
 
-        short_desc = '!help [command] - Show help for commands.'
+        short_desc = 'help [command] - Show help for commands.'
         long_desc = ('For detailed help on a command, say "!help command". '
                       'Some commands may not be listed. If you think they '
                       'should, poke the plugin author.')
