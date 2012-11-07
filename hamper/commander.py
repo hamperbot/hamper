@@ -147,13 +147,16 @@ class CommanderProtocol(irc.IRCClient):
                 if stop:
                     break
             except Exception:
-                # A plugin should not be able to crasht the bot.
+                # A plugin should not be able to crash the bot.
                 # Catch and log all errors.
                 traceback.print_exc()
 
     def removePlugin(self, plugin):
-        print("Unloading %r" % plugin)
-        self.factory.plugins.remove(plugin)
+        log.info("Unloading %r" % plugin)
+        for plugin_type, plugins in self.factory.plugins.items():
+            if plugin in plugins:
+                log.debug('plugin is a %s', plugin_type)
+                plugins.remove(plugin)
 
     def addPlugin(self, plugin):
         print("Loading %r" % plugin)
@@ -176,6 +179,7 @@ class CommanderFactory(protocol.ClientFactory):
 
         self.history = {}
         self.plugins = {
+            'base_plugin': [],
             'presence': [],
             'chat': [],
             'population': [],
@@ -208,6 +212,7 @@ class CommanderFactory(protocol.ClientFactory):
             'presence': IPresencePlugin,
             'chat': IChatPlugin,
             'population': IPopulationPlugin,
+            'base_plugin': IPlugin,
         }
 
         # Everything is, at least, a base plugin.

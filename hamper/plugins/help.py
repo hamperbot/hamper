@@ -1,21 +1,9 @@
-import re
-import logging
-
-from zope.interface import Interface, Attribute, implements
+import logging as _logging
 
 from hamper.interfaces import Command, ChatCommandPlugin
 
 
-log = logging.getLogger('hamper.commands.help')
-
-
-class IHelpfulCommand(Interface):
-    """Interface for a command."""
-
-    trigger = Attribute('The text string to tell the user to use to name '
-                        'this command.')
-    short_desc = Attribute('One line description of what a command does.')
-    long_desc = Attribute('Longer description of what a command does.')
+log = _logging.getLogger('hamper.commands.help')
 
 
 class Help(ChatCommandPlugin):
@@ -30,29 +18,22 @@ class Help(ChatCommandPlugin):
         self._command_cache = []
 
     @classmethod
-    def is_helpful(self, command):
-        return IHelpfulCommand(command, None) is not None
-
-    @classmethod
     def helpful_commands(cls, bot):
-        if cls._command_cache:
-            return cls._command_cache
-
-        cls._command_cache = []
+        commands = set()
         for kind, plugins in bot.factory.plugins.items():
-            for plugin in plugins:
-                cls._command_cache.extend(plugin.commands)
 
-        cls._command_cache = filter(cls.is_helpful, cls._command_cache)
-        return cls._command_cache
+            for plugin in plugins:
+                commands.update(plugin.commands)
+
+        for cmd in commands:
+            if getattr(cmd, 'short_desc', None) is not None:
+                yield cmd
 
     class HelpMainMenu(Command):
         name = 'help'
         regex = 'help$'
 
-        implements(IHelpfulCommand)
-        trigger = 'help [command]'
-        short_desc = 'Show help for commands.'
+        short_desc = '!help [command] - Show help for commands.'
         long_desc = ('For detailed help on a command, say "!help command". '
                       'Some commands may not be listed. If you think they '
                       'should, poke the plugin author.')
@@ -61,7 +42,7 @@ class Help(ChatCommandPlugin):
             commands = Help.helpful_commands(bot)
             response = ['Available commands']
             for command in commands:
-                response.append('{0.name} - {0.short_desc}'.format(command))
+                response.append('{0.short_desc}'.format(command))
             response = '\n'.join(response)
 
             bot.reply(comm, response)
@@ -80,5 +61,9 @@ class Help(ChatCommandPlugin):
                 comm.reply(comm, 'Unknown command')
                 return
 
-            bot.reply(comm, '{0.name} - {0.short_desc}\n{0.long_desc}'
-                            .format(command))
+            if command.short_desc:
+                bot.reply(comm, '{0.short_desc}'.format(command))
+                if command.long_desc:
+                    bot.reply(comm, '{0.long_desc}'.format(command))
+
+help = Help()

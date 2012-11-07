@@ -1,10 +1,13 @@
+import logging
 import re
 import random
 
 from zope.interface import implements
 
 from hamper.interfaces import Command, ChatCommandPlugin
-from hamper.plugins.help import IHelpfulCommand
+
+
+log = logging.getLogger('hamper.plugins')
 
 
 class Quit(ChatCommandPlugin):
@@ -47,9 +50,7 @@ class Sed(ChatCommandPlugin):
         regex = r's/(.*)/(.*)/(g?i?m?)'
         onlyDirected = False
 
-        implements(IHelpfulCommand)
-        trigger = 's'
-        short_desc = 'Perform sed style find and replace.'
+        short_desc = '!s/find/replace/ - Perform sed style find and replace.'
         long_desc = ('Use like "!s/foo/bar/" to search for "foo" and replace it '
                      'with "bar". \n'
                      'Flags: Add these flags to the end of the command: \n'
@@ -98,9 +99,7 @@ class LetMeGoogleThatForYou(ChatCommandPlugin):
         regex = '^lmgtfy\s+(.*)'
         onlyDirected = False
 
-        implements(IHelpfulCommand)
-        trigger = 'lmgtfy'
-        short_desc = 'Show someone where to find something.'
+        short_desc = 'lmgtfy - Show someone where to find something.'
         long_desc = ('This command will be triggered at the beginning of a '
                      'message to anyone, so you can use it like "Bob: lmgtfy '
                      'rtfm" to show Bob how to search for "rtfm".')
@@ -118,6 +117,10 @@ class Dice(ChatCommandPlugin):
     name = 'dice'
     priority = 0
 
+    def setup(self, *args, **kwargs):
+        super(Dice, self).setup(*args, **kwargs)
+        log.info('dice setup')
+
     @classmethod
     def roll(cls, num, sides, add):
         """Rolls a die of sides sides, num times, sums them, and adds add"""
@@ -132,9 +135,7 @@ class Dice(ChatCommandPlugin):
         regex = '^(\d*)d(?:ice)?(\d*)\+?(\d*)$'
         onlyDirected = True
 
-        implements(IHelpfulCommand)
-        trigger = 'dice'
-        short_desc = 'Roll dice using d20 notation'
+        short_desc = 'Dice - Roll dice by saying !XdY+Z.'
         long_desc = ('Use like XdY+Z to roll X Y sided dice and add Z. Any '
                      'number may be left off.\n'
                      'Example: "!1d20+5" to roll a single twenty sided die and '

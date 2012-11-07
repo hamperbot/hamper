@@ -66,11 +66,15 @@ class ChoicesPlugin(ChatCommandPlugin):
     things", and "should I do homework or play videogames?"
     """
 
-    name = "choices"
+    name = 'choices'
     priority = 1
 
     class ChoicesCommand(Command):
         regex = r'^.* or .*$'
+
+        name = 'choices'
+        short_desc = None
+        long_desc = None
 
         def command(self, bot, comm, groups):
             choices = self.parse(comm['message'])

@@ -12,7 +12,7 @@ class Friendly(ChatPlugin):
     priority = 2
 
     def setup(self, factory):
-        self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola', 'ping', 'pong']
+        self.greetings = ['hi', 'hello', 'hey', 'sup''yo', 'hola', 'ping', 'pong']
 
     def message(self, bot, comm):
         if not comm['directed']:
@@ -55,7 +55,7 @@ class BotSnack(ChatPlugin):
     """Reward a good bot."""
 
     name = 'botsnack'
-    priority = 0
+    priority = -1
 
     def setup(self, factory):
         self.rewards = {

@@ -1,6 +1,11 @@
+import logging
+
 from bravo import plugin
 
 from hamper.interfaces import Command, ChatCommandPlugin, IPlugin
+
+
+log = logging.getLogger('hamper.plugins.plugin_utils')
 
 
 class PluginUtils(ChatCommandPlugin):
@@ -8,13 +13,21 @@ class PluginUtils(ChatCommandPlugin):
     name = 'plugins'
     priority = 0
 
+    @classmethod
+    def get_plugins(cls, bot):
+        all_plugins = set()
+        for kind, plugins in bot.factory.plugins.items():
+            all_plugins.update(plugins)
+        return all_plugins
+
     class ListPlugins(Command):
         regex = r'^plugins?(?: list)?$'
 
         def command(self, bot, comm, groups):
             """Reply with a list of all currently loaded plugins."""
-            bot.reply(comm, 'Loaded Plugins: {0}.'.format(
-                ', '.join([c.name for c in bot.factory.plugins])))
+            plugins = PluginUtils.get_plugins(bot)
+            names = ', '.join(p.name for p in plugins)
+            bot.reply(comm, 'Loaded Plugins: {0}.'.format(names))
             return True
 
     class ReloadPlugins(Command):
@@ -24,8 +37,8 @@ class PluginUtils(ChatCommandPlugin):
             """Reload a named plugin."""
             name = groups[0]
 
-            ps = bot.factory.plugins
-            matched_plugins = [p for p in ps if p.name == name]
+            plugins = PluginUtils.get_plugins(bot)
+            matched_plugins = [p for p in plugins if p.name == name]
             if len(matched_plugins) == 0:
                 bot.reply(comm, "I can't find a plugin named {0}!"
                     .format(name))
@@ -47,8 +60,8 @@ class PluginUtils(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             """Load a named plugin."""
             name = groups[0]
-            ps = bot.factory.plugins
-            matched_plugins = [p for p in ps if p.name == name]
+            plugins = PluginUtils.get_plugins(bot)
+            matched_plugins = [p for p in plugins if p.name == name]
             if len(matched_plugins) != 0:
                 bot.reply(comm, "%s is already loaded." % name)
                 return False
@@ -67,8 +80,8 @@ class PluginUtils(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             """Unload a named plugin."""
             name = groups[0]
-            ps = bot.factory.plugins
-            matched_plugins = [p for p in ps if p.name == name]
+            plugins = PluginUtils.get_plugins(bot)
+            matched_plugins = [p for p in plugins if p.name == name]
             if len(matched_plugins) == 0:
                 bot.reply(comm, "I can't find a plugin named {0}!"
                     .format(name))

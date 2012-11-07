@@ -105,6 +105,11 @@ config = {
             'handlers': ['color'],
             'propogate': True,
             'level': 'DEBUG',
+        },
+        'bravo': {
+            'handlers': ['color'],
+            'propogate': True,
+            'level': 'DEBUG',
         }
     }
 }
