@@ -78,10 +78,15 @@ class ChoicesPlugin(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             choices = self.parse(comm['message'])
-            choice = random.choice(choices) + '.'
             print choices
             if random.random() <= 0.05:
-                choice = "Neither."
+                if len(choices) <= 2:
+                    choice = "Neither."
+                else:
+                    choice = "None of them."
+            else:
+                choice = random.choice(choices) + '.'
+
             bot.reply(comm, '{0}: {1}'.format(comm['user'], choice))
 
         @staticmethod
