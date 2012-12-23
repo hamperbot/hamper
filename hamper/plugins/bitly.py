@@ -38,8 +38,18 @@ class Bitly(ChatPlugin):
     def setup(self, factory):
         self.regex = re.compile(self.regex, re.VERBOSE|re.IGNORECASE|re.U)
         self.api_url = 'https://api-ssl.bitly.com/v3/shorten'
-        self.username = factory.config['bitly']['login']
-        self.api_key = factory.config['bitly']['api_key']
+        # Make sure they've configured the bitly config values.
+        try:
+            self.username = factory.config['bitly']['login']
+            self.api_key = factory.config['bitly']['api_key']
+        except KeyError:
+            print ('\nTo use the bitly plugin you need to set your bitly login\n'
+                   'and api_key in your config file.\n'
+                   'Example:\n'
+                   'bitly:\n'
+                   "    login: '123456789000'\n"
+                   "    api_key: '1234678901234567890123467890123456'\n")
+            quit()
 
     def message(self, bot, comm):
         match = self.regex.search(comm['message'])
