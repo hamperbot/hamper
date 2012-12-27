@@ -1,3 +1,7 @@
 *.pyc
 .*.swp
 .*.swo
+run
+hamper.conf
+venv/
+env/
