@@ -6,3 +6,6 @@ hamper.db
 bin/
 include/
 lib/
+run
+venv/
+env/
