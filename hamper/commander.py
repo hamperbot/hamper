@@ -176,6 +176,7 @@ class CommanderFactory(protocol.ClientFactory):
     def __init__(self, config):
         self.channels = config['channels']
         self.nickname = config['nickname']
+        self.config = config
 
         self.history = {}
         self.plugins = {
