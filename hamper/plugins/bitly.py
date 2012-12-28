@@ -38,6 +38,9 @@ class Bitly(ChatPlugin):
     def setup(self, factory):
         self.regex = re.compile(self.regex, re.VERBOSE|re.IGNORECASE|re.U)
         self.api_url = 'https://api-ssl.bitly.com/v3/shorten'
+        # If an exclude value is found in the url, than it will not be shortened
+        self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
+
         # Make sure they've configured the bitly config values.
         try:
             self.username = factory.config['bitly']['login']
@@ -58,6 +61,16 @@ class Bitly(ChatPlugin):
             # base url isn't % encoded, python 2.7 doesn't do this well, and I
             # couldn't figure it out.
             long_url = match.group(0)
+
+            # Only shorten urls which are longer than a bitly url (12 chars)
+            if len(long_url) <= 12:
+                return False
+
+            # Don't shorten url's which are in the exclude list
+            for item in self.excludes:
+                if item in long_url.lower():
+                    return False
+
             # Bitly requires a valid URI
             if not match.group('prot'):
                 long_url = 'http://' + long_url
