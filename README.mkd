@@ -1,36 +1,32 @@
-Hamper is an IRC bot to amuse us.
-
-If this looks like a dead project, check out the develop branch, where we do
-our day to day work. We are following [Git Flow][gitflow], so there won't be
-many commits on the master branch.
-
-[gitflow]: http://nvie.com/posts/a-successful-git-branching-model/
+Hamper is an IRC bot forked from a friend, and will be used to help mentor new
+students in Python.
 
 Installation
 ============
-You can install the latest official version of hamper from the [Python Package
-Index][pypi]. I suggest using `pip`, but I am told `easy_install` will work as
-well.
+Hamper has an official version in pip, however, for our purposes, you will want
+to grab the git version, so you can make changes to the code.
 
-    sudo pip install hamper
+Set up for Hamper is fairly easy. Set up instructions will be with
+[pip](http://pypi.python.org/pypi/pip). Pip is a python package installer and
+if you do not already have it, it should be easily available through most
+package managers.
 
-If you want the git version of hamper, then checkout out the develop branch,
-and run
-
-    sudo python setup.py install
-
-[pypi]: http://pypi.python.org/pypi
+For those that want to install dependencies inside the project instead of
+globally, you will need to install [virtualenv](http://pypi.python.org/pypi/virtualenv)
 
 Dependencies
 ------------
-These dependencies will be taken care of automatically if you install with
-`pip`. They are only a concern if you install from git.
 
 -   Twisted
 -   SQLAlchemy
 -   PyYaml
 -   The plugin loader of [Bravo][bravo] (included)
 -   Exocet (included)
+
+To install the current set of required dependencies:
+
+    cd hamper/
+    pip install -r requirements.txt
 
 [bravo]: https://github.com/MostAwesomeDude/bravo
 
@@ -45,30 +41,38 @@ fields:
 -   `port`
 -   `db` - A database URL as described [here][dburl]
 
-For an example check out `hamper.conf.dist`.
+For a place to start, you can copy hamper.conf.dist to hamper.conf and adjust it as needed.
 
 [dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
 Usage
 =====
-Run hamper from a directory containing `hamper.conf`. If you installed it with
-pip, you can just say `hamper`, but if you are running from git, you need to
-make sure that hamper is on your python path. I like to use this command:
+You need to make sure that hamper is on your python path.
 
-    PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/scripts/hamper
-    
+    PYTHONPATH="." python2 ./scripts/hamper
+
 Plugin Development
 ==================
 Read `hamper/plugins/friendly.py`. Add a file to `hamper/plugins`, and write
 plugins in it. Don't forget to create an instance of each one at the bottom.
 
+To get your changes added to the main repo:
+
+1. [Fork](https://help.github.com/articles/fork-a-repo) the repo.
+2. Make some [changes](http://git-scm.com/book/en/Git-Basics-Recording-Changes-to-the-Repository),
+   and commit them.
+3. Send a [pull request](https://help.github.com/articles/using-pull-requests)
+   and someone will take a look at the code. If it looks good and ready to add
+   to the main repo we'll merge it in.
+4. Huzzah, your change is now a part of our project, and you've contributed to
+   an open source project.
+
 ###Credits
 
-Code and design:
+Bot creator:
 
 -   Mike Cooper <mythmon@gmail.com>
 
-Ideas, but no code yet:
+LPMC Maintainer:
 
--   Daniel Thornton <merthel@gmail.com>
--   Jordan Evans <evans.jordan.m@gmail.com>
+-   Chance Zibolski <chance.zibolski@gmail.com>
