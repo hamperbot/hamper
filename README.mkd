@@ -41,7 +41,7 @@ fields:
 -   `port`
 -   `db` - A database URL as described [here][dburl]
 
-For a place to start, you can copy hamper.conf.dist to hamper.conf and adjust it as needed.
+For a place to start, you can copy `hamper.conf.dist` to `hamper.conf` and adjust it as needed.
 
 [dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
