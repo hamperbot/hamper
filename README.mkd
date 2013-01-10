@@ -40,7 +40,7 @@ Make a file named `hamper.conf`. This should be a YAML file containing these
 fields:
 
 -   `nickname`
--   `channel`
+-   `channels`
 -   `server`
 -   `port`
 -   `db` - A database URL as described [here][dburl]
@@ -67,6 +67,10 @@ plugins in it. Don't forget to create an instance of each one at the bottom.
 Code and design:
 
 -   Mike Cooper <mythmon@gmail.com>
+
+Docs fixes:
+
+-   Spencer Krum <krum.spenecr@gmail.com>
 
 Ideas, but no code yet:
 
