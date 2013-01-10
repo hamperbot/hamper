@@ -98,6 +98,28 @@ class LetMeGoogleThatForYou(ChatCommandPlugin):
             args = groups[0].replace(' ', '+')
             bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
 
+class Rot13(ChatCommandPlugin):
+    """Encode secret messages."""
+    name = 'rot13'
+
+    class Rot13Command(Command):
+        name = 'rot13'
+        regex = '^rot13\s+(.*)'
+        onlyDirected = False
+
+        short_desc = 'rot13 - Encodes string using rot13 cipher.'
+        long_desc = ('The rot13 cipher rotates every letter to the '
+                     'other side of the alphabet. Applying it twice '
+                     'returns the original string.\n'
+                     'Example: !rot13 science yields fpvrapr'
+                     ' and !rot13 fpvrapr yields science')
+
+        def command(self, bot, comm, groups):
+            target = ''
+            if comm['target']:
+                target = comm['target'] + ': '
+            args = groups[0].encode('rot13')
+            bot.reply(comm, target + args)
 
 class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
@@ -163,6 +185,7 @@ class Dice(ChatCommandPlugin):
 
 
 lmgtfy = LetMeGoogleThatForYou()
+rot13 = Rot13()
 sed = Sed()
 quit = Quit()
 dice = Dice()
