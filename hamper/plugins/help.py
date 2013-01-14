@@ -58,7 +58,7 @@ class Help(ChatCommandPlugin):
             try:
                 command = [c for c in commands if c.name == search][0]
             except IndexError:
-                comm.reply(comm, 'Unknown command')
+                bot.reply(comm, 'Unknown command')
                 return
 
             if command.short_desc:
