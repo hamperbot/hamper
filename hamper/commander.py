@@ -54,6 +54,7 @@ class CommanderProtocol(irc.IRCClient):
     def joined(self, channel):
         """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
+        # ask for the current list of users in the channel
         self.dispatch('presence', 'joined', channel)
 
     def left(self, channel):
@@ -132,6 +133,14 @@ class CommanderProtocol(irc.IRCClient):
     def userKicked(self, kickee, channel, kicker, message):
         """Called when I see another user get kicked."""
         self.dispatch('population', 'userKicked', kickee, channel, kicker, message)
+
+    def irc_RPL_NAMREPLY(self, prefix, params):
+        """Called when the server responds to my names request"""
+        self.dispatch('population', 'namesReply', prefix, params)
+
+    def irc_RPL_ENDOFNAMES(self, prefix, params):
+        """Called after the names request is finished"""
+        self.dispatch('population', 'namesEnd', prefix, params)
 
     ##### Hamper specific functions. #####
 
@@ -230,7 +239,7 @@ class CommanderFactory(protocol.ClientFactory):
                 # This means this plugin does not declare to  be a `t`.
                 pass
             except PluginException:
-                log.error('Plugin %s claims to be a %s, but is not!', plugin.name, t)
+                log.error('Plugin "%s" claims to be a %s, but is not!', plugin.name, t)
 
         plugin.setup(self)
 
