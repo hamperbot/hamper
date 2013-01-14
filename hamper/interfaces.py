@@ -141,7 +141,7 @@ class IPresencePlugin(IPlugin):
         """
 
     def signedOn(bot):
-        """Called after sucesfully signing on to the server."""
+        """Called after successfully signing on to the server."""
 
 
 class PresencePlugin(Plugin):
@@ -172,6 +172,12 @@ class IPopulationPlugin(IPlugin):
     def userKicked(bot, kickee, channel, kicker, message):
         """Called when I see someone else being kicked from a channel."""
 
+    def namesReply(bot, prefix, params):
+        """Called when the server responds to a names request"""
+
+    def namesEnd(bot, prefix, params):
+        """Called when the server finishes responding to a names request"""
+
 
 class PopulationPlugin(Plugin):
     implements(IPopulationPlugin)
@@ -186,4 +192,10 @@ class PopulationPlugin(Plugin):
         pass
 
     def userKicked(self, bot, kickee, channel, kicker, message):
+        pass
+
+    def namesReply(self, bot, prefix, params):
+        pass
+
+    def namesEnd(self, bot, prefix, params):
         pass
