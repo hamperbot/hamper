@@ -152,7 +152,8 @@ class CommanderProtocol(irc.IRCClient):
 
     def irc_RPL_ENDOFNAMES(self, prefix, params):
         """Called after the names request is finished"""
-        print self.factory.nicklist
+        # print self.factory.nicklist
+        pass
 
     ##### Hamper specific functions. #####
 
