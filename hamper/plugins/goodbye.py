@@ -16,12 +16,12 @@ class GoodBye(ChatPlugin):
         self.triggers = ['cya', 'bye', 'goodbye', 'good bye', 'farewell']
 
     def message(self, bot, comm):
-        if (any(trigger in comm['message'] for trigger in self.triggers) and
-                comm['target']):
+        if (any(trigger in comm['message'] for trigger in self.triggers)
+                and comm['target']):
 
-            # TODO: Change from factory.nicklist to seen plugin's Users
-            # attribute
-            if comm['target'] in bot.factory.nicklist:
+            # TODO: Make it check Seen.users to make sure the user being
+            # mentioned exists
+            if comm['target']:
                 response = random.choice(list(open(self.responses_file)))
                 bot.reply(comm, '{0[target]}: {1}'.format(comm, response))
                 return True
