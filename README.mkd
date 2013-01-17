@@ -1,47 +1,36 @@
-Hamper is an IRC bot forked from a friend, and will be used to help mentor new
-students in Python.
+Hamper is an IRC bot to amuse us.
 
-In regards to what it actually does; The important part is that its a IRC bot.
-[IRC](http://en.wikipedia.org/wiki/Internet_Relay_Chat) Bot's provide functionality
-to an IRC channel.
+If this looks like a dead project, check out the develop branch, where we do
+our day to day work. We are following [Git Flow][gitflow], so there won't be
+many commits on the master branch.
 
-Such functionality depends on the bot. In this case hamper:
-
-- Answers boolean/yes/no questions. Also answers 'or' questions.
-  - Eg: me: "Hamper: Is the world going to end?" Hamper: "No, no I dont think so".
-- Shortens long urls to [bit.ly urls](https://bitly.com/).
-- Stores quotes, for later.
-
-Theres a ton of functionality that can be added to the bot. Especially command
-wise. Its a very good way to get familiar with things, especially in a real project
-situation with other developers.
+[gitflow]: http://nvie.com/posts/a-successful-git-branching-model/
 
 Installation
 ============
-Hamper has an official version in pip, however, for our purposes, you will want
-to grab the git version, so you can make changes to the code.
+You can install the latest official version of hamper from the [Python Package
+Index][pypi]. I suggest using `pip`, but I am told `easy_install` will work as
+well.
 
-Set up for Hamper is fairly easy. Set up instructions will be with
-[pip](http://pypi.python.org/pypi/pip). Pip is a python package installer and
-if you do not already have it, it should be easily available through most
-package managers.
+    sudo pip install hamper
 
-For those that want to install dependencies inside the project instead of
-globally, you will need to install [virtualenv](http://pypi.python.org/pypi/virtualenv)
+If you want the git version of hamper, then checkout out the develop branch,
+and run
+
+    sudo python setup.py install
+
+[pypi]: http://pypi.python.org/pypi
 
 Dependencies
 ------------
+These dependencies will be taken care of automatically if you install with
+`pip`. They are only a concern if you install from git.
 
 -   Twisted
 -   SQLAlchemy
 -   PyYaml
 -   The plugin loader of [Bravo][bravo] (included)
 -   Exocet (included)
-
-To install the current set of required dependencies:
-
-    cd hamper/
-    pip install -r requirements.txt
 
 [bravo]: https://github.com/MostAwesomeDude/bravo
 
@@ -56,38 +45,34 @@ fields:
 -   `port`
 -   `db` - A database URL as described [here][dburl]
 
-For a place to start, you can copy `hamper.conf.dist` to `hamper.conf` and adjust it as needed.
+For an example check out `hamper.conf.dist`.
 
 [dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
 Usage
 =====
-You need to make sure that hamper is on your python path.
+Run hamper from a directory containing `hamper.conf`. If you installed it with
+pip, you can just say `hamper`, but if you are running from git, you need to
+make sure that hamper is on your python path. I like to use this command:
 
-    PYTHONPATH="." python2 ./scripts/hamper
-
+    PYTHONPATH="~/git/hamper" python2 ~/git/hamper/hamper/scripts/hamper
+    
 Plugin Development
 ==================
 Read `hamper/plugins/friendly.py`. Add a file to `hamper/plugins`, and write
 plugins in it. Don't forget to create an instance of each one at the bottom.
 
-To get your changes added to the main repo:
-
-1. [Fork](https://help.github.com/articles/fork-a-repo) the repo.
-2. Make some [changes](http://git-scm.com/book/en/Git-Basics-Recording-Changes-to-the-Repository),
-   and commit them.
-3. Send a [pull request](https://help.github.com/articles/using-pull-requests)
-   and someone will take a look at the code. If it looks good and ready to add
-   to the main repo we'll merge it in.
-4. Huzzah, your change is now a part of our project, and you've contributed to
-   an open source project.
-
 ###Credits
 
-Bot creator:
+Code and design:
 
 -   Mike Cooper <mythmon@gmail.com>
 
-LPMC Maintainer:
+Contributor(s):
 
 -   Chance Zibolski <chance.zibolski@gmail.com>
+
+Ideas, but no code yet:
+
+-   Daniel Thornton <merthel@gmail.com>
+-   Jordan Evans <evans.jordan.m@gmail.com>
