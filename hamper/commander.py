@@ -55,7 +55,6 @@ class CommanderProtocol(irc.IRCClient):
         """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
         # ask for the current list of users in the channel
-        self.names(channel)
         self.dispatch('presence', 'joined', channel)
 
     def left(self, channel):
@@ -135,25 +134,13 @@ class CommanderProtocol(irc.IRCClient):
         """Called when I see another user get kicked."""
         self.dispatch('population', 'userKicked', kickee, channel, kicker, message)
 
-    def names(self, channel):
-        """Sends the NAMES command to the IRC server."""
-        channel = channel.lower()
-        self.sendLine("NAMES %s" % channel)
-
     def irc_RPL_NAMREPLY(self, prefix, params):
         """Called when the server responds to my names request"""
-        channel = params[2]
-        nicks = params[3].split(' ')
-        for nick in nicks:
-            # Strip op status in name.
-            if nick[0] in ['#', '@']:
-                nick = nick[1:]
-            self.factory.nicklist.add(nick)
+        self.dispatch('population', 'namesReply', prefix, params)
 
     def irc_RPL_ENDOFNAMES(self, prefix, params):
         """Called after the names request is finished"""
-        # print self.factory.nicklist
-        pass
+        self.dispatch('population', 'namesEnd', prefix, params)
 
     ##### Hamper specific functions. #####
 
@@ -201,7 +188,6 @@ class CommanderFactory(protocol.ClientFactory):
         self.config = config
 
         self.history = {}
-        self.nicklist = set()
         self.plugins = {
             'base_plugin': [],
             'presence': [],
@@ -255,7 +241,7 @@ class CommanderFactory(protocol.ClientFactory):
                 # This means this plugin does not declare to  be a `t`.
                 pass
             except PluginException:
-                log.error('Plugin %s claims to be a %s, but is not!', plugin.name, t)
+                log.error('Plugin "%s" claims to be a %s, but is not!', plugin.name, t)
 
         plugin.setup(self)
 

@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class User(object):
 
     def __init__(self, nickname, seen=datetime.now()):
@@ -7,9 +8,8 @@ class User(object):
         # Default seen time is on creation.
         self.seen = seen
 
-    def seen(self):
+    def update_seen(self):
         self.seen = datetime.now()
 
     def __repr__(self):
         return self.nickname
-
