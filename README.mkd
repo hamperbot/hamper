@@ -5,21 +5,6 @@ Such functionality depends on the bot. In this case hamper:
 
 - Answers boolean/yes/no questions. Also answers 'or' questions.
   - Eg: me: "Hamper: Is the world going to end?" Hamper: "No, no I dont think so".
-- Shortens long urls to [bit.ly urls](https://bitly.com/).
-- Stores quotes, for later.
-
-Theres a ton of functionality that can be added to the bot. Especially command
-wise. Its a very good way to get familiar with things, especially in a real project
-situation with other developers.
-
-In regards to what it actually does; The important part is that its a IRC bot.
-[IRC](http://en.wikipedia.org/wiki/Internet_Relay_Chat) Bot's provide functionality
-to an IRC channel.
-
-Such functionality depends on the bot. In this case hamper:
-
-- Answers boolean/yes/no questions. Also answers 'or' questions.
-  - Eg: me: "Hamper: Is the world going to end?" Hamper: "No, no I dont think so".
   - Shortens long urls to [bit.ly urls](https://bitly.com/).
   - Stores quotes, for later.
 

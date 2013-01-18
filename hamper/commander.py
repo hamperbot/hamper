@@ -54,7 +54,6 @@ class CommanderProtocol(irc.IRCClient):
     def joined(self, channel):
         """Called after successfully joining a channel."""
         print "Joined {0}.".format(channel)
-        # ask for the current list of users in the channel
         self.dispatch('presence', 'joined', channel)
 
     def left(self, channel):
