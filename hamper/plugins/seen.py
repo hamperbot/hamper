@@ -106,9 +106,7 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
             elif user.seen:
                 time_format = 'at %I:%M %p on %b-%d'
                 seen = user.seen.strftime(time_format)
-                message = 'saying "%s"' % comm['message']
-                bot.reply(comm, 'Seen {0.nickname} {1} {2}'
-                          .format(user, seen, message))
+                bot.reply(comm, 'Seen {0.nickname} {1}'.format(user, seen))
             # if the user exists in the database, but has not been seen active
             # since the bot joined
             else:
