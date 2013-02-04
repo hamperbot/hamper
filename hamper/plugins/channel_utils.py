@@ -7,9 +7,9 @@ class ChannelUtils(ChatCommandPlugin):
     priority = 0
 
     class JoinCommand(Command):
+        name = 'join'
         regex = r'^join (.*)$'
 
-        name = 'join'
         short_desc = 'join #channel - Ask the bot to join a channel.'
         long_desc = None
 
@@ -21,19 +21,10 @@ class ChannelUtils(ChatCommandPlugin):
             bot.join(chan)
             bot.reply(comm, 'OK, {0}.'.format(comm['user']))
 
-        def process(self, bot, comm):
-            if self.onlyDirected and not comm['directed']:
-                return
-            match = self.regex.match(comm['message'])
-            print "JoinCommand match={0}".format(match)
-            if match:
-                self.command(bot, comm, match.groups())
-                return True
-
     class LeaveCommand(Command):
+        name = 'leave'
         regex = r'^leave (#?[-_a-zA-Z0-9])?$'
 
-        name = 'leave'
         short_desc = 'leave [#channel] - Ask the bot to leave.'
         long_desc = 'If channel is ommited, leave the current channel.'
 
