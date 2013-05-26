@@ -147,18 +147,7 @@ class CommanderProtocol(irc.IRCClient):
     def dispatch(self, category, func, *args):
         """Take a comm that has been parsed and dispatch it to plugins."""
 
-        # Plugins are already sorted by priority
-        stop = False
-        for plugin in self.factory.loader.plugins[category]:
-            # If a plugin throws an exception, we should catch it gracefully.
-            try:
-                stop = getattr(plugin, func)(self, *args)
-                if stop:
-                    break
-            except Exception:
-                # A plugin should not be able to crash the bot.
-                # Catch and log all errors.
-                traceback.print_exc()
+        self.factory.loader.runPlugins(category, func, self, *args)
 
     def reply(self, comm, message):
         if comm['pm']:
@@ -272,3 +261,22 @@ class PluginLoader(object):
             if plugin in plugins:
                 log.debug('plugin is a %s', plugin_type)
                 plugins.remove(plugin)
+
+    def runPlugins(self, category, func, protocol, *args):
+        """
+        Run the specified set of plugins against a given protocol.
+        """
+
+        stop = False
+
+        # Plugins are already sorted by priority
+        for plugin in self.plugins[category]:
+            # If a plugin throws an exception, we should catch it gracefully.
+            try:
+                stop = getattr(plugin, func)(protocol, *args)
+                if stop:
+                    break
+            except Exception:
+                # A plugin should not be able to crash the bot.
+                # Catch and log all errors.
+                traceback.print_exc()
