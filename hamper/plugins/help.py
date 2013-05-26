@@ -20,7 +20,7 @@ class Help(ChatCommandPlugin):
     @classmethod
     def helpful_commands(cls, bot):
         commands = set()
-        for kind, plugins in bot.factory.plugins.items():
+        for kind, plugins in bot.factory.loader.plugins.items():
 
             for plugin in plugins:
                 commands.update(plugin.commands)

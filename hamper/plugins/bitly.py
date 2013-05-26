@@ -36,18 +36,18 @@ class Bitly(ChatPlugin):
     )
     """
 
-    def setup(self, factory):
+    def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'https://api-ssl.bitly.com/v3/shorten'
-        self.username = factory.config['bitly']['login']
-        self.api_key = factory.config['bitly']['api_key']
+        self.username = loader.config['bitly']['login']
+        self.api_key = loader.config['bitly']['api_key']
         # If an exclude value is found in the url
         # it will not be shortened
         self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
         # Make sure they've configured the bitly config values.
         try:
-            self.username = factory.config['bitly']['login']
-            self.api_key = factory.config['bitly']['api_key']
+            self.username = loader.config['bitly']['login']
+            self.api_key = loader.config['bitly']['api_key']
         except KeyError:
             print ('\nTo use the bitly plugin you need to set your bitly login'
                    '\nand api_key in your config file.\n'

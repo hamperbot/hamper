@@ -16,8 +16,8 @@ class Quotes(ChatCommandPlugin):
     name = 'quotes'
     priority = 0
 
-    def setup(self, factory):
-        SQLAlchemyBase.metadata.create_all(factory.db_engine)
+    def setup(self, loader):
+        SQLAlchemyBase.metadata.create_all(loader.db.engine)
 
     class DeliverQuote(Command):
         """Deliver a quote."""
@@ -31,7 +31,7 @@ class Quotes(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             index = random.randrange(0, bot.db.query(Quote).count() + 1)
-            quote = bot.factory.db.query(Quote)[index]
+            quote = bot.factory.loader.db.session.query(Quote)[index]
             # Lame twisted irc doesn't support unicode.
             bot.reply(comm, str(quote.text))
             return True
@@ -43,7 +43,7 @@ class Quotes(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             text = groups[0]
             quote = Quote(text, comm['user'])
-            bot.factory.db.add(quote)
+            bot.factory.loader.db.session.add(quote)
             bot.reply(comm, 'Succesfully added quote.')
 
     class CountQuotes(Command):
@@ -51,7 +51,7 @@ class Quotes(ChatCommandPlugin):
         regex = r'^quotes? --count$'
 
         def command(self, bot, comm, groups):
-            count = bot.db.query(Quote).count()
+            count = bot.factory.loader.db.session.query(Quote).count()
             bot.reply(comm, 'I know {0} quotes.'.format(count))
 
 

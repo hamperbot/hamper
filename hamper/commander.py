@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, namedtuple
 import logging
 import re
 import traceback
@@ -40,7 +40,7 @@ class CommanderProtocol(irc.IRCClient):
 
     @property
     def db(self):
-        return self.factory.db
+        return self.factory.loader.db
 
     ##### Twisted events #####
 
@@ -114,7 +114,7 @@ class CommanderProtocol(irc.IRCClient):
 
     def connectionLost(self, reason):
         """Called when the connection is lost to the server."""
-        self.factory.db.commit()
+        self.factory.loader.db.session.commit()
         if reactor.running:
             reactor.stop()
 
@@ -147,29 +147,7 @@ class CommanderProtocol(irc.IRCClient):
     def dispatch(self, category, func, *args):
         """Take a comm that has been parsed and dispatch it to plugins."""
 
-        # Plugins are already sorted by priority
-        stop = False
-        for plugin in self.factory.plugins[category]:
-            # If a plugin throws an exception, we should catch it gracefully.
-            try:
-                stop = getattr(plugin, func)(self, *args)
-                if stop:
-                    break
-            except Exception:
-                # A plugin should not be able to crash the bot.
-                # Catch and log all errors.
-                traceback.print_exc()
-
-    def removePlugin(self, plugin):
-        log.info("Unloading %r" % plugin)
-        for plugin_type, plugins in self.factory.plugins.items():
-            if plugin in plugins:
-                log.debug('plugin is a %s', plugin_type)
-                plugins.remove(plugin)
-
-    def addPlugin(self, plugin):
-        print("Loading %r" % plugin)
-        self.factory.registerPlugin(plugin)
+        self.factory.loader.runPlugins(category, func, self, *args)
 
     def reply(self, comm, message):
         if comm['pm']:
@@ -185,29 +163,26 @@ class CommanderFactory(protocol.ClientFactory):
     def __init__(self, config):
         self.channels = config['channels']
         self.nickname = config['nickname']
-        self.config = config
-
         self.history = {}
-        self.plugins = {
-            'base_plugin': [],
-            'presence': [],
-            'chat': [],
-            'population': [],
-        }
+
+        self.loader = PluginLoader()
+        self.loader.config = config
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
-            self.db_engine = sqlalchemy.create_engine(config['db'])
+            db_engine = sqlalchemy.create_engine(config['db'])
         else:
             print('Using in-memory db')
-            self.db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
-        DBSession = orm.sessionmaker(self.db_engine)
-        self.db = DBSession()
+            db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
+        DBSession = orm.sessionmaker(db_engine)
+        session = DBSession()
+
+        self.loader.db = DB(db_engine, session)
 
         # Load all plugins mentioned in the configuration. Allow globbing.
         plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
         for plugin in plugins:
-            self.registerPlugin(plugin)
+            self.loader.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -216,6 +191,32 @@ class CommanderFactory(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
+
+
+class DB(namedtuple("DB", "engine, session")):
+    """
+    A small data structure that stores database information.
+    """
+
+
+class PluginLoader(object):
+    """
+    I am a repository for plugins.
+
+    I understand how to load plugins and how to enumerate the plugins I've
+    loaded. Additionally, I can store configuration data for plugins.
+
+    Think of me as the piece of code that isolates plugin state from the
+    details of the network.
+    """
+
+    def __init__(self):
+        self.plugins = {
+            'base_plugin': [],
+            'presence': [],
+            'chat': [],
+            'population': [],
+        }
 
     def registerPlugin(self, plugin):
         """Registers a plugin."""
@@ -246,3 +247,29 @@ class CommanderFactory(protocol.ClientFactory):
         plugin.setup(self)
 
         log.info('registered plugin %s as %s', plugin.name, valid_types)
+
+    def removePlugin(self, plugin):
+        log.info("Unloading %r" % plugin)
+        for plugin_type, plugins in self.plugins.items():
+            if plugin in plugins:
+                log.debug('plugin is a %s', plugin_type)
+                plugins.remove(plugin)
+
+    def runPlugins(self, category, func, protocol, *args):
+        """
+        Run the specified set of plugins against a given protocol.
+        """
+
+        stop = False
+
+        # Plugins are already sorted by priority
+        for plugin in self.plugins[category]:
+            # If a plugin throws an exception, we should catch it gracefully.
+            try:
+                stop = getattr(plugin, func)(protocol, *args)
+                if stop:
+                    break
+            except Exception:
+                # A plugin should not be able to crash the bot.
+                # Catch and log all errors.
+                traceback.print_exc()
