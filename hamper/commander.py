@@ -149,7 +149,7 @@ class CommanderProtocol(irc.IRCClient):
 
         # Plugins are already sorted by priority
         stop = False
-        for plugin in self.factory.plugins[category]:
+        for plugin in self.factory.loader.plugins[category]:
             # If a plugin throws an exception, we should catch it gracefully.
             try:
                 stop = getattr(plugin, func)(self, *args)
@@ -162,7 +162,7 @@ class CommanderProtocol(irc.IRCClient):
 
     def removePlugin(self, plugin):
         log.info("Unloading %r" % plugin)
-        for plugin_type, plugins in self.factory.plugins.items():
+        for plugin_type, plugins in self.factory.loader.plugins.items():
             if plugin in plugins:
                 log.debug('plugin is a %s', plugin_type)
                 plugins.remove(plugin)
@@ -188,12 +188,7 @@ class CommanderFactory(protocol.ClientFactory):
         self.config = config
 
         self.history = {}
-        self.plugins = {
-            'base_plugin': [],
-            'presence': [],
-            'chat': [],
-            'population': [],
-        }
+        self.loader = PluginLoader()
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -216,6 +211,33 @@ class CommanderFactory(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
+
+    def registerPlugin(self, plugin):
+        """
+        Delegate plugin registration to the loader.
+        """
+
+        self.loader.registerPlugin(plugin)
+
+
+class PluginLoader(object):
+    """
+    I am a repository for plugins.
+
+    I understand how to load plugins and how to enumerate the plugins I've
+    loaded. Additionally, I can store configuration data for plugins.
+
+    Think of me as the piece of code that isolates plugin state from the
+    details of the network.
+    """
+
+    def __init__(self):
+        self.plugins = {
+            'base_plugin': [],
+            'presence': [],
+            'chat': [],
+            'population': [],
+        }
 
     def registerPlugin(self, plugin):
         """Registers a plugin."""
