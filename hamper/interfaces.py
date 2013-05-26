@@ -5,11 +5,12 @@ from zope.interface import implements, Interface, Attribute
 from zope.interface.exceptions import DoesNotImplement
 from zope.interface.declarations import implementedBy
 
+from twisted.plugin import IPlugin
 
 log = logging.getLogger('hamper.interfaces')
 
 
-class IPlugin(Interface):
+class BaseInterface(Interface):
     """Interface for a plugin.."""
 
     name = Attribute('Human readable name for the plugin.')
@@ -19,8 +20,8 @@ class IPlugin(Interface):
 
 
 class Plugin(object):
-    implements(IPlugin)
     name = "genericplugin"
+    implements(IPlugin)
 
     def __init__(self):
         self.commands = []
@@ -29,7 +30,7 @@ class Plugin(object):
         pass
 
 
-class IChatPlugin(IPlugin):
+class IChatPlugin(BaseInterface):
     """Interface for a chat plugin."""
 
     priority = Attribute('Priority of plugins. High numbers are called first')
@@ -82,7 +83,7 @@ class ChatCommandPlugin(ChatPlugin):
                 return stop
 
 
-class ICommand(Interface):
+class ICommand(BaseInterface):
     """Interface for a command."""
 
     name = Attribute('The name of the command, for code purposes.')
@@ -103,7 +104,7 @@ class Command(object):
 
     To use it, define a clas that inherits from Command inside a Plugin.
     """
-    implements(ICommand)
+    implements(IPlugin, ICommand)
 
     caseSensitive = False
     onlyDirected = True
@@ -123,7 +124,7 @@ class Command(object):
             return True
 
 
-class IPresencePlugin(IPlugin):
+class IPresencePlugin(BaseInterface):
     """A plugin that gets events about the bot joining and leaving channels."""
 
     def joined(bot, channel):
@@ -157,7 +158,7 @@ class PresencePlugin(Plugin):
         pass
 
 
-class IPopulationPlugin(IPlugin):
+class IPopulationPlugin(BaseInterface):
     """A plugin that recieves events about the population of channels."""
 
     def userJoined(bot, user, channel):

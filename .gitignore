@@ -6,3 +6,5 @@ hamper.db
 bin/
 include/
 lib/
+dropin.cache
+build/

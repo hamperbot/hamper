@@ -24,10 +24,6 @@ These dependencies will be taken care of automatically if you install with
 -   Twisted
 -   SQLAlchemy
 -   PyYaml
--   The plugin loader of [Bravo][bravo] (included)
--   Exocet (included)
-
-[bravo]: https://github.com/MostAwesomeDude/bravo
 
 Configuration
 =============

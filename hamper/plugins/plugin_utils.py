@@ -1,8 +1,6 @@
 import logging
 
-from bravo import plugin
-
-from hamper.interfaces import Command, ChatCommandPlugin, IPlugin
+from hamper.interfaces import Command, ChatCommandPlugin, BaseInterface
 
 
 log = logging.getLogger('hamper.plugins.plugin_utils')
@@ -36,30 +34,6 @@ class PluginUtils(ChatCommandPlugin):
             plugins = PluginUtils.get_plugins(bot)
             names = ', '.join(p.name for p in plugins)
             bot.reply(comm, 'Loaded Plugins: {0}.'.format(names))
-            return True
-
-    class ReloadPlugins(Command):
-        regex = r'^plugins? reload (.*)$'
-
-        def command(self, bot, comm, groups):
-            """Reload a named plugin."""
-            name = groups[0]
-
-            plugins = PluginUtils.get_plugins(bot)
-            matched_plugins = [p for p in plugins if p.name == name]
-            if len(matched_plugins) == 0:
-                bot.reply(comm, "I can't find a plugin named {0}!"
-                    .format(name))
-                return False
-
-            target_plugin = matched_plugins[0]
-            # Fun fact: the fresh thing is just a dummy. It just can't be None
-            new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
-                    'hamper.plugins', {'fresh': True})[0]
-
-            bot.factory.loader.removePlugin(target_plugin)
-            bot.factory.loader.registerPlugin(new_plugin)
-            bot.reply(comm, 'Reloading {0}.'.format(new_plugin))
             return True
 
     class LoadPlugin(Command):
