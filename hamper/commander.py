@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, namedtuple
 import logging
 import re
 import traceback
@@ -40,7 +40,7 @@ class CommanderProtocol(irc.IRCClient):
 
     @property
     def db(self):
-        return self.factory.db
+        return self.factory.loader.db
 
     ##### Twisted events #####
 
@@ -114,7 +114,7 @@ class CommanderProtocol(irc.IRCClient):
 
     def connectionLost(self, reason):
         """Called when the connection is lost to the server."""
-        self.factory.db.commit()
+        self.factory.loader.db.session.commit()
         if reactor.running:
             reactor.stop()
 
@@ -192,12 +192,14 @@ class CommanderFactory(protocol.ClientFactory):
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
-            self.db_engine = sqlalchemy.create_engine(config['db'])
+            db_engine = sqlalchemy.create_engine(config['db'])
         else:
             print('Using in-memory db')
-            self.db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
-        DBSession = orm.sessionmaker(self.db_engine)
-        self.db = DBSession()
+            db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
+        DBSession = orm.sessionmaker(db_engine)
+        session = DBSession()
+
+        self.loader.db = DB(db_engine, session)
 
         # Load all plugins mentioned in the configuration. Allow globbing.
         plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
@@ -218,6 +220,12 @@ class CommanderFactory(protocol.ClientFactory):
         """
 
         self.loader.registerPlugin(plugin)
+
+
+class DB(namedtuple("DB", "engine, session")):
+    """
+    A small data structure that stores database information.
+    """
 
 
 class PluginLoader(object):
