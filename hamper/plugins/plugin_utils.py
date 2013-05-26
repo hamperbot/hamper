@@ -16,7 +16,7 @@ class PluginUtils(ChatCommandPlugin):
     @classmethod
     def get_plugins(cls, bot):
         all_plugins = set()
-        for kind, plugins in bot.factory.plugins.items():
+        for kind, plugins in bot.factory.loader.plugins.items():
             all_plugins.update(plugins)
         return all_plugins
 
