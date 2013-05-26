@@ -1,3 +1,4 @@
+from bisect import insort
 from collections import deque, namedtuple
 import logging
 import re
@@ -253,7 +254,7 @@ class PluginLoader(object):
         }
 
         # Everything is, at least, a base plugin.
-        valid_types = ['baseplugin']
+        valid_types = set(['baseplugin'])
         # Loop through the types of plugins and check for implentation
         # of each.
 
@@ -263,14 +264,14 @@ class PluginLoader(object):
             if interface in claimed_compliances:
                 try:
                     verifyObject(interface, plugin)
-                    # If the above succeeded, then `plugin` implements
-                    # `interface`.
-                    self.plugins[t].append(plugin)
-                    self.plugins[t].sort()
-                    valid_types.append(t)
                 except DoesNotImplement:
                     log.error('Plugin %s claims to be a %s, but is not!',
                               plugin.name, t)
+                else:
+                    # If the above succeeded, then `plugin` implements
+                    # `interface`.
+                    insort(self.plugins[t], plugin)
+                    valid_types.add(t)
 
         plugin.setup(self)
 
