@@ -57,8 +57,8 @@ class PluginUtils(ChatCommandPlugin):
             new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
                     'hamper.plugins', {'fresh': True})[0]
 
-            bot.removePlugin(target_plugin)
-            bot.addPlugin(new_plugin)
+            bot.factory.loader.removePlugin(target_plugin)
+            bot.factory.loader.registerPlugin(new_plugin)
             bot.reply(comm, 'Reloading {0}.'.format(new_plugin))
             return True
 
@@ -78,7 +78,7 @@ class PluginUtils(ChatCommandPlugin):
             new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
                     'hamper.plugins', {'fresh': True})[0]
 
-            bot.addPlugin(new_plugin)
+            bot.factory.loader.registerPlugin(new_plugin)
             bot.reply(comm, 'Loading {0}.'.format(new_plugin))
             return True
 
@@ -97,7 +97,7 @@ class PluginUtils(ChatCommandPlugin):
 
             target_plugin = matched_plugins[0]
 
-            bot.removePlugin(target_plugin)
+            bot.factory.loader.removePlugin(target_plugin)
             bot.reply(comm, 'Unloading {0}.'.format(target_plugin))
             return True
 

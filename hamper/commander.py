@@ -160,17 +160,6 @@ class CommanderProtocol(irc.IRCClient):
                 # Catch and log all errors.
                 traceback.print_exc()
 
-    def removePlugin(self, plugin):
-        log.info("Unloading %r" % plugin)
-        for plugin_type, plugins in self.factory.loader.plugins.items():
-            if plugin in plugins:
-                log.debug('plugin is a %s', plugin_type)
-                plugins.remove(plugin)
-
-    def addPlugin(self, plugin):
-        print("Loading %r" % plugin)
-        self.factory.registerPlugin(plugin)
-
     def reply(self, comm, message):
         if comm['pm']:
             self.msg(comm['user'], message)
@@ -276,3 +265,10 @@ class PluginLoader(object):
         plugin.setup(self)
 
         log.info('registered plugin %s as %s', plugin.name, valid_types)
+
+    def removePlugin(self, plugin):
+        log.info("Unloading %r" % plugin)
+        for plugin_type, plugins in self.plugins.items():
+            if plugin in plugins:
+                log.debug('plugin is a %s', plugin_type)
+                plugins.remove(plugin)
