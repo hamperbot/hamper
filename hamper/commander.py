@@ -182,7 +182,7 @@ class CommanderFactory(protocol.ClientFactory):
         # Load all plugins mentioned in the configuration. Allow globbing.
         plugins = retrieve_named_plugins(IPlugin, config['plugins'], 'hamper.plugins')
         for plugin in plugins:
-            self.registerPlugin(plugin)
+            self.loader.registerPlugin(plugin)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -191,13 +191,6 @@ class CommanderFactory(protocol.ClientFactory):
 
     def clientConnectionFailed(self, connector, reason):
         print "Could not connect: %s" % (reason,)
-
-    def registerPlugin(self, plugin):
-        """
-        Delegate plugin registration to the loader.
-        """
-
-        self.loader.registerPlugin(plugin)
 
 
 class DB(namedtuple("DB", "engine, session")):
