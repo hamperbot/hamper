@@ -29,7 +29,7 @@ def main():
     hamper.log.setup_logging()
 
     reactor.connectTCP(config['server'], config['port'],
-            CommanderFactory(config))
+                       CommanderFactory(config))
     reactor.run()
 
 
@@ -135,7 +135,8 @@ class CommanderProtocol(irc.IRCClient):
 
     def userKicked(self, kickee, channel, kicker, message):
         """Called when I see another user get kicked."""
-        self.dispatch('population', 'userKicked', kickee, channel, kicker, message)
+        self.dispatch('population', 'userKicked', kickee, channel, kicker,
+                      message)
 
     def irc_RPL_NAMREPLY(self, prefix, params):
         """Called when the server responds to my names request"""
@@ -235,9 +236,11 @@ class PluginLoader(object):
 
         # Everything is, at least, a base plugin.
         valid_types = ['baseplugin']
-        # Loop through the types of plugins and check for implentation of each.
+        # Loop through the types of plugins and check for implentation
+        # of each.
 
         claimed_compliances = list(implementedBy(type(plugin)))
+        # Can we use this as a map instead?
         for t, interface in plugin_types.iteritems():
             if interface in claimed_compliances:
                 try:

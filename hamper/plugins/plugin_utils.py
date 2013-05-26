@@ -49,8 +49,8 @@ class PluginUtils(ChatCommandPlugin):
                 return False
 
             # Fun fact: the fresh thing is just a dummy. It just can't be None
-            new_plugin = plugin.retrieve_named_plugins(IPlugin, [name],
-                    'hamper.plugins', {'fresh': True})[0]
+            new_plugin = plugin.retrieve_named_plugins(
+                IPlugin, [name], 'hamper.plugins', {'fresh': True})[0]
 
             bot.factory.loader.registerPlugin(new_plugin)
             bot.reply(comm, 'Loading {0}.'.format(new_plugin))
@@ -66,7 +66,7 @@ class PluginUtils(ChatCommandPlugin):
             matched_plugins = [p for p in plugins if p.name == name]
             if len(matched_plugins) == 0:
                 bot.reply(comm, "I can't find a plugin named {0}!"
-                    .format(name))
+                                .format(name))
                 return False
 
             target_plugin = matched_plugins[0]
