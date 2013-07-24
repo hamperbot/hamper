@@ -5,7 +5,10 @@ import upsidedown
 
 
 class Flip(ChatCommandPlugin):
-    '''FLOSS Flip Utility'''
+    '''
+    FLOSS Flip Utility
+    You need to install the upsidedown package from pip to use this plugin
+    '''
 
     name = 'flip'
     priority = 0
@@ -16,7 +19,7 @@ class Flip(ChatCommandPlugin):
 
         name = 'flip'
         short_desc = 'flip - flip it'
-        long_desc = 'flip - flip it'
+        long_desc = ''
 
         def command(self, bot, comm, groups):
             msg = groups[0].decode('utf-8')
