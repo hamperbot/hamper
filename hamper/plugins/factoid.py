@@ -25,6 +25,7 @@ class Factoids(ChatPlugin):
     def message(self, bot, comm):
         subs = [self.try_add_factoid,
                 self.try_forget_factoid,
+                self.try_forget_factoid_mass,
                 self.try_respond_to_factoid]
 
         ret = False
@@ -39,7 +40,7 @@ class Factoids(ChatPlugin):
             return
 
         msg = comm['message'].strip()
-        match = re.match(r'learn(?: that)? (.*)\s+(\w+)\s+<(\w+)>\s+(.*)', msg)
+        match = re.match(r'learn(?: that)? (.+)\s+(\w+)\s+<(\w+)>\s+(.*)', msg)
 
         if not match:
             return
@@ -61,7 +62,52 @@ class Factoids(ChatPlugin):
         return True
 
     def try_forget_factoid(self, bot, comm):
-        pass
+        if not comm['directed']:
+            return
+
+        msg = comm['message'].strip()
+        match = re.match(r'forget that\s+(.+)\s+is\s+(.*)', msg)
+
+        if not match:
+            return
+
+        trigger, response = match.groups()
+
+        factoids = (self.db.session.query(Factoid)
+                    .filter(Factoid.trigger == trigger,
+                            Factoid.response == response)
+                    .all())
+        if len(factoids) == 0:
+            bot.reply(comm, "I don't have anything like that.")
+            return
+        for factoid in factoids:
+            self.db.session.delete(factoid)
+        self.db.session.commit()
+        bot.reply(comm, 'Done, {user}'.format(comm))
+
+    def try_forget_factoid_mass(self, bot, comm):
+        if not comm['directed']:
+            return
+
+        msg = comm['message'].strip()
+        match = re.match(r'forget all about (.+)', msg)
+        if not match:
+            return
+
+        trigger = match.groups()[0]
+        factoids = (self.db.session.query(Factoid)
+                    .filter(Factoid.trigger == trigger)
+                    .all())
+
+        if len(factoids) == 0:
+            bot.reply(comm, "I don't have anything like that.")
+            return
+
+        for factoid in factoids:
+            self.db.session.delete(factoid)
+        self.db.session.commit()
+
+        bot.reply(comm, 'Done, {user}'.format(comm))
 
     def try_respond_to_factoid(self, bot, comm):
         msg = comm['message'].strip()
