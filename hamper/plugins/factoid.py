@@ -83,7 +83,7 @@ class Factoids(ChatPlugin):
         for factoid in factoids:
             self.db.session.delete(factoid)
         self.db.session.commit()
-        bot.reply(comm, 'Done, {user}'.format(comm))
+        bot.reply(comm, 'Done, {user}'.format(**comm))
 
     def try_forget_factoid_mass(self, bot, comm):
         if not comm['directed']:
@@ -107,7 +107,7 @@ class Factoids(ChatPlugin):
             self.db.session.delete(factoid)
         self.db.session.commit()
 
-        bot.reply(comm, 'Done, {user}'.format(comm))
+        bot.reply(comm, 'Done, {user}'.format(**comm))
 
     def try_respond_to_factoid(self, bot, comm):
         msg = comm['message'].strip()
