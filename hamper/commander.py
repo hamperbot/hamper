@@ -84,7 +84,11 @@ class CommanderProtocol(irc.IRCClient):
 
         pm = channel == self.nickname
         if target:
-            directed = target.lower() == self.nickname.lower()
+            if target.lower() == self.nickname.lower():
+                directed = True
+            else:
+                directed = False
+                message = '{0}: {1}'.format(target, msg)
         else:
             directed = False
         if message.startswith('!'):
