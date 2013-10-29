@@ -45,7 +45,7 @@ class Karma(ChatCommandPlugin):
         """
 
         super(Karma, self).message(bot, comm)
-        msg = comm['message'].strip()
+        msg = comm['message'].strip().lower()
 
         add = re.search(r'^[\w][^/].*\+\++$', msg)
         remove = re.search(r'^[\w][^/].*--+$', msg)
@@ -114,12 +114,12 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
-            user = kt.filter(KarmaTable.user == groups[0]).first()
+            user = kt.filter(KarmaTable.user == groups[0].lower()).first()
 
             if user:
                 bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
             else:
-                bot.reply(comm, str("No karma for %s" % groups[0]))
+                bot.reply(comm, str("No karma for %s" % groups[0].lower()))
 
 
 class KarmaTable(SQLAlchemyBase):
