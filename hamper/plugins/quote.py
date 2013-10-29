@@ -17,6 +17,7 @@ class Quotes(ChatCommandPlugin):
     priority = 0
 
     def setup(self, loader):
+        super(Quotes, self).setup(loader)
         SQLAlchemyBase.metadata.create_all(loader.db.engine)
 
     class DeliverQuote(Command):

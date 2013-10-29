@@ -84,7 +84,11 @@ class CommanderProtocol(irc.IRCClient):
 
         pm = channel == self.nickname
         if target:
-            directed = target.lower() == self.nickname.lower()
+            if target.lower() == self.nickname.lower():
+                directed = True
+            else:
+                directed = False
+                message = '{0}: {1}'.format(target, msg)
         else:
             directed = False
         if message.startswith('!'):
@@ -154,10 +158,18 @@ class CommanderProtocol(irc.IRCClient):
         self.factory.loader.runPlugins(category, func, self, *args)
 
     def reply(self, comm, message):
+        message = message.encode('utf8')
         if comm['pm']:
             self.msg(comm['user'], message)
         else:
             self.msg(comm['channel'], message)
+
+    def me(self, comm, message):
+        message = message.encode('utf8')
+        if comm['pm']:
+            self.describe(comm['user'], message)
+        else:
+            self.describe(comm['channel'], message)
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -184,11 +196,17 @@ class CommanderFactory(protocol.ClientFactory):
         self.loader.db = DB(db_engine, session)
 
         # Load all plugins mentioned in the configuration. Allow globbing.
+        config_matches = set()
         for plugin in getPlugins(BaseInterface, package=plugins):
             for pattern in config['plugins']:
                 if fnmatch(plugin.name, pattern):
                     self.loader.registerPlugin(plugin)
+                    config_matches.add(pattern)
                     break
+        for pattern in config['plugins']:
+            if pattern not in config_matches:
+                log.warning('No plugin matched pattern "%s"', pattern)
+
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
