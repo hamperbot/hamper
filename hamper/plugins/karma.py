@@ -25,6 +25,8 @@ class Karma(ChatCommandPlugin):
 
     name = 'karma'
 
+    priority = -2
+
     short_desc = 'Give or take karma from someone'
     long_desc = ('username++ - Give karma\n'
                  'username-- - Take karma\n'
