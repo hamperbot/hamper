@@ -10,7 +10,7 @@ SQLAlchemyBase = declarative_base()
 
 class Karma(ChatCommandPlugin):
     """
-    Hamper will look for lines that end in ++ or -- and modify that user's 
+    Hamper will look for lines that end in ++ or -- and modify that user's
     karma value accordingly
 
     !karma --top: shows (at most) the top 5
@@ -49,7 +49,7 @@ class Karma(ChatCommandPlugin):
         +1 Karma to a user
         """
         kt = self.db.session.query(KarmaTable)
-        urow = kt.filter(KarmaTable.user==user).first()
+        urow = kt.filter(KarmaTable.user == user).first()
         if not urow:
             urow = KarmaTable(user)
         urow.kcount += 1
@@ -61,13 +61,12 @@ class Karma(ChatCommandPlugin):
         -1 Karma to a user
         """
         kt = self.db.session.query(KarmaTable)
-        urow = kt.filter(KarmaTable.user==user).first()
+        urow = kt.filter(KarmaTable.user == user).first()
         if not urow:
             urow = KarmaTable(user)
         urow.kcount -= 1
         self.db.session.add(urow)
         self.db.session.commit()
-
 
     class KarmaList(Command):
         """
@@ -85,12 +84,11 @@ class Karma(ChatCommandPlugin):
 
             if top:
                 show = (KarmaTable.kcount.desc() if groups[0] == 'top'
-                                                 else KarmaTable.kcount)
+                        else KarmaTable.kcount)
                 for user in users.order_by(show)[0:top]:
                     bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
-
 
     class UserKarma(Command):
         """
@@ -103,7 +101,7 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
-            user = kt.filter(KarmaTable.user==groups[0]).first()
+            user = kt.filter(KarmaTable.user == groups[0]).first()
 
             print "group[0]: %s" % str(groups[0])
             print "user: %s" % str(user)
@@ -124,7 +122,6 @@ class KarmaTable(SQLAlchemyBase):
     # Calling the primary key user, though, really, this can be any string
     user = Column(String, primary_key=True)
     kcount = Column(Integer)
-
 
     def __init__(self, user, kcount=0):
         self.user = user
