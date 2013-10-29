@@ -2,10 +2,10 @@ import re
 
 from hamper.interfaces import ChatCommandPlugin, Command
 
-from sqlachemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
-SQLALchemyBase = declarative_base()
+SQLAlchemyBase = declarative_base()
 
 
 class Karma(ChatCommandPlugin):
@@ -20,6 +20,8 @@ class Karma(ChatCommandPlugin):
     potatoes or the infamous cookie clicker....
     """
 
+    name = 'karma'
+
     def setup(self, loader):
         """
         """
@@ -27,12 +29,10 @@ class Karma(ChatCommandPlugin):
         super(Karma, self).setup(loader)
         self.db = loader.db
         SQLAlchemyBase.metadata.create_all(self.db.engine)
-        
 
     def message(self, bot, comm):
         """
         """
-
         super(Karma, self).message(bot, comm)
         msg = comm['message'].strip()
 
