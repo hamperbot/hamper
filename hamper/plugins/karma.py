@@ -9,6 +9,8 @@ SQLAlchemyBase = declarative_base()
 
 
 class Karma(ChatCommandPlugin):
+    '''Give, take, and scoreboard Internet Points'''
+
     """
     Hamper will look for lines that end in ++ or -- and modify that user's
     karma value accordingly
@@ -43,8 +45,8 @@ class Karma(ChatCommandPlugin):
         super(Karma, self).message(bot, comm)
         msg = comm['message'].strip()
 
-        add = re.search('\+\++$', msg)
-        remove = re.search('--+$', msg)
+        add = re.search(r'^[\w][^/].*\+\++$', msg)
+        remove = re.search(r'^[\w][^/].*--+$', msg)
 
         if add:
             self.add_karma(msg.rstrip('+'))
@@ -55,6 +57,7 @@ class Karma(ChatCommandPlugin):
         """
         +1 Karma to a user
         """
+
         kt = self.db.session.query(KarmaTable)
         urow = kt.filter(KarmaTable.user == user).first()
         if not urow:
@@ -67,6 +70,7 @@ class Karma(ChatCommandPlugin):
         """
         -1 Karma to a user
         """
+
         kt = self.db.session.query(KarmaTable)
         urow = kt.filter(KarmaTable.user == user).first()
         if not urow:
@@ -110,10 +114,7 @@ class Karma(ChatCommandPlugin):
             kt = bot.factory.loader.db.session.query(KarmaTable)
             user = kt.filter(KarmaTable.user == groups[0]).first()
 
-            print "group[0]: %s" % str(groups[0])
-            print "user: %s" % str(user)
-
-            if useri:
+            if user:
                 bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
             else:
                 bot.reply(comm, str("No karma for %s" % groups[0]))
