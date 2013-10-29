@@ -23,6 +23,13 @@ class Karma(ChatCommandPlugin):
 
     name = 'karma'
 
+    short_desc = 'Give or take karma from someone'
+    long_desc = ('username++ - Give karma\n'
+                 'username-- - Take karma\n'
+                 '!karma --top - Show the top 5 karma earners\n'
+                 '!karma --bottom - Show the bottom 5 karma earners\n'
+                 '!karma username - Show the user\'s karma count\n')
+
     def setup(self, loader):
         super(Karma, self).setup(loader)
         self.db = loader.db
