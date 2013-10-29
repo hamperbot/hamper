@@ -13,8 +13,9 @@ class Karma(ChatCommandPlugin):
     Hamper will look for lines that end in ++ or -- and modify that user's 
     karma value accordingly
 
-    There will also be !top5 and !bot5 to display those with the most and
-    least karma
+    !karma --top: shows (at most) the top 5
+    !karma --bottom: shows (at most) the bottom 5
+    !karma <username>: displays the karma for a given user
 
     NOTE: The user is just a string, this really could be anything...like
     potatoes or the infamous cookie clicker....
@@ -89,6 +90,28 @@ class Karma(ChatCommandPlugin):
                     bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
+
+
+    class UserKarma(Command):
+        """
+        Retrieve karma for a given user
+        """
+
+        # !karma <username>
+        regex = r'^karma ([^-].+)$'
+
+        def command(self, bot, comm, groups):
+            # Play nice when the user isn't in the db
+            kt = bot.factory.loader.db.session.query(KarmaTable)
+            user = kt.filter(KarmaTable.user==groups[0]).first()
+
+            print "group[0]: %s" % str(groups[0])
+            print "user: %s" % str(user)
+
+            if useri:
+                bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
+            else:
+                bot.reply(comm, str("No karma for %s" % groups[0]))
 
 
 class KarmaTable(SQLAlchemyBase):
