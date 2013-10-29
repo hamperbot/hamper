@@ -9,8 +9,8 @@ $ git clone https://github.com/mythmon/hamper
 $ cd hamper
 $ virtualenv .
 $ source bin/activate
-$ install -r requirements.txt
-$ cp hamper.conf-dist hamper.conf
+$ pip install -r requirements.txt
+$ cp hamper.conf.dist hamper.conf
 $ vim hamper.conf
 $ script/hamper
 ```
