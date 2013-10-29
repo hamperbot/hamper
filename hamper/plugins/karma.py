@@ -68,12 +68,27 @@ class Karma(ChatCommandPlugin):
         self.db.session.commit()
 
 
-    class Top(Command):
-        pass
+    class KarmaList(Command):
+        """
+        Return the top or bottom 5
+        """
 
+        regex = r'^karma --(top|bottom)$'
 
-    class Bottom(Command):
-        pass
+        LIST_MAX = 5
+
+        def command(self, bot, comm, groups):
+            users = bot.factory.loader.db.session.query(KarmaTable)
+            user_count = users.count()
+            top = self.LIST_MAX if user_count >= self.LIST_MAX else user_count
+
+            if top:
+                show = (KarmaTable.kcount.desc() if groups[0] == 'top'
+                                                 else KarmaTable.kcount)
+                for user in users.order_by(show)[0:top]:
+                    bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
+            else:
+                bot.reply(comm, r'No one has any karma yet :-(')
 
 
 class KarmaTable(SQLAlchemyBase):
