@@ -23,40 +23,49 @@ class Karma(ChatCommandPlugin):
     name = 'karma'
 
     def setup(self, loader):
-        """
-        """
-
         super(Karma, self).setup(loader)
         self.db = loader.db
         SQLAlchemyBase.metadata.create_all(self.db.engine)
 
     def message(self, bot, comm):
         """
+        Check for strings ending with 2 or more '-' or '+'
         """
+
         super(Karma, self).message(bot, comm)
         msg = comm['message'].strip()
 
-        add = re.match('\+\++$', msg)
-        remove = re.match('--+$', msg)
+        add = re.search('\+\++$', msg)
+        remove = re.search('--+$', msg)
 
         if add:
             self.add_karma(msg.rstrip('+'))
         elif remove:
             self.remove_karma(msg.rstrip('-'))
 
-
-
     def add_karma(self, user):
         """
         +1 Karma to a user
         """
-        pass
+        kt = self.db.session.query(KarmaTable)
+        urow = kt.filter(KarmaTable.user==user).first()
+        if not urow:
+            urow = KarmaTable(user)
+        urow.kcount += 1
+        self.db.session.add(urow)
+        self.db.session.commit()
 
     def remove_karma(self, user):
         """
         -1 Karma to a user
         """
-        pass
+        kt = self.db.session.query(KarmaTable)
+        urow = kt.filter(KarmaTable.user==user).first()
+        if not urow:
+            urow = KarmaTable(user)
+        urow.kcount -= 1
+        self.db.session.add(urow)
+        self.db.session.commit()
 
 
     class Top(Command):
