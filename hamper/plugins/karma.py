@@ -43,17 +43,18 @@ class Karma(ChatCommandPlugin):
         """
         Check for strings ending with 2 or more '-' or '+'
         """
-
         super(Karma, self).message(bot, comm)
-        msg = comm['message'].strip().lower()
 
-        add = re.search(r'^[\w][^/].*\+\++$', msg)
-        remove = re.search(r'^[\w][^/].*--+$', msg)
+        if not comm['directed']:
+            msg = comm['message'].strip().lower()
 
-        if add:
-            self.add_karma(msg.rstrip('+'))
-        elif remove:
-            self.remove_karma(msg.rstrip('-'))
+            add = re.search(r'^[\w][^/].*\+\++$', msg)
+            remove = re.search(r'^[\w][^/].*--+$', msg)
+
+            if add:
+                self.add_karma(msg.rstrip('+'))
+            elif remove:
+                self.remove_karma(msg.rstrip('-'))
 
     def add_karma(self, user):
         """
