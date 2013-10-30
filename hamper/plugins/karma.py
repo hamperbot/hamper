@@ -123,7 +123,7 @@ class Karma(ChatCommandPlugin):
                 show = (KarmaTable.kcount.desc() if groups[0] == 'top'
                         else KarmaTable.kcount)
                 for user in users.order_by(show)[0:top]:
-                    bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
+                    bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
 
@@ -141,9 +141,9 @@ class Karma(ChatCommandPlugin):
             user = kt.filter(KarmaTable.user == groups[0].lower()).first()
 
             if user:
-                bot.reply(comm, str('%s: %d' % (user.user, user.kcount)))
+                bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
             else:
-                bot.reply(comm, str("No karma for %s" % groups[0].lower()))
+                bot.reply(comm, str("No karma for %s\x0f" % groups[0].lower()))
 
 
 class KarmaTable(SQLAlchemyBase):
