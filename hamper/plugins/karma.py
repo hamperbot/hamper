@@ -72,7 +72,9 @@ class Karma(ChatCommandPlugin):
             # use the magic above
             words = self.regstr.findall(msg)
             # Do things to people
-            self.modify_karma(words)
+            karmas = self.modify_karma(words)
+            # Commit karma changes to the db
+            self.update_db(karmas)
 
     def modify_karma(self, words):
         """
@@ -82,28 +84,42 @@ class Karma(ChatCommandPlugin):
         # I don't want to type this all the time, k?
         kt = self.db.session.query(KarmaTable)
 
+        # 'user': karma
+        k = {}
+
         if words:
             # For loop through all of the group members
             for word_tuple in words:
                 word = word_tuple[0]
+                ending = word[-1]
                 # This will either end with a - or +, if it's a - subract 1 kara,
                 # if it ends with a +, add 1 karma
-                change = -1 if word.endswith('-') else 1
+                change = -1 if ending == '-' else 1
                 # Now strip the ++ or -- from the end
-                word = word.lower().rstrip("+").rstrip("-")
+                word = word.rstrip('+').rstrip('-')
                 # Check if surrounded by parens, if so, remove them
                 if word.startswith('(') and word.endswith(')'):
                     word = word[1:-1]
+                # Add the user to the dict
+                if word:
+                    k[word] = change
+        return k
 
-                # Modify the db accourdingly
-                urow = kt.filter(KarmaTable.user == word).first()
-                # If the user doesn't exist, create it
-                if not urow:
-                    urow = KarmaTable(word)
-                urow.kcount += change
-                self.db.session.add(urow)
+    def update_db(self, userkarma):
+        """
+        Change the users karma by the karma amount (either 1 or -1)
+        """
 
-            self.db.session.commit()
+        kt = self.db.session.query(KarmaTable)
+        for user in userkarma:
+            # Modify the db accourdingly
+            urow = kt.filter(KarmaTable.user == user).first()
+            # If the user doesn't exist, create it
+            if not urow:
+                urow = KarmaTable(user)
+            urow.kcount += userkarma[user]
+            self.db.session.add(urow)
+        self.db.session.commit()
 
     class KarmaList(Command):
         """
