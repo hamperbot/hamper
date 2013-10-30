@@ -84,8 +84,8 @@ class Karma(ChatCommandPlugin):
 
         if words:
             # For loop through all of the group members
-            for word in words:
-                word = word[0]
+            for word_tuple in words:
+                word = word_tuple[0]
                 # This will either end with a - or +, if it's a - subract 1 kara,
                 # if it ends with a +, add 1 karma
                 change = -1 if word.endswith('-') else 1
