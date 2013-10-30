@@ -34,6 +34,26 @@ class Karma(ChatCommandPlugin):
                  '!karma --bottom - Show the bottom 5 karma earners\n'
                  '!karma username - Show the user\'s karma count\n')
 
+    gotta_catch_em_all = r"""# 3 or statement
+                             (
+
+                             # Starting with a (, look for anything within
+                             # parens that end with 2 or more + or -
+                             (?=\()[^-]+?\)(\+\++|--+) |
+
+                             # Looking from the start of the line until 2 or
+                             # more - or + are found. No whitespace in this
+                             # grouping
+                             ^[^\s]+(\+\++|--+) |
+
+                             # Finally group any non-whitespace groupings
+                             # that end with 2 or more + or -
+                             [^\s]+?(\+\++|--+)((?=\s)|(?=$))
+                            )
+                          """
+
+    regstr = re.compile(gotta_catch_em_all, re.X)
+
     def setup(self, loader):
         super(Karma, self).setup(loader)
         self.db = loader.db
@@ -45,42 +65,45 @@ class Karma(ChatCommandPlugin):
         """
         super(Karma, self).message(bot, comm)
 
+        # No directed karma giving or taking
         if not comm['directed']:
             msg = comm['message'].strip().lower()
+            print "msg: %s" % str(msg)
+            # use the magic above
+            words = self.regstr.findall(msg)
+            # Do things to people
+            self.modify_karma(words)
 
-            add = re.search(r'^[\w][^/].*\+\++$', msg)
-            remove = re.search(r'^[\w][^/].*--+$', msg)
-
-            if add:
-                self.add_karma(msg.rstrip('+'))
-            elif remove:
-                self.remove_karma(msg.rstrip('-'))
-
-    def add_karma(self, user):
+    def modify_karma(self, words):
         """
-        +1 Karma to a user
+        Given a regex object, look through the groups and modify karma
+        as necessary
         """
-
+        # I don't want to type this all the time, k?
         kt = self.db.session.query(KarmaTable)
-        urow = kt.filter(KarmaTable.user == user).first()
-        if not urow:
-            urow = KarmaTable(user)
-        urow.kcount += 1
-        self.db.session.add(urow)
-        self.db.session.commit()
 
-    def remove_karma(self, user):
-        """
-        -1 Karma to a user
-        """
+        if words:
+            # For loop through all of the group members
+            for word in words:
+                word = word[0]
+                # This will either end with a - or +, if it's a - subract 1 kara,
+                # if it ends with a +, add 1 karma
+                change = -1 if word.endswith('-') else 1
+                # Now strip the ++ or -- from the end
+                word = word.lower().rstrip("+").rstrip("-")
+                # Check if surrounded by parens, if so, remove them
+                if word.startswith('(') and word.endswith(')'):
+                    word = word[1:-1]
 
-        kt = self.db.session.query(KarmaTable)
-        urow = kt.filter(KarmaTable.user == user).first()
-        if not urow:
-            urow = KarmaTable(user)
-        urow.kcount -= 1
-        self.db.session.add(urow)
-        self.db.session.commit()
+                # Modify the db accourdingly
+                urow = kt.filter(KarmaTable.user == word).first()
+                # If the user doesn't exist, create it
+                if not urow:
+                    urow = KarmaTable(word)
+                urow.kcount += change
+                self.db.session.add(urow)
+
+            self.db.session.commit()
 
     class KarmaList(Command):
         """
