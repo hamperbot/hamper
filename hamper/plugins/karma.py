@@ -110,7 +110,7 @@ class Karma(ChatCommandPlugin):
         Return the top or bottom 5
         """
 
-        regex = r'^karma --(top|bottom)$'
+        regex = r'^(score|karma) --(top|bottom)$'
 
         LIST_MAX = 5
 
@@ -133,7 +133,7 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^karma ([^-].+)$'
+        regex = r'^(score|karma) ([^-].+)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
