@@ -138,7 +138,7 @@ class Karma(ChatCommandPlugin):
             top = self.LIST_MAX if user_count >= self.LIST_MAX else user_count
 
             if top:
-                show = (KarmaTable.kcount.desc() if groups[0] == 'top'
+                show = (KarmaTable.kcount.desc() if groups[1] == 'top'
                         else KarmaTable.kcount)
                 for user in users.order_by(show)[0:top]:
                     bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
