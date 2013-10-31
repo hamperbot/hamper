@@ -128,7 +128,7 @@ class Karma(ChatCommandPlugin):
         Return the top or bottom 5
         """
 
-        regex = r'^(score|karma) --(top|bottom)$'
+        regex = r'^(?:score|karma) --(top|bottom)$'
 
         LIST_MAX = 5
 
@@ -138,7 +138,7 @@ class Karma(ChatCommandPlugin):
             top = self.LIST_MAX if user_count >= self.LIST_MAX else user_count
 
             if top:
-                show = (KarmaTable.kcount.desc() if groups[1] == 'top'
+                show = (KarmaTable.kcount.desc() if groups[0] == 'top'
                         else KarmaTable.kcount)
                 for user in users.order_by(show)[0:top]:
                     bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
@@ -151,7 +151,7 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^(score|karma) ([^-].+)$'
+        regex = r'^(?:score|karma) ([^-].+)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
