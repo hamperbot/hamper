@@ -96,7 +96,10 @@ class Karma(ChatCommandPlugin):
                 # if it ends with a +, add 1 karma
                 change = -1 if ending == '-' else 1
                 # Now strip the ++ or -- from the end
-                word = word.rstrip('+').rstrip('-')
+                if '-' in ending:
+                    word = word.rstrip('-')
+                elif '+' in ending:
+                    word = word.rstrip('+')
                 # Check if surrounded by parens, if so, remove them
                 if word.startswith('(') and word.endswith(')'):
                     word = word[1:-1]
