@@ -39,7 +39,7 @@ class Karma(ChatCommandPlugin):
 
                              # Starting with a (, look for anything within
                              # parens that end with 2 or more + or -
-                             (?=\()[^-]+?\)(\+\++|--+) |
+                             (?=\()[^\)]+\)(\+\++|--+) |
 
                              # Looking from the start of the line until 2 or
                              # more - or + are found. No whitespace in this
@@ -68,7 +68,6 @@ class Karma(ChatCommandPlugin):
         # No directed karma giving or taking
         if not comm['directed']:
             msg = comm['message'].strip().lower()
-            print "msg: %s" % str(msg)
             # use the magic above
             words = self.regstr.findall(msg)
             # Do things to people
