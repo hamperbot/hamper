@@ -23,7 +23,7 @@ class ChannelUtils(ChatCommandPlugin):
 
     class LeaveCommand(Command):
         name = 'leave'
-        regex = r'^leave (#?[-_a-zA-Z0-9])?$'
+        regex = r'^leave(?: (#?[-_a-zA-Z0-9]+))?$'
 
         short_desc = 'leave [#channel] - Ask the bot to leave.'
         long_desc = 'If channel is ommited, leave the current channel.'

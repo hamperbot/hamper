@@ -89,7 +89,7 @@ class CommanderProtocol(irc.IRCClient):
                 directed = True
             else:
                 directed = False
-                message = '{0}: {1}'.format(target, msg)
+                message = '{0}: {1}'.format(target, message)
         else:
             directed = False
         if message.startswith('!'):

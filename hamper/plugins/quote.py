@@ -31,7 +31,7 @@ class Quotes(ChatCommandPlugin):
                      'quote --count - Count quotes\n')
 
         def command(self, bot, comm, groups):
-            index = random.randrange(0, bot.db.query(Quote).count() + 1)
+            index = random.randrange(0, bot.db.session.query(Quote).count() + 1)
             quote = bot.factory.loader.db.session.query(Quote)[index]
             # Lame twisted irc doesn't support unicode.
             bot.reply(comm, str(quote.text))
