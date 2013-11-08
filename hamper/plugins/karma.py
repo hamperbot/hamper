@@ -103,6 +103,8 @@ class Karma(ChatCommandPlugin):
                 # Check if surrounded by parens, if so, remove them
                 if word.startswith('(') and word.endswith(')'):
                     word = word[1:-1]
+                # Finally strip whitespace
+                word = word.strip()
                 # Add the user to the dict
                 if word:
                     k[word] += change
@@ -158,7 +160,7 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
-            user = kt.filter(KarmaTable.user == groups[0].lower()).first()
+            user = kt.filter(KarmaTable.user == groups[0].strip().lower()).first()
 
             if user:
                 bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
