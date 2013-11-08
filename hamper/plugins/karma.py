@@ -74,7 +74,7 @@ class Karma(ChatCommandPlugin):
             # Do things to people
             karmas = self.modify_karma(words)
             # Commit karma changes to the db
-            self.update_db(karmas)
+            self.update_db(karmas, comm['user'])
 
     def modify_karma(self, words):
         """
@@ -108,20 +108,21 @@ class Karma(ChatCommandPlugin):
                     k[word] += change
         return k
 
-    def update_db(self, userkarma):
+    def update_db(self, userkarma, username):
         """
         Change the users karma by the karma amount (either 1 or -1)
         """
 
         kt = self.db.session.query(KarmaTable)
         for user in userkarma:
-            # Modify the db accourdingly
-            urow = kt.filter(KarmaTable.user == user).first()
-            # If the user doesn't exist, create it
-            if not urow:
-                urow = KarmaTable(user)
-            urow.kcount += userkarma[user]
-            self.db.session.add(urow)
+            if user != username:
+                # Modify the db accourdingly
+                urow = kt.filter(KarmaTable.user == user).first()
+                # If the user doesn't exist, create it
+                if not urow:
+                    urow = KarmaTable(user)
+                urow.kcount += userkarma[user]
+                self.db.session.add(urow)
         self.db.session.commit()
 
     class KarmaList(Command):
