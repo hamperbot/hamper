@@ -67,7 +67,7 @@ class Karma(ChatCommandPlugin):
         super(Karma, self).message(bot, comm)
 
         # No directed karma giving or taking
-        if not comm['directed']:
+        if not comm['directed'] and not comm['pm']:
             msg = comm['message'].strip().lower()
             # use the magic above
             words = self.regstr.findall(msg)
