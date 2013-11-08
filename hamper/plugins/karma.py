@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 from hamper.interfaces import ChatCommandPlugin, Command
 
@@ -84,7 +85,7 @@ class Karma(ChatCommandPlugin):
         kt = self.db.session.query(KarmaTable)
 
         # 'user': karma
-        k = {}
+        k = defaultdict(int)
 
         if words:
             # For loop through all of the group members
@@ -104,7 +105,7 @@ class Karma(ChatCommandPlugin):
                     word = word[1:-1]
                 # Add the user to the dict
                 if word:
-                    k[word] = change
+                    k[word] += change
         return k
 
     def update_db(self, userkarma):
