@@ -73,6 +73,9 @@ class Karma(ChatCommandPlugin):
             words = self.regstr.findall(msg)
             # Do things to people
             karmas = self.modify_karma(words)
+            # Notify the users they can't modify their own karma
+            if comm['user'] in karmas.keys():
+                bot.reply(comm, "Nice try, no modifying your own karma")
             # Commit karma changes to the db
             self.update_db(karmas, comm['user'])
 
