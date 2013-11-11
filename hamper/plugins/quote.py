@@ -45,7 +45,7 @@ class Quotes(ChatCommandPlugin):
             text = groups[0]
             quote = Quote(text, comm['user'])
             bot.factory.loader.db.session.add(quote)
-            bot.reply(comm, 'Succesfully added quote.')
+            bot.reply(comm, 'Successfully added quote.')
 
     class CountQuotes(Command):
         """Count how many quotes the bot knows."""
