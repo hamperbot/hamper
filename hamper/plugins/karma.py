@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 
 from hamper.interfaces import ChatCommandPlugin, Command
 
@@ -66,14 +67,17 @@ class Karma(ChatCommandPlugin):
         super(Karma, self).message(bot, comm)
 
         # No directed karma giving or taking
-        if not comm['directed']:
+        if not comm['directed'] and not comm['pm']:
             msg = comm['message'].strip().lower()
             # use the magic above
             words = self.regstr.findall(msg)
             # Do things to people
             karmas = self.modify_karma(words)
+            # Notify the users they can't modify their own karma
+            if comm['user'] in karmas.keys():
+                bot.reply(comm, "Nice try, no modifying your own karma")
             # Commit karma changes to the db
-            self.update_db(karmas)
+            self.update_db(karmas, comm['user'])
 
     def modify_karma(self, words):
         """
@@ -84,7 +88,7 @@ class Karma(ChatCommandPlugin):
         kt = self.db.session.query(KarmaTable)
 
         # 'user': karma
-        k = {}
+        k = defaultdict(int)
 
         if words:
             # For loop through all of the group members
@@ -102,25 +106,28 @@ class Karma(ChatCommandPlugin):
                 # Check if surrounded by parens, if so, remove them
                 if word.startswith('(') and word.endswith(')'):
                     word = word[1:-1]
+                # Finally strip whitespace
+                word = word.strip()
                 # Add the user to the dict
                 if word:
-                    k[word] = change
+                    k[word] += change
         return k
 
-    def update_db(self, userkarma):
+    def update_db(self, userkarma, username):
         """
         Change the users karma by the karma amount (either 1 or -1)
         """
 
         kt = self.db.session.query(KarmaTable)
         for user in userkarma:
-            # Modify the db accourdingly
-            urow = kt.filter(KarmaTable.user == user).first()
-            # If the user doesn't exist, create it
-            if not urow:
-                urow = KarmaTable(user)
-            urow.kcount += userkarma[user]
-            self.db.session.add(urow)
+            if user != username:
+                # Modify the db accourdingly
+                urow = kt.filter(KarmaTable.user == user).first()
+                # If the user doesn't exist, create it
+                if not urow:
+                    urow = KarmaTable(user)
+                urow.kcount += userkarma[user]
+                self.db.session.add(urow)
         self.db.session.commit()
 
     class KarmaList(Command):
@@ -156,7 +163,7 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
-            user = kt.filter(KarmaTable.user == groups[0].lower()).first()
+            user = kt.filter(KarmaTable.user == groups[0].strip().lower()).first()
 
             if user:
                 bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
