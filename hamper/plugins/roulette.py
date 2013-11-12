@@ -27,6 +27,8 @@ class Roulette(ChatCommandPlugin):
             dice = random.randint(1,6)
             if dice == 6:
                 bot.kick(comm["channel"], comm["user"], "You shot yourself!")
+            else:
+                bot.reply(comm, "*click*")
 
             return True
 
