@@ -178,7 +178,7 @@ class CommanderFactory(protocol.ClientFactory):
     protocol = CommanderProtocol
 
     def __init__(self, config):
-        self.channels = [c.split(' ') for c in config['channels']]
+        self.channels = [c.split(' ', 1) for c in config['channels']]
         self.nickname = config['nickname']
         self.history = {}
 
