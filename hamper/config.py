@@ -6,8 +6,12 @@ import yaml
 
 
 def load():
-    with open('hamper.conf') as config_file:
-        config = yaml.load(config_file)
+    try:
+        with open('hamper.conf') as config_file:
+            config = yaml.load(config_file)
+    except IOError:
+        config = {}
+
     config = replace_env_vars(config)
 
     # Fill in data from the env:
