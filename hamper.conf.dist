@@ -1,4 +1,5 @@
 nickname: cool_bot
+password:
 server: irc.freenode.net
 port: 6667
 db: "sqlite:///hamper.db"

@@ -20,6 +20,7 @@ import hamper.log
 from hamper import plugins
 from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
                                IPopulationPlugin)
+import time
 
 
 log = logging.getLogger('hamper')
@@ -43,6 +44,10 @@ class CommanderProtocol(irc.IRCClient):
         return self.factory.nickname
 
     @property
+    def password(self):
+        return self.factory.password
+
+    @property
     def db(self):
         return self.factory.loader.db
 
@@ -51,6 +56,13 @@ class CommanderProtocol(irc.IRCClient):
     def signedOn(self):
         """Called after successfully signing on to the server."""
         log.info("Signed on as %s.", self.nickname)
+        if not self.password:
+            # We aren't wating for auth, join all the channels
+            self.join_channels()
+        else:
+            self.msg("NickServ", "IDENTIFY %s" % self.password)
+
+    def join_channels(self):
         self.dispatch('presence', 'signedOn')
         for c in self.factory.channels:
             self.join(*c)
@@ -151,6 +163,16 @@ class CommanderProtocol(irc.IRCClient):
         """Called after the names request is finished"""
         self.dispatch('population', 'namesEnd', prefix, params)
 
+    def noticed(self, user, channel, message):
+        print "NOTICE %s %s %s" % (user, channel, message)
+        # mozilla's nickserv responds as NickServ!services@mozilla.org
+        if (self.password and channel == self.nickname and
+                user.startswith('NickServ')):
+            if "Password accepted" in message:
+                self.join_channels()
+            elif "Password incorrect" in message:
+                print "AUTH FAILED!!!!!!!"
+
     ##### Hamper specific functions. #####
 
     def dispatch(self, category, func, *args):
@@ -180,6 +202,7 @@ class CommanderFactory(protocol.ClientFactory):
     def __init__(self, config):
         self.channels = [c.split(' ', 1) for c in config['channels']]
         self.nickname = config['nickname']
+        self.password = config.get('password', None)
         self.history = {}
 
         self.loader = PluginLoader()
