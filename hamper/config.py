@@ -10,6 +10,17 @@ def load():
         config = yaml.load(config_file)
     config = replace_env_vars(config)
 
+    # Fill in data from the env:
+    for k, v in os.environ.items():
+        try:
+            config[k] = yaml.load(v)
+        except yaml.parser.ParserError:
+            config[k] = v
+
+    # Special case: database
+    if 'DATABASE_URL' in os.environ:
+        config['db'] = os.environ['DATABASE_URL']
+
     for key in ['server', 'port', 'nickname', 'channels']:
         if (key not in config) or (not config[key]):
             print('You need to define {0} in the config file.'.format(key))
