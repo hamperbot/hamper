@@ -21,8 +21,11 @@ class Help(ChatCommandPlugin):
     def helpful_commands(cls, bot):
         commands = set()
         for kind, plugins in bot.factory.loader.plugins.items():
-
             for plugin in plugins:
+                if (hasattr(plugin, 'name') and hasattr(plugin, 'short_desc')
+                        and hasattr(plugin, 'long_desc')):
+                    commands.add(plugin)
+
                 commands.update(plugin.commands)
 
         for cmd in commands:
@@ -35,8 +38,8 @@ class Help(ChatCommandPlugin):
 
         short_desc = 'help [command] - Show help for commands.'
         long_desc = ('For detailed help on a command, say "!help command". '
-                      'Some commands may not be listed. If you think they '
-                      'should, poke the plugin author.')
+                     'Some commands may not be listed. If you think they '
+                     'should, poke the plugin author.')
 
         def command(self, bot, comm, groups):
             commands = Help.helpful_commands(bot)

@@ -36,6 +36,10 @@ class Factoids(ChatPlugin):
         return ret
 
     def try_add_factoid(self, bot, comm):
+        if not bot.acl.hasPermission(comm, 'factoid'):
+            bot.reply(comm, "I cannot learn new things")
+            return
+
         if not comm['directed']:
             return
 

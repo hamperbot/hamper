@@ -8,3 +8,5 @@ include/
 lib/
 dropin.cache
 build/
+_trial_temp/
+hamper.acl
