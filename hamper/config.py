@@ -18,7 +18,7 @@ def load():
     for k, v in os.environ.items():
         try:
             config[k] = yaml.load(v)
-        except yaml.parser.ParserError:
+        except (yaml.parser.ParserError, yaml.scanner.ScannerError):
             config[k] = v
 
     # Special case: database
