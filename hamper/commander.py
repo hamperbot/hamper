@@ -171,7 +171,7 @@ class CommanderProtocol(irc.IRCClient):
         # mozilla's nickserv responds as NickServ!services@mozilla.org
         if (self.password and channel == self.nickname and
                 user.startswith('NickServ')):
-            if "Password accepted" in message:
+            if "Password accepted" in message or "You are now identified" in message:
                 self.joinChannels()
             elif "Password incorrect" in message:
                 print "NickServ AUTH FAILED!!!!!!!"
