@@ -37,17 +37,12 @@ class Tinyurl(ChatPlugin):
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'http://tinyurl.com/api-create.php?url={0}'
-        # If an exclude value is found in the url
-        # it will not be shortened
         self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
-        # Make sure they've configured the tinyurl config values.
 
     def message(self, bot, comm):
         match = self.regex.search(comm['message'])
         # Found a url
         if match:
-            # base url isn't % encoded, python 2.7 doesn't do this well, and I
-            # couldn't figure it out.
             long_url = match.group(0)
 
             # Only shorten urls which are longer than a tinyurl url (12 chars)
@@ -63,7 +58,6 @@ class Tinyurl(ChatPlugin):
             if not match.group('prot'):
                 long_url = 'http://' + long_url
 
-            # tinyurl requires valid % encoded urls
             resp = requests.get(self.api_url.format(long_url))
             data = resp.content
 
@@ -73,7 +67,10 @@ class Tinyurl(ChatPlugin):
                     "{0}'s shortened url is {1}" .format(comm['user'], data)
                 )
             else:
-                bot.reply(comm, "This command is broken!")
+                bot.reply(
+                    comm, "Error while shortening URL: saw status code %s" %
+                    resp.status_code
+                )
 
         # Always let the other plugins run
         return False
