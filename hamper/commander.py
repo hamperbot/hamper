@@ -174,7 +174,8 @@ class CommanderProtocol(irc.IRCClient):
             if "Password accepted" in message:
                 self.joinChannels()
             elif "Password incorrect" in message:
-                print "AUTH FAILED!!!!!!!"
+                print "NickServ AUTH FAILED!!!!!!!"
+                reactor.stop()
 
     ##### Hamper specific functions. #####
 
