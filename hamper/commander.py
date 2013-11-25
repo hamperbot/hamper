@@ -18,9 +18,9 @@ from sqlalchemy import orm
 import hamper.config
 import hamper.log
 from hamper import plugins
+from hamper.acl import ACL, AllowAllACL
 from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
                                IPopulationPlugin)
-
 
 log = logging.getLogger('hamper')
 
@@ -29,8 +29,8 @@ def main():
     config = hamper.config.load()
     hamper.log.setup_logging()
 
-    reactor.connectTCP(config['server'], config['port'],
-                       CommanderFactory(config))
+    reactor.connectTCP(
+        config['server'], config['port'], CommanderFactory(config))
     reactor.run()
 
 
@@ -43,17 +43,32 @@ class CommanderProtocol(irc.IRCClient):
         return self.factory.nickname
 
     @property
+    def password(self):
+        return self.factory.password
+
+    @property
     def db(self):
         return self.factory.loader.db
+
+    @property
+    def acl(self):
+        return self.factory.acl
 
     ##### Twisted events #####
 
     def signedOn(self):
         """Called after successfully signing on to the server."""
         log.info("Signed on as %s.", self.nickname)
+        if not self.password:
+            # We aren't wating for auth, join all the channels
+            self.joinChannels()
+        else:
+            self.msg("NickServ", "IDENTIFY %s" % self.password)
+
+    def joinChannels(self):
         self.dispatch('presence', 'signedOn')
         for c in self.factory.channels:
-            self.join(c)
+            self.join(*c)
 
     def joined(self, channel):
         """Called after successfully joining a channel."""
@@ -151,6 +166,17 @@ class CommanderProtocol(irc.IRCClient):
         """Called after the names request is finished"""
         self.dispatch('population', 'namesEnd', prefix, params)
 
+    def noticed(self, user, channel, message):
+        print "NOTICE %s %s %s" % (user, channel, message)
+        # mozilla's nickserv responds as NickServ!services@mozilla.org
+        if (self.password and channel == self.nickname and
+                user.startswith('NickServ')):
+            if "Password accepted" in message:
+                self.joinChannels()
+            elif "Password incorrect" in message:
+                print "NickServ AUTH FAILED!!!!!!!"
+                reactor.stop()
+
     ##### Hamper specific functions. #####
 
     def dispatch(self, category, func, *args):
@@ -178,9 +204,18 @@ class CommanderFactory(protocol.ClientFactory):
     protocol = CommanderProtocol
 
     def __init__(self, config):
-        self.channels = config['channels']
+        self.channels = [c.split(' ', 1) for c in config['channels']]
         self.nickname = config['nickname']
+        self.password = config.get('password', None)
         self.history = {}
+        acl_fname = config.get('acl', None)
+
+        if acl_fname:
+            # Bubble up an IOError if they passed a bad file
+            with open(acl_fname, 'r') as acl_fd:
+                self.acl = ACL(acl_fd.read())
+        else:
+            self.acl = AllowAllACL()
 
         self.loader = PluginLoader()
         self.loader.config = config
@@ -207,7 +242,6 @@ class CommanderFactory(protocol.ClientFactory):
         for pattern in config['plugins']:
             if pattern not in config_matches:
                 log.warning('No plugin matched pattern "%s"', pattern)
-
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)

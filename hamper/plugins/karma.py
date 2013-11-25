@@ -28,7 +28,7 @@ class Karma(ChatCommandPlugin):
 
     priority = -2
 
-    short_desc = 'Give or take karma from someone'
+    short_desc = 'karma/score - Give or take karma from someone'
     long_desc = ('username++ - Give karma\n'
                  'username-- - Take karma\n'
                  '!karma --top - Show the top 5 karma earners\n'
