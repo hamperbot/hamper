@@ -212,7 +212,7 @@ class CommanderFactory(protocol.ClientFactory):
         if acl_fname:
             # Bubble up an IOError if they passed a bad file
             with open(acl_fname, 'r') as acl_fd:
-                self.acl = ACL(acl_fd)
+                self.acl = ACL(acl_fd.read())
         else:
             self.acl = AllowAllACL()
 

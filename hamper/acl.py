@@ -7,8 +7,8 @@ class AllowAllACL(object):
 
 
 class ACL(object):
-    def __init__(self, acl_fd):
-        self.acls = json.loads(acl_fd.read())
+    def __init__(self, acl):
+        self.acls = json.loads(acl)
         self.permissions = self.acls['permissions']
 
     def hasPermission(self, comm, thing):

@@ -29,7 +29,7 @@ TEST_ACL = """
 
 class TestACL(TestCase):
     def test_channel_star_perms(self):
-        acl = ACL(StringIO.StringIO(TEST_ACL.strip('\n')))
+        acl = ACL(StringIO.StringIO(TEST_ACL.strip('\n')).read())
         comm = {
             'user': 'uberj',
             'channel': '#channel',
@@ -37,7 +37,7 @@ class TestACL(TestCase):
         self.assertTrue(acl.hasPermission(comm, 'foo'))
 
     def test_channel_perms(self):
-        acl = ACL(StringIO.StringIO(TEST_ACL))
+        acl = ACL(StringIO.StringIO(TEST_ACL).read())
         comm = {
             'user': 'foobar',  # not in any groups
             'channel': '#channel1',
@@ -48,7 +48,7 @@ class TestACL(TestCase):
         self.assertFalse(acl.hasPermission(comm, 'channel.leave'))
 
     def test_channel_everything_but_figlet(self):
-        acl = ACL(StringIO.StringIO(TEST_ACL))
+        acl = ACL(StringIO.StringIO(TEST_ACL).read())
         comm = {
             'user': 'foobar',  # not in any groups
             'channel': '#channel2',
