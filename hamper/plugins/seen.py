@@ -69,9 +69,9 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
         regex = r'^seen (.*)$'
 
         name = 'seen'
-        long_desc = short_desc = (
-            'seen <user> - When was user last seen?'
-        )
+
+        short_desc = 'seen <user> - When was the user last seen?'
+        long_desc = ''
 
         def command(self, bot, comm, groups):
             if groups[0].isspace():
