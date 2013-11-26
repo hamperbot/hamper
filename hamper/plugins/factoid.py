@@ -36,10 +36,6 @@ class Factoids(ChatPlugin):
         return ret
 
     def try_add_factoid(self, bot, comm):
-        if not bot.acl.hasPermission(comm, 'factoid'):
-            bot.reply(comm, "I cannot learn new things")
-            return
-
         if not comm['directed']:
             return
 
@@ -47,6 +43,10 @@ class Factoids(ChatPlugin):
         match = re.match(r'learn(?: that)? (.+)\s+(\w+)\s+<(\w+)>\s+(.*)', msg)
 
         if not match:
+            return
+
+        if not bot.acl.hasPermission(comm, 'factoid'):
+            bot.reply(comm, "I cannot learn new things")
             return
 
         trigger, type, action, response = match.groups()
@@ -75,6 +75,10 @@ class Factoids(ChatPlugin):
         if not match:
             return
 
+        if not bot.acl.hasPermission(comm, 'factoid'):
+            bot.reply(comm, "Never Forget!")
+            return
+
         trigger, response = match.groups()
 
         factoids = (self.db.session.query(Factoid)
@@ -95,7 +99,12 @@ class Factoids(ChatPlugin):
 
         msg = comm['message'].strip()
         match = re.match(r'forget all about (.+)', msg)
+
         if not match:
+            return
+
+        if not bot.acl.hasPermission(comm, 'factoid'):
+            bot.reply(comm, "Never Forget!")
             return
 
         trigger = match.groups()[0]
