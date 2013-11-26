@@ -1,154 +1,121 @@
+from hamper.interfaces import (
+    ChatCommandPlugin, Command, PopulationPlugin, PresencePlugin
+)
+
+from sqlalchemy import Column, Integer, DateTime, String
+from sqlalchemy.ext.declarative import declarative_base
+
 from datetime import datetime
 
-from hamper.interfaces import (ChatCommandPlugin, Command, PopulationPlugin,
-                               PresencePlugin)
+SQLAlchemyBase = declarative_base()
 
 
 class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
-    """Keep track of when a user does something, and say when a user was last
-    seen when asked"""
+    """Keep track of when a user has last done something."""
 
     name = 'seen'
     priority = 10
-    users = {}
 
-    @classmethod
-    def update_users(cls, bot, nickname, seen=True):
-        """Add or update an existing user in the users dict"""
+    def setup(self, loader):
+        super(Seen, self).setup(loader)
+        self.db = loader.db
+        SQLAlchemyBase.metadata.create_all(self.db.engine)
 
-        # dont add the bot to the user dict
-        if nickname == bot.nickname:
-            return
+    def queryUser(self, channel, user):
+        # Should this go in the SeenTable class?
+        return (self.db.session.query(SeenTable)
+                .filter(SeenTable.channel == channel)
+                .filter(SeenTable.user == user))
 
-        # get user if it exists
-        user = cls.users.get(nickname, None)
-        # only update seen if user exists, and seen is true
-        if seen and user:
-            cls.users[nickname].update_seen()
+    def record(self, channel, user, doing):
+        logs = self.queryUser(channel, user)
+
+        if logs.count():  # Because exists() doesn't exist?
+            assert logs.count() == 1, "one log per channel not observed"
+            log = logs.first()
+            log.seen = datetime.now()
+            log.doing = doing
         else:
-            # user doesn't exist.
-            # if seen is true (default case for all but nameReply)
-            # add them with current time as last seen
-            if seen:
-                user = User(nickname)
-            else:
-                # namesReply case, this is not a user action; so no seen time
-                user = User(nickname, seen=None)
+            self.db.session.add(
+                SeenTable(channel, user, datetime.now(), doing)
+            )
 
-            # store the user object with the nickname for easy dict lookups
-            user = {nickname.lower(): user}
-            cls.users.update(user)
-
-    @classmethod
-    def names(cls, bot, channel):
-        """Sends the NAMES command to the IRC server."""
-        channel = channel.lower()
-        bot.sendLine("NAMES %s" % channel)
-
-    def joined(self, bot, channel):
-        """called after the bot joins a channel"""
-        # Send a names command
-        Seen.names(bot, channel)
+        self.db.session.commit()
 
     def userJoined(self, bot, user, channel):
-        """When user joins a channel, add them to the user dict"""
-        Seen.update_users(bot, user)
+        self.record(channel, user, '(Joining)')
+        return super(Seen, self).userJoined(bot, user, channel)
 
     def userLeft(self, bot, user, channel):
-        Seen.update_users(bot, user)
-
-    def userQuit(self, bot, user, quitMessage):
-        Seen.update_users(bot, user)
-
-    def namesReply(self, bot, prefix, params):
-        """called when the server replies to the NAMES request"""
-        channel = params[2]
-        nicks = params[3].split(' ')
-        for nick in nicks:
-            # Strip op status in name.
-            if nick[0] in ['#', '@']:
-                nick = nick[1:]
-            Seen.update_users(bot, nick, seen=False)
-
-    def namesEnd(self, bot, prefix, params):
-        pass
+        self.record(channel, user, '(Leaving)')
+        return super(Seen, self).userLeft(bot, user, channel)
 
     def message(self, bot, comm):
-        nick = comm['user']
-        Seen.update_users(bot, nick)
-        # dispatch out to commands.
+        self.record(comm['channel'], comm['user'], comm['raw_message'])
         return super(Seen, self).message(bot, comm)
 
+    def userQuit(self, bot, user, quitMessage):
+        # Go through every log we have for this user and set their most recent
+        # doing to (Quiting with message 'quitMessage')
+        logs = self.db.session.query(SeenTable).filter(SeenTable.user == user)
+        logs.update({
+            'doing': '(Quiting) with message "%s"' % quitMessage,
+            'seen': datetime.now()
+        })
+        return super(Seen, self).userQuit(bot, user, quitMessage)
+
     class SeenCommand(Command):
-        """Say when you last saw a nickname"""
+        """Say the last thing you've seen of a user"""
         regex = r'^seen (.*)$'
-        onlyDirected = False
 
         name = 'seen'
-        short_desc = 'seen username - When was user "username" last seen?'
-        long_desc = None
+        long_desc = short_desc = (
+            'seen <user> - When was user last seen?'
+        )
 
         def command(self, bot, comm, groups):
-            """Determine last time a nickname was seen"""
             if groups[0].isspace():
                 return
 
             name = groups[0].strip()
-
-            # Grab the user from the database
-            user = self.plugin.users.get(name.lower(), None)
             if name.lower() == bot.nickname.lower():
                 bot.reply(comm, 'I am always here!')
-            # the user has never been seen
-            elif user is None:
-                bot.reply(comm, 'I have not seen {0}'.format(name))
-            # user exists database and has been seen
-            elif user.seen:
+
+            logs = self.plugin.queryUser(comm['channel'], name)
+
+            if not logs.count():
+                bot.reply(comm, 'I have not seen %s' % name)
+            else:
+                assert logs.count() == 1, 'one log per channel'
+                log = logs.first()
                 time_format = 'at %I:%M %p on %b-%d'
-                seen = user.seen.strftime(time_format)
-                bot.reply(comm, 'Seen {0.nickname} {1}'.format(user, seen))
-            # if the user exists in the database, but has not been seen active
-            # since the bot joined
-            else:
-                bot.reply(comm, 'I have not seen {0}'.format(name))
-
-    class NamesCommand(Command):
-        """List all users in the channel."""
-        regex = r'^(names?|users?|nicks?)\s?(?:list)?$'
-        onlyDirected = False
-
-        name = 'names'
-        short_desc = 'Get the list of users in channel.'
-        long_desc = None
-
-        def command(self, bot, comm, groups):
-            """Print out a list of users in the channel"""
-            # Could be better, anytime we're checking users we should send a
-            # new names request, and set the command to be deffered until
-            # namesEnd
-            userlist = self.plugin.users
-            nicknames = [nick for nick in userlist.keys()]
-            if nicknames:
-                message = ", ".join(nicknames)
-                bot.reply(comm, '{0} list: {1}.'.format(groups[0], message))
-            else:
-                # Trigger a names request as a fall back.
-                Seen.names()
-                bot.reply(comm, 'No users in list. Needs work.')
+                seen = log.seen.strftime(time_format)
+                bot.reply(
+                    comm, 'I observed %s %s -- %s' % (name, seen, log.doing)
+                )
 
 
-class User(object):
+class SeenTable(SQLAlchemyBase):
+    """One log per channel per user"""
 
-    def __init__(self, nickname, seen=datetime.now()):
-        self.nickname = nickname
-        # Default seen time is on creation.
+    __tablename__ = 'seen'
+
+    id = Column(Integer, primary_key=True)
+    user = Column(String)
+    channel = Column(String)
+    seen = Column(DateTime)
+    doing = Column(String)
+
+    def __init__(self, channel, user, seen, doing):
+        self.channel = channel
+        self.user = user
         self.seen = seen
+        self.doing = doing
 
-    def update_seen(self):
-        self.seen = datetime.now()
+    def __str__(self):
+        return "%s %s %s %s" % (self.channel, self.user, self.seen, self.doing)
 
     def __repr__(self):
-        return self.nickname
-
+        return "<Seen %s>" % self
 
 seen = Seen()
