@@ -22,7 +22,6 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
         SQLAlchemyBase.metadata.create_all(self.db.engine)
 
     def queryUser(self, channel, user):
-        # Should this go in the SeenTable class?
         return (self.db.session.query(SeenTable)
                 .filter(SeenTable.channel == channel)
                 .filter(SeenTable.user == user))
@@ -31,7 +30,6 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
         logs = self.queryUser(channel, user)
 
         if logs.count():  # Because exists() doesn't exist?
-            assert logs.count() == 1, "one log per channel not observed"
             log = logs.first()
             log.seen = datetime.now()
             log.doing = doing
@@ -86,7 +84,6 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
             if not logs.count():
                 bot.reply(comm, 'I have not seen %s' % name)
             else:
-                assert logs.count() == 1, 'one log per channel'
                 log = logs.first()
                 time_format = 'at %I:%M %p on %b-%d'
                 seen = log.seen.strftime(time_format)
