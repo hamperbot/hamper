@@ -5,6 +5,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 from hamper.interfaces import ChatPlugin
+from hamper.utils import uen, ude
 
 
 SQLAlchemyBase = declarative_base()
@@ -49,18 +50,21 @@ class Factoids(ChatPlugin):
             bot.reply(comm, "I cannot learn new things")
             return
 
-        trigger, type, action, response = match.groups()
+        trigger, type_, action, response = match.groups()
         trigger = trigger.strip()
 
         if action not in ['say', 'reply', 'me']:
             bot.reply(comm, "I don't know the action {0}.".format(action))
             return
-        if type not in ['is', 'triggers']:
-            bot.reply(comm, "I don't the type {0}.".format(type))
+        if type_ not in ['is', 'triggers']:
+            bot.reply(comm, "I don't the type {0}.".format(type_))
             return
 
-        self.db.session.add(Factoid(trigger, type, action, response))
+        self.db.session.add(
+            Factoid(ude(trigger), type_, action, ude(response))
+        )
         self.db.session.commit()
+
         bot.reply(comm, 'OK, {user}'.format(**comm))
 
         return True
@@ -82,8 +86,8 @@ class Factoids(ChatPlugin):
         trigger, response = match.groups()
 
         factoids = (self.db.session.query(Factoid)
-                    .filter(Factoid.trigger == trigger,
-                            Factoid.response == response)
+                    .filter(Factoid.trigger == ude(trigger),
+                            Factoid.response == ude(response))
                     .all())
         if len(factoids) == 0:
             bot.reply(comm, "I don't have anything like that.")
@@ -109,7 +113,7 @@ class Factoids(ChatPlugin):
 
         trigger = match.groups()[0]
         factoids = (self.db.session.query(Factoid)
-                    .filter(Factoid.trigger == trigger)
+                    .filter(Factoid.trigger == ude(trigger))
                     .all())
 
         if len(factoids) == 0:
@@ -129,7 +133,7 @@ class Factoids(ChatPlugin):
             msg = '!' + msg
 
         factoids = (self.db.session.query(Factoid)
-                    .filter(Factoid.trigger == msg)
+                    .filter(Factoid.trigger == ude(msg))
                     .all())
         if len(factoids) == 0:
             factoids = (self.db.session.query(Factoid)

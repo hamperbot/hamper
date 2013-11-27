@@ -2,6 +2,7 @@ import re
 from collections import defaultdict
 
 from hamper.interfaces import ChatCommandPlugin, Command
+from hamper.utils import ude, uen
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -122,10 +123,10 @@ class Karma(ChatCommandPlugin):
         for user in userkarma:
             if user != username:
                 # Modify the db accourdingly
-                urow = kt.filter(KarmaTable.user == user).first()
+                urow = kt.filter(KarmaTable.user == ude(user)).first()
                 # If the user doesn't exist, create it
                 if not urow:
-                    urow = KarmaTable(user)
+                    urow = KarmaTable(ude(user))
                 urow.kcount += userkarma[user]
                 self.db.session.add(urow)
         self.db.session.commit()
@@ -163,12 +164,19 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
-            user = kt.filter(KarmaTable.user == groups[0].strip().lower()).first()
+            thing = ude(groups[0].strip().lower())
+            user = kt.filter(KarmaTable.user == thing).first()
 
             if user:
-                bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
+                bot.reply(
+                    comm, '%s has %d points' % (uen(user.user), user.kcount),
+                    encode=False
+                )
             else:
-                bot.reply(comm, str("No karma for %s\x0f" % groups[0].lower()))
+                bot.reply(comm, 'No karma for %s ' % uen(thing),
+                    encode=False
+                )
+
 
 
 class KarmaTable(SQLAlchemyBase):
