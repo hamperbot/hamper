@@ -190,8 +190,9 @@ class CommanderProtocol(irc.IRCClient):
 
         self.factory.loader.runPlugins(category, func, self, *args)
 
-    def reply(self, comm, message):
-        message = message.encode('utf8')
+    def reply(self, comm, message, encode=True):
+        if encode:
+            message = message.encode('utf8')
         if comm['pm']:
             self.msg(comm['user'], message)
         else:
