@@ -1,7 +1,7 @@
 from hamper.interfaces import (
     ChatCommandPlugin, Command, PopulationPlugin, PresencePlugin
 )
-from hamper.utils import uen, ude
+from hamper.utils import ude
 
 from sqlalchemy import Column, Integer, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -39,7 +39,6 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
                 SeenTable(channel, user, datetime.now(), ude(doing))
             )
         self.db.session.commit()
-
 
     def userJoined(self, bot, user, channel):
         self.record(channel, user, '(Joining)')
