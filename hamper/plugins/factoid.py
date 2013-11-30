@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 from hamper.interfaces import ChatPlugin
-from hamper.utils import uen, ude
+from hamper.utils import ude
 
 
 SQLAlchemyBase = declarative_base()
