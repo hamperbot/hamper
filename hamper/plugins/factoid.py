@@ -73,7 +73,7 @@ class Factoids(ChatPlugin):
         if not comm['directed']:
             return
 
-        msg = comm['message'].strip()
+        msg = ude(comm['message'].strip())
         match = re.match(r'forget that\s+(.+)\s+is\s+(.*)', msg)
 
         if not match:
@@ -101,7 +101,7 @@ class Factoids(ChatPlugin):
         if not comm['directed']:
             return
 
-        msg = comm['message'].strip()
+        msg = ude(comm['message'].strip())
         match = re.match(r'forget all about (.+)', msg)
 
         if not match:
@@ -127,13 +127,13 @@ class Factoids(ChatPlugin):
         bot.reply(comm, 'Done, {user}'.format(**comm))
 
     def try_respond_to_factoid(self, bot, comm):
-        msg = comm['message'].strip()
+        msg = ude(comm['message'].strip())
 
         if comm['directed']:
             msg = '!' + msg
 
         factoids = (self.db.session.query(Factoid)
-                    .filter(Factoid.trigger == ude(msg))
+                    .filter(Factoid.trigger == msg)
                     .all())
         if len(factoids) == 0:
             factoids = (self.db.session.query(Factoid)
