@@ -85,8 +85,6 @@ class Karma(ChatCommandPlugin):
         Given a regex object, look through the groups and modify karma
         as necessary
         """
-        # I don't want to type this all the time, k?
-        kt = self.db.session.query(KarmaTable)
 
         # 'user': karma
         k = defaultdict(int)
@@ -96,8 +94,8 @@ class Karma(ChatCommandPlugin):
             for word_tuple in words:
                 word = word_tuple[0]
                 ending = word[-1]
-                # This will either end with a - or +, if it's a - subract 1 kara,
-                # if it ends with a +, add 1 karma
+                # This will either end with a - or +, if it's a - subract 1
+                # kara, if it ends with a +, add 1 karma
                 change = -1 if ending == '-' else 1
                 # Now strip the ++ or -- from the end
                 if '-' in ending:
@@ -149,7 +147,9 @@ class Karma(ChatCommandPlugin):
                 show = (KarmaTable.kcount.desc() if groups[0] == 'top'
                         else KarmaTable.kcount)
                 for user in users.order_by(show)[0:top]:
-                    bot.reply(comm, str('%s\x0f: %d' % (user.user, user.kcount)))
+                    bot.reply(
+                        comm, str('%s\x0f: %d' % (user.user, user.kcount))
+                    )
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
 
@@ -173,10 +173,9 @@ class Karma(ChatCommandPlugin):
                     encode=False
                 )
             else:
-                bot.reply(comm, 'No karma for %s ' % uen(thing),
-                    encode=False
+                bot.reply(
+                    comm, 'No karma for %s ' % uen(thing), encode=False
                 )
-
 
 
 class KarmaTable(SQLAlchemyBase):
