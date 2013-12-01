@@ -1,6 +1,7 @@
 import random
 
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
+from hamper.utils import ude
 
 
 class YesNoPlugin(ChatPlugin):
@@ -21,7 +22,8 @@ class YesNoPlugin(ChatPlugin):
             ('I think... Yes.', 'eq'), ('Maybe. Possibly. It could be.', 'eq'),
             ("No. No, I don't think so.", 'eq'), ("I don't know.", 'eq'),
             ('Ask again later.', 'eq/2'), ('Without a doubt.', 'eq/2'),
-            ('Heck yes!', 'eq/2'), ("I'm sorry, I was thinking of bananas", .03),
+            ('Heck yes!', 'eq/2'),
+            ("I'm sorry, I was thinking of bananas", .03),
         ]
 
         total_prob = 0
@@ -50,7 +52,8 @@ class YesNoPlugin(ChatPlugin):
         self.responses = real_resp
 
     def message(self, bot, comm):
-        if comm['directed'] and comm['message'].strip()[-1] == '?':
+        msg = ude(comm['message'].strip())
+        if comm['directed'] and msg.endswith('?'):
             r = random.random()
             for resp, prob in self.responses:
                 r -= prob

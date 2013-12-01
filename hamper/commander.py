@@ -6,7 +6,7 @@ import traceback
 from fnmatch import fnmatch
 
 from twisted.words.protocols import irc
-from twisted.internet import protocol, reactor
+from twisted.internet import protocol, reactor, ssl
 from twisted.plugin import getPlugins
 from zope.interface import implementedBy
 from zope.interface.verify import verifyObject
@@ -29,8 +29,13 @@ def main():
     config = hamper.config.load()
     hamper.log.setup_logging()
 
-    reactor.connectTCP(
-        config['server'], config['port'], CommanderFactory(config))
+    if config.get('ssl', False):
+        reactor.connectSSL(
+            config['server'], config['port'], CommanderFactory(config),
+            ssl.ClientContextFactory())
+    else:
+        reactor.connectTCP(
+            config['server'], config['port'], CommanderFactory(config))
     reactor.run()
 
 
@@ -171,7 +176,8 @@ class CommanderProtocol(irc.IRCClient):
         # mozilla's nickserv responds as NickServ!services@mozilla.org
         if (self.password and channel == self.nickname and
                 user.startswith('NickServ')):
-            if "Password accepted" in message or "You are now identified" in message:
+            if ("Password accepted" in message or
+                    "You are now identified" in message):
                 self.joinChannels()
             elif "Password incorrect" in message:
                 print "NickServ AUTH FAILED!!!!!!!"
@@ -184,8 +190,9 @@ class CommanderProtocol(irc.IRCClient):
 
         self.factory.loader.runPlugins(category, func, self, *args)
 
-    def reply(self, comm, message):
-        message = message.encode('utf8')
+    def reply(self, comm, message, encode=True):
+        if encode:
+            message = message.encode('utf8')
         if comm['pm']:
             self.msg(comm['user'], message)
         else:

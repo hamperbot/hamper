@@ -4,4 +4,5 @@ Twisted==12.2.0
 psycopg2==2.5.1
 upsidedown==0.3
 zope.interface==4.0.1
+pyOpenSSL==0.13.1
 requests

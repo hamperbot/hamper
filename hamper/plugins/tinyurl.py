@@ -37,7 +37,11 @@ class Tinyurl(ChatPlugin):
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'http://tinyurl.com/api-create.php?url={0}'
-        self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
+        try:
+            self.excludes = loader.config['tinyurl']['excluded-urls']
+        except (KeyError, TypeError):
+            # some sain defaults if the config is malformed
+            self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
 
     def message(self, bot, comm):
         match = self.regex.search(comm['message'])
@@ -45,7 +49,7 @@ class Tinyurl(ChatPlugin):
         if match:
             long_url = match.group(0)
 
-            # Only shorten urls which are longer than a tinyurl url (12 chars)
+            # Only shorten urls which are longer than a tinyurl url
             if len(long_url) <= 30:
                 return False
 

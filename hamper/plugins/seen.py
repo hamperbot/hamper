@@ -1,6 +1,7 @@
 from hamper.interfaces import (
     ChatCommandPlugin, Command, PopulationPlugin, PresencePlugin
 )
+from hamper.utils import ude
 
 from sqlalchemy import Column, Integer, DateTime, String
 from sqlalchemy.ext.declarative import declarative_base
@@ -24,7 +25,7 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
     def queryUser(self, channel, user):
         return (self.db.session.query(SeenTable)
                 .filter(SeenTable.channel == channel)
-                .filter(SeenTable.user == user))
+                .filter(SeenTable.user == ude(user)))
 
     def record(self, channel, user, doing):
         logs = self.queryUser(channel, user)
@@ -32,12 +33,11 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
         if logs.count():  # Because exists() doesn't exist?
             log = logs.first()
             log.seen = datetime.now()
-            log.doing = doing
+            log.doing = ude(doing)
         else:
             self.db.session.add(
-                SeenTable(channel, user, datetime.now(), doing)
+                SeenTable(channel, user, datetime.now(), ude(doing))
             )
-
         self.db.session.commit()
 
     def userJoined(self, bot, user, channel):
@@ -55,9 +55,11 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
     def userQuit(self, bot, user, quitMessage):
         # Go through every log we have for this user and set their most recent
         # doing to (Quiting with message 'quitMessage')
-        logs = self.db.session.query(SeenTable).filter(SeenTable.user == user)
+        logs = self.db.session.query(SeenTable).filter(
+            SeenTable.user == ude(user)
+        )
         logs.update({
-            'doing': '(Quiting) with message "%s"' % quitMessage,
+            'doing': '(Quiting) with message "%s"' % ude(quitMessage),
             'seen': datetime.now()
         })
         return super(Seen, self).userQuit(bot, user, quitMessage)
@@ -82,7 +84,7 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
             logs = self.plugin.queryUser(comm['channel'], name)
 
             if not logs.count():
-                bot.reply(comm, 'I have not seen %s' % name)
+                bot.reply(comm, 'I have not seen %s' % ude(name), encode=True)
             else:
                 log = logs.first()
                 time_format = 'at %I:%M %p on %b-%d'

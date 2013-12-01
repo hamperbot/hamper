@@ -28,3 +28,10 @@ plugins:
 # This plugin allows you to look up local time for different timezones
 # timez:
 #    api-key:
+
+tinyurl:
+    # Sites that should not have their links shortened
+    excluded-urls:
+        - imgur.com
+        - gist.github.com
+        - pastebin.com

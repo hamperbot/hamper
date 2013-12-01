@@ -29,7 +29,7 @@ class Flip(ChatCommandPlugin):
                 ret = angry + flip
             except:
                 ret = u'ಠ_ಠ'.encode('utf-8')
-            bot.reply(comm, ret)
+            bot.reply(comm, ret, encode=False)
             return True
 
 
