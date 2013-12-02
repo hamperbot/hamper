@@ -22,6 +22,7 @@ class Lookup(ChatCommandPlugin):
     long_desc = ('lookup and cite <something> - look something up and cite a '
                  'source\n')
 
+    # Inspired by http://googlesystem.blogspot.com/2009/12/on-googles-unofficial-dictionary-api.html # noqa
     search_url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&q={query}&sl=en&tl=en&restrict=pr%2Cde&client=te"  # noqa
 
     def setup(self, loader):
@@ -42,7 +43,11 @@ class Lookup(ChatCommandPlugin):
                     "Lookup Error: A non 200 status code was returned"
                 )
 
-            # get rid of google cruft
+            # We have actually asked for this cruft to be tacked onto our JSON
+            # response. When I tried to remove the callback parameter from the
+            # URL the api broke, so I'm going to leave it. Put it down, and
+            # walk away...
+            # Strip off the JS callback
             gr = resp.content.strip('dict_api.callbacks.id100(')
             gr = gr.strip(',200,null)')
 
