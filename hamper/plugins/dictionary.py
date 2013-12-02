@@ -19,6 +19,10 @@ class Lookup(ChatCommandPlugin):
     name = 'lookup'
     priority = 2
 
+    short_desc = 'lookup <something> - look something up'
+    long_desc = ('lookup and cite <something> - look something up and cite a '
+                 'source\n')
+
     def setup(self, loader):
         self.search_url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&q={query}&sl=en&tl=en&restrict=pr%2Cde&client=te"  # noqa
         super(Lookup, self).setup(loader)
@@ -27,10 +31,6 @@ class Lookup(ChatCommandPlugin):
         ''' '''
         name = 'lookup'
         regex = '^(lookup\s+and\s+cite|lookup)\s*(\d+)?\s+(.*)'
-
-        long_desc = short_desc = (
-            "Look up word root on http://en.wikipedia.org/wiki/List_of_medical_roots,_suffixes_and_prefixes"  # noqa
-        )
 
         def command(self, bot, comm, groups):
             lookup_type = groups[0]
