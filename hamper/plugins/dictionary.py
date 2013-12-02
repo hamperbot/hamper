@@ -9,7 +9,6 @@ except ImportError:
     import html.parser
     html = html.parser.HTMLParser()
 
-
 import re
 import requests
 import json
@@ -23,12 +22,12 @@ class Lookup(ChatCommandPlugin):
     long_desc = ('lookup and cite <something> - look something up and cite a '
                  'source\n')
 
+    search_url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&q={query}&sl=en&tl=en&restrict=pr%2Cde&client=te"  # noqa
+
     def setup(self, loader):
-        self.search_url = "http://www.google.com/dictionary/json?callback=dict_api.callbacks.id100&q={query}&sl=en&tl=en&restrict=pr%2Cde&client=te"  # noqa
         super(Lookup, self).setup(loader)
 
     class Lookup(Command):
-        ''' '''
         name = 'lookup'
         regex = '^(lookup\s+and\s+cite|lookup)\s*(\d+)?\s+(.*)'
 
