@@ -37,7 +37,7 @@ class Tinyurl(ChatPlugin):
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'http://tinyurl.com/api-create.php?url={0}'
-        self.config = loader.config['tinyurl']
+        self.config = loader.config.get('tinyurl', {})
 
         defaults = {
             'excluded-urls': ['imgur.com', 'gist.github.com', 'pastebin.com'],

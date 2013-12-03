@@ -30,9 +30,6 @@ def load():
             print('You need to define {0} in the config file.'.format(key))
             sys.exit()
 
-    print 'Config is:'
-    print str(config)
-
     return config
 
 
