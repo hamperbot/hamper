@@ -118,8 +118,14 @@ class Rot13(ChatCommandPlugin):
             target = ''
             if comm['target']:
                 target = comm['target'] + ': '
-            args = groups[0].encode('rot13')
-            bot.reply(comm, target + args)
+            try:
+                args = groups[0].encode('rot13')
+                bot.reply(comm, target + args)
+            except UnicodeDecodeError:
+                bot.reply(
+                    comm,
+                    "It doesn't make sense to rot13 unicode characters"
+                )
 
 class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
