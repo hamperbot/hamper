@@ -14,13 +14,12 @@ class ACL(object):
 
     def __init__(self, acl):
         self.acls = json.loads(acl)
-        self.permissions = self.acls['permissions']
 
     def has_permission(self, comm, thing):
         allow, deny = False, False
         self.add_groups(comm)
 
-        for selector, permissions in self.acls['permissions'].items():
+        for selector, permissions in self.acls.get('permissions', {}).items():
             if self.match_selector(selector, comm):
                 for p in permissions:
                     policy = self.glob_permission_match(thing, p)
@@ -30,17 +29,6 @@ class ACL(object):
                         deny = True
 
         return allow and not deny
-
-    def commandChannelPermission(self, channel, thing):
-        channel_perms = self.permissions.get(channel, None)
-        if channel_perms:
-            if '-%s' % thing in channel_perms:
-                return False
-            if '*' in channel_perms:
-                return True
-            if thing in channel_perms:
-                return True
-        return False
 
     def match_selector(self, selector, comm):
         parsed = self.parse_selector(selector)
@@ -91,9 +79,9 @@ class ACL(object):
         return ret
 
     def add_groups(self, comm):
-        user = comm['user']
+        user = comm.get('user')
         comm['groups'] = []
-        for name, members in self.acls['groups'].items():
+        for name, members in self.acls.get('groups', {}).items():
             if user in members:
                 comm['groups'].append(name)
         # Yes it is modified, but returning it is nice too.

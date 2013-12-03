@@ -69,6 +69,11 @@ class TestACL(TestCase):
         self.assertTrue(self.acl.has_permission(comm, 'quote.add'))
         self.assertTrue(self.acl.has_permission(comm, 'quote.delete'))
 
+    def test_empty_acls(self):
+        # This should not error.
+        acl = ACL('{}')
+        acl.has_permission({}, 'foo')
+
 
 class TestACLParser(TestCase):
     def setUp(self):
