@@ -14,7 +14,7 @@ SQLAlchemyBase = declarative_base()
 class Factoids(ChatPlugin):
     """Learn and repeat Factoids."""
     name = 'factoids'
-    priority = -1
+    priority = 2
 
     def setup(self, loader):
         super(Factoids, self).setup(loader)
@@ -147,10 +147,13 @@ class Factoids(ChatPlugin):
         factoid = random.choice(factoids)
         if factoid.action == 'say':
             bot.reply(comm, factoid.response)
+            return True
         elif factoid.action == 'reply':
             bot.reply(comm, '{}: {}'.format(comm['user'], factoid.response))
+            return True
         elif factoid.action == 'me':
             bot.me(comm, factoid.response)
+            return True
         else:
             bot.reply(comm, 'Um, what is the verb {}?'.format(factoid.action))
 
