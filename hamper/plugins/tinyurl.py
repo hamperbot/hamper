@@ -6,7 +6,7 @@ from hamper.interfaces import ChatPlugin
 
 class Tinyurl(ChatPlugin):
     name = 'tinyurl'
-    priority = 2
+    priority = 0
 
     # Regex is taken from:
     # http://daringfireball.net/2010/07/improved_regex_for_matching_urls
@@ -37,11 +37,14 @@ class Tinyurl(ChatPlugin):
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'http://tinyurl.com/api-create.php?url={0}'
-        try:
-            self.excludes = loader.config['tinyurl']['excluded-urls']
-        except (KeyError, TypeError):
-            # some sain defaults if the config is malformed
-            self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']
+        self.config = loader.config['tinyurl']
+
+        defaults = {
+            'excluded-urls': ['imgur.com', 'gist.github.com', 'pastebin.com'],
+            'min-length': 40,
+        }
+        for key, val in defaults.items():
+            self.config.setdefault(key, val)
 
     def message(self, bot, comm):
         match = self.regex.search(comm['message'])
@@ -50,11 +53,11 @@ class Tinyurl(ChatPlugin):
             long_url = match.group(0)
 
             # Only shorten urls which are longer than a tinyurl url
-            if len(long_url) <= 30:
+            if len(long_url) < self.config['min-length']:
                 return False
 
             # Don't shorten url's which are in the exclude list
-            for item in self.excludes:
+            for item in self.config['excluded-urls']:
                 if item in long_url.lower():
                     return False
 
