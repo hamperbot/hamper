@@ -2,7 +2,7 @@
     "permissions": {
         "#channel": [
             "*"
-        ]
+        ],
         "#channel2": [
             "*",
             "-factoid"
