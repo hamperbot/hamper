@@ -8,10 +8,7 @@ port: 6667
 db: "sqlite:///hamper.db"
 
 # Uncomment and setup .acl file if you need it
-# Patches welcome!
 # acl: hamper.acl
-
-acl: hamper.acl
 
 channels: ["#awesome-channel", "#cool-channel"]
 plugins:
