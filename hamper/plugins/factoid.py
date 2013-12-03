@@ -46,7 +46,7 @@ class Factoids(ChatPlugin):
         if not match:
             return
 
-        if not bot.acl.hasPermission(comm, 'factoid'):
+        if not bot.acl.has_permission(comm, 'factoid'):
             bot.reply(comm, "I cannot learn new things")
             return
 
@@ -79,7 +79,7 @@ class Factoids(ChatPlugin):
         if not match:
             return
 
-        if not bot.acl.hasPermission(comm, 'factoid'):
+        if not bot.acl.has_permission(comm, 'factoid'):
             bot.reply(comm, "Never Forget!")
             return
 
@@ -107,7 +107,7 @@ class Factoids(ChatPlugin):
         if not match:
             return
 
-        if not bot.acl.hasPermission(comm, 'factoid'):
+        if not bot.acl.has_permission(comm, 'factoid'):
             bot.reply(comm, "Never Forget!")
             return
 
