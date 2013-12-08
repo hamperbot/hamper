@@ -19,8 +19,8 @@ import hamper.config
 import hamper.log
 from hamper import plugins
 from hamper.acl import ACL, AllowAllACL
-from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
-                               IPopulationPlugin)
+from hamper.interfaces import (BasePluginInterface, IPresencePlugin,
+                               IChatPlugin, IPopulationPlugin)
 
 log = logging.getLogger('hamper')
 
@@ -240,7 +240,7 @@ class CommanderFactory(protocol.ClientFactory):
 
         # Load all plugins mentioned in the configuration. Allow globbing.
         config_matches = set()
-        for plugin in getPlugins(BaseInterface, package=plugins):
+        for plugin in getPlugins(BasePluginInterface, package=plugins):
             for pattern in config['plugins']:
                 if fnmatch(plugin.name, pattern):
                     self.loader.registerPlugin(plugin)
@@ -291,7 +291,7 @@ class PluginLoader(object):
             'presence': IPresencePlugin,
             'chat': IChatPlugin,
             'population': IPopulationPlugin,
-            'base_plugin': BaseInterface,
+            'base_plugin': BasePluginInterface,
         }
 
         # Everything is, at least, a base plugin.

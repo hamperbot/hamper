@@ -10,7 +10,28 @@ from twisted.plugin import IPlugin
 log = logging.getLogger('hamper.interfaces')
 
 
-class BaseInterface(Interface):
+class ICommander(Interface):
+    """Interface for a Hamper Commander.
+
+    A Commander is the central interface between plugins and the chat
+    protocol. It provides methods to send messages and provides core
+    utilities. It also triggers events on plugins in response to the
+    chat protocol.
+    """
+
+    db = Attribute('A database handle.')
+    acl = Attribute('An implementation of IACL')
+
+    def reply(comm, message, encode=True):
+        """Sends a message to the channel that comm came in on."""
+
+
+class IACL(Interface):
+    def has_permission(self, comm, permission):
+        """Checks if `comm` has the permission string `permission`."""
+
+
+class BasePluginInterface(Interface):
     """Interface for a plugin.."""
 
     name = Attribute('Human readable name for the plugin.')
@@ -30,7 +51,7 @@ class Plugin(object):
         pass
 
 
-class IChatPlugin(BaseInterface):
+class IChatPlugin(BasePluginInterface):
     """Interface for a chat plugin."""
 
     priority = Attribute('Priority of plugins. High numbers are called first')
@@ -83,7 +104,7 @@ class ChatCommandPlugin(ChatPlugin):
                 return stop
 
 
-class ICommand(BaseInterface):
+class ICommand(BasePluginInterface):
     """Interface for a command."""
 
     name = Attribute('The name of the command, for code purposes.')
@@ -124,7 +145,7 @@ class Command(object):
             return True
 
 
-class IPresencePlugin(BaseInterface):
+class IPresencePlugin(BasePluginInterface):
     """A plugin that gets events about the bot joining and leaving channels."""
 
     def joined(bot, channel):
@@ -158,7 +179,7 @@ class PresencePlugin(Plugin):
         pass
 
 
-class IPopulationPlugin(BaseInterface):
+class IPopulationPlugin(BasePluginInterface):
     """A plugin that recieves events about the population of channels."""
 
     def userJoined(bot, user, channel):

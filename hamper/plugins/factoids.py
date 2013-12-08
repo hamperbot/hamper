@@ -11,13 +11,13 @@ from hamper.utils import ude
 SQLAlchemyBase = declarative_base()
 
 
-class Factoids(ChatPlugin):
+class FactoidsPlugin(ChatPlugin):
     """Learn and repeat Factoids."""
     name = 'factoids'
     priority = 2
 
     def setup(self, loader):
-        super(Factoids, self).setup(loader)
+        super(FactoidsPlugin, self).setup(loader)
         self.db = loader.db
         SQLAlchemyBase.metadata.create_all(self.db.engine)
 
@@ -70,17 +70,22 @@ class Factoids(ChatPlugin):
         return True
 
     def try_forget_factoid(self, bot, comm):
+        import q
+
         if not comm['directed']:
+            q('bailing 1')
             return
 
         msg = ude(comm['message'].strip())
         match = re.match(r'forget that\s+(.+)\s+is\s+(.*)', msg)
 
         if not match:
+            q('bailing 2')
             return
 
         if not bot.acl.has_permission(comm, 'factoid'):
             bot.reply(comm, "Never Forget!")
+            q('bailing 3')
             return
 
         trigger, response = match.groups()
@@ -89,8 +94,10 @@ class Factoids(ChatPlugin):
                     .filter(Factoid.trigger == ude(trigger),
                             Factoid.response == ude(response))
                     .all())
+        q(factoids)
         if len(factoids) == 0:
             bot.reply(comm, "I don't have anything like that.")
+            q('bailing 4')
             return
         for factoid in factoids:
             self.db.session.delete(factoid)
@@ -176,4 +183,4 @@ class Factoid(SQLAlchemyBase):
         self.response = response
 
 
-factoids = Factoids()
+factoids = FactoidsPlugin()
