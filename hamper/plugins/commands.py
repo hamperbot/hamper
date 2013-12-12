@@ -2,8 +2,6 @@ import logging
 import re
 import random
 
-from zope.interface import implements
-
 from hamper.interfaces import Command, ChatCommandPlugin
 
 
@@ -38,8 +36,8 @@ class Sed(ChatCommandPlugin):
         onlyDirected = False
 
         short_desc = 's/find/replace/ - Perform sed style find and replace.'
-        long_desc = ('Use like "s/foo/bar/" to search for "foo" and replace it '
-                     'with "bar". \n'
+        long_desc = ('Use like "s/foo/bar/" to search for "foo" and replace '
+                     'it with "bar". \n'
                      'Flags: Add these flags to the end of the command:\n'
                      'm - Restrict the search to only your messages\n'
                      'i - Case insensitive searching.\n'
@@ -68,13 +66,15 @@ class Sed(ChatCommandPlugin):
                     continue
 
                 if usr_regex.search(hist['raw_message']):
-                    new_msg = usr_regex.sub(usr_replace, hist['raw_message'], g)
+                    new_msg = usr_regex.sub(
+                        usr_replace, hist['raw_message'], g
+                    )
                     bot.reply(comm, '{0} actually meant: {1}'
-                                .format(hist['user'], new_msg))
+                              .format(hist['user'], new_msg))
                     break
             else:
                 bot.reply(comm, "Sorry, I couldn't match '{0}'."
-                        .format(usr_regex.pattern))
+                          .format(usr_regex.pattern))
 
 
 class LetMeGoogleThatForYou(ChatCommandPlugin):
@@ -97,6 +97,7 @@ class LetMeGoogleThatForYou(ChatCommandPlugin):
                 target = comm['target'] + ': '
             args = groups[0].replace(' ', '+')
             bot.reply(comm, target + 'http://lmgtfy.com/?q=' + args)
+
 
 class Rot13(ChatCommandPlugin):
     """Encode secret messages."""
@@ -127,6 +128,7 @@ class Rot13(ChatCommandPlugin):
                     "It doesn't make sense to rot13 unicode characters"
                 )
 
+
 class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
     name = 'dice'
@@ -153,9 +155,9 @@ class Dice(ChatCommandPlugin):
         short_desc = 'Dice - Roll dice by saying !XdY+Z.'
         long_desc = ('Use like XdY+Z to roll X Y sided dice and add Z. Any '
                      'number may be left off.\n'
-                     'Example: "!1d20+5" to roll a single twenty sided die and '
-                     'add 5 to the result. You don\'t have to direct this to '
-                     'the bot.')
+                     'Example: "!1d20+5" to roll a single twenty sided die '
+                     'and add 5 to the result. You don\'t have to direct '
+                     'this to the bot.')
 
         def command(self, bot, com, groups):
             num, sides, add = groups
