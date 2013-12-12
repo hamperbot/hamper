@@ -1,6 +1,7 @@
 import logging
 import re
 import random
+from sre_constants import error as RegexError
 
 from hamper.interfaces import Command, ChatCommandPlugin
 
@@ -30,6 +31,13 @@ class Sed(ChatCommandPlugin):
     name = 'sed'
     priority = -1
 
+    def setup(self, loader):
+        try:
+            self.onlyDirected = loader.config['sed']['only-directed']
+        except (KeyError, TypeError):
+            self.onlyDirected = False
+        super(Sed, self).setup(loader)
+
     class SedCommand(Command):
         name = 'sed'
         regex = r's/(.*)/(.*)/(.*)'
@@ -44,10 +52,16 @@ class Sed(ChatCommandPlugin):
                      'g - Match an unlimited number of times.')
 
         def command(self, bot, comm, groups):
+            if self.plugin.onlyDirected and not comm['directed']:
+                return False
             usr_replace = groups[1]
             options = groups[2]
             regex_opts = re.I if 'i' in options else 0
-            usr_regex = re.compile(groups[0], regex_opts)
+            try:
+                usr_regex = re.compile(groups[0], regex_opts)
+            except RegexError:
+                bot.reply(comm, 'Do you even lift?')
+                return False
 
             g = 0 if 'g' in options else 1
 
@@ -66,9 +80,13 @@ class Sed(ChatCommandPlugin):
                     continue
 
                 if usr_regex.search(hist['raw_message']):
-                    new_msg = usr_regex.sub(
-                        usr_replace, hist['raw_message'], g
-                    )
+                    try:
+                        new_msg = usr_regex.sub(
+                            usr_replace, hist['raw_message'], g
+                        )
+                    except RegexError:
+                        bot.reply(comm, 'Do you even lift?')
+                        return False
                     bot.reply(comm, '{0} actually meant: {1}'
                               .format(hist['user'], new_msg))
                     break
