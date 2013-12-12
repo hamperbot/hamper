@@ -32,10 +32,7 @@ class Sed(ChatCommandPlugin):
     priority = -1
 
     def setup(self, loader):
-        try:
-            self.onlyDirected = loader.config['sed']['only-directed']
-        except (KeyError, TypeError):
-            self.onlyDirected = False
+        self.onlyDirected = loader.config.get('sed', {}).get('only-directed')
         super(Sed, self).setup(loader)
 
     class SedCommand(Command):
