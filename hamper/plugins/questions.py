@@ -92,15 +92,16 @@ class ChoicesPlugin(ChatCommandPlugin):
             """
             Parses out choices in a 'or' based, possible comma-ed list.
 
-            >>> ChoicesPlugin.ChoicesCommand.parse('x or y?')
+            >>> parse = ChoicesPlugin.ChoicesCommand.parse
+            >>> parse('x or y?')
             ['x', 'y']
-            >>> ChoicesPlugin.ChoicesCommand.parse('x, y or z?')
+            >>> parse('x, y or z?')
             ['x', 'y', 'z']
-            >>> ChoicesPlugin.ChoicesCommand.parse('this thing, that thing or the other thing?')
+            >>> parse('this thing, that thing or the other thing?')
             ['this thing', 'that thing', 'the other thing']
-            >>> ChoicesPlugin.ChoicesCommand.parse('door or window?')
+            >>> parse('door or window?')
             ['door', 'window']
-            >>> ChoicesPlugin.ChoicesCommand.parse('should i do homework or play video games?')
+            >>> parse('should i do homework or play video games?')
             ['do homework', 'play video games']
             """
             # Handle things like "should ___ X or Y"

@@ -5,4 +5,5 @@ psycopg2==2.5.1
 upsidedown==0.3
 zope.interface==4.0.1
 pyOpenSSL==0.13.1
-requests
+requests==2.0.1
+flake8=2.1.0

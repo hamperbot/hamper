@@ -1,6 +1,8 @@
 import logging
 
-from hamper.interfaces import Command, ChatCommandPlugin, BaseInterface
+from hamper.interfaces import IPlugin, Command, ChatCommandPlugin
+
+import twisted
 
 
 log = logging.getLogger('hamper.plugins.plugin_utils')
@@ -49,7 +51,7 @@ class PluginUtils(ChatCommandPlugin):
                 return False
 
             # Fun fact: the fresh thing is just a dummy. It just can't be None
-            new_plugin = plugin.retrieve_named_plugins(
+            new_plugin = twisted.plugin.retrieve_named_plugins(
                 IPlugin, [name], 'hamper.plugins', {'fresh': True})[0]
 
             bot.factory.loader.registerPlugin(new_plugin)

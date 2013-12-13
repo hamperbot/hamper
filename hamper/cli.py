@@ -29,7 +29,6 @@ class CLIProtocol(LineReceiver):
 
         self.history = {}
 
-
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
             db_engine = sqlalchemy.create_engine(config['db'])
