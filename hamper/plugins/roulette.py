@@ -1,4 +1,4 @@
-import random
+import random, datetime
 
 from hamper.interfaces import ChatCommandPlugin, Command
 
@@ -22,7 +22,7 @@ class Roulette(ChatCommandPlugin):
             if comm['pm']:
                 return False
 
-            dice = random.randint(1, 6)
+            dice = random.randint(1,6)
             if dice == 6:
                 bot.kick(comm["channel"], comm["user"], "You shot yourself!")
             else:
