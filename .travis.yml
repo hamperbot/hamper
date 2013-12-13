@@ -1,6 +1,11 @@
 language: python
 python: '2.7'
-script: trial hamper
+
+before_script:
+    - pyflakes hamper
+script:
+    - trial hamper
+
 notifications:
   email: false
   irc:
@@ -8,6 +13,7 @@ notifications:
     - chat.freenode.org#hamper
     on_success: always
     on_failure: always
+
 deploy:
   provider: heroku
   api_key:
