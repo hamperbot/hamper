@@ -8,24 +8,23 @@ from hamper.tests import MockBot, make_comm
 class TestFactoid(TestCase):
 
     def factoid(self, **kwargs):
-        words = ['foo', 'bar', 'baz']
+        words = ['apple', 'banana', 'cherry', 'date', 'eggplant', 'fig']
         data = {
-            'trigger': ' '.join(random.choice(words) for _ in range(8)),
+            'trigger': ' '.join(random.choice(words) for _ in range(4)),
             'type': 'is',
             'action': 'say',
-            'response': ' '.join(random.choice(words) for _ in range(8)),
+            'response': ' '.join(random.choice(words) for _ in range(4)),
         }
         data.update(kwargs)
 
         f = Factoid(**data)
-        self.session.add(f)
+        self.plugin.factoids.append(f)
         return f
 
     def setUp(self):
         self.mock_bot = MockBot()
         self.plugin = FactoidsPlugin()
         self.plugin.setup(self.mock_bot)
-        self.db_query = self.mock_bot.db.session.query
         self.session = self.mock_bot.db.session
 
     def tearDown(self):
@@ -44,7 +43,7 @@ class TestFactoid(TestCase):
         # Confirmation
         self.mock_bot.reply.assert_called_with(comm, 'OK, ' + comm['user'])
         # Exists in DB
-        factoids = self.db_query(Factoid).all()
+        factoids = self.plugin.factoids
         self.assertEqual(len(factoids), 1)
         self.assertEqual(factoids[0].trigger, 'foo')
         self.assertEqual(factoids[0].type, 'is')
@@ -56,7 +55,7 @@ class TestFactoid(TestCase):
         comm = make_comm(message='!forget that {0.trigger} is {0.response}'
                          .format(f))
         self.plugin.message(self.mock_bot, comm)
-        self.assertEqual(self.db_query(Factoid).count(), 0)
+        self.assertEqual(len(self.plugin.factoids), 0)
 
     def test_remove_missing(self):
         comm = make_comm(message='!forget that foo is bar')
@@ -69,7 +68,7 @@ class TestFactoid(TestCase):
             self.factoid(trigger='foo', response=response)
         comm = make_comm(message='!forget all about foo')
         self.plugin.message(self.mock_bot, comm)
-        self.assertEqual(self.db_query(Factoid).count(), 0)
+        self.assertEqual(len(self.plugin.factoids), 0)
 
     def test_response_say(self):
         f = self.factoid(action='say')
