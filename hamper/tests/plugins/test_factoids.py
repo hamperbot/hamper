@@ -48,9 +48,7 @@ class TestFactoid(TestCase):
         self.assertEqual(self.db_query(Factoid).count(), 0)
 
     def test_remove_missing(self):
-        import q
-        q('this one')
         comm = make_comm(message='!forget that foo is bar')
-        q(self.mock_bot.attributes)
+        self.plugin.message(self.mock_bot, comm)
         self.mock_bot.reply.assert_called_with(
-            comm, "I don't have anything like that")
+            comm, "I don't have anything like that.")
