@@ -25,6 +25,9 @@ class ICommander(Interface):
     def reply(comm, message, encode=True):
         """Sends a message to the channel that comm came in on."""
 
+    def me(comm, message, encode=True):
+        """Sends an action to the channel that comm came in on."""
+
 
 class IACL(Interface):
     def has_permission(self, comm, permission):

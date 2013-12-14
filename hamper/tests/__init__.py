@@ -13,10 +13,7 @@ class MockBot(MagicMock):
         super(MockBot, self).__init__(*args, **kwargs)
 
         db_engine = sqlalchemy.create_engine('sqlite:///:memory:')
-        session = sqlalchemy.orm.sessionmaker(
-            bind=db_engine,
-            autocommit=False,
-            autoflush=False)()
+        session = sqlalchemy.orm.sessionmaker(bind=db_engine)()
         self.db = DB(db_engine, session)
 
 
