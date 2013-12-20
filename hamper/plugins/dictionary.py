@@ -69,24 +69,25 @@ class Lookup(ChatCommandPlugin):
                 if not entry['type'] == 'meaning':
                     continue
 
-                seen += 1
-                if seen != def_num:
-                    continue
-
                 for term in entry['terms']:
                     if term['type'] == 'url':
                         url = re.sub('<[^<]+?>', '', term['text'])
                     else:
-                        definition = term['text']
-                break
+                        seen += 1
+                        if not definition and seen == def_num:
+                            definition = term['text']
 
-            if not definition:
+            if not definition or def_num > seen:
                 bot.reply(
                     comm,
                     "Looks like there might not be %s definitions" % def_num
                 )
             else:
-                bot.reply(comm, html.unescape(definition))
+                bot.reply(
+                    comm, "%s (%s/%s)" % (
+                        html.unescape(definition), def_num, seen
+                    )
+                )
                 if 'cite' in lookup_type:
                     if url:
                         bot.reply(comm, html.unescape(url))
