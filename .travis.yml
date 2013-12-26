@@ -17,7 +17,7 @@ notifications:
 deploy:
   provider: heroku
   api_key:
-    secure: BcFGullBLhUphourdrEqy0BX2e8S1mse38dCSHSrevQm/sxOQ1lNzpQyD1jtjwJmASKi/h7CRa6SkAMWMa8qXDZSDP6OCFdfWkKvT95IqVME8ft114RccX7fHNdKrfZMfdtiQZuCnkvT1IMFahzessSyLXnns3fDHjNp+46wR28=
+    secure: IyqF1XElOg+KTCci7FyAUsCYs5h71v4QgapRShe2dotYrVuCT2VCYS6I0s6lWcLvSOiHhRAFn4mak/6Yi1bItZwxUoo8MWmApoyyXJvBTJaGjn+WlhLz0HlOvIhhwLlq6j1+aKy5+KG0D242pmcd87NqyIrGijEtZKvMKilHzTE=
   app: heroku-lug
   on:
     repo: mythmon/hamper
