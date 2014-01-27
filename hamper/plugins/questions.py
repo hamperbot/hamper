@@ -70,10 +70,10 @@ class ChoicesPlugin(ChatCommandPlugin):
     """
 
     name = 'choices'
-    priority = 1
+    priority = 0
 
     class ChoicesCommand(Command):
-        regex = r'^.* or .*$'
+        regex = r'^.* or .*$\?'
 
         name = 'choices'
         short_desc = None
