@@ -36,3 +36,21 @@ Plugin Development
 Read `hamper/plugins/friendly.py`. Add a file to `hamper/plugins`, and write
 plugins in it. Don't forget to create an instance of each one at the bottom.
 
+
+Using Docker
+------------
+
+This already assumes you've got docker configured and installed on your system.
+
+To begin, start by copying the `hamper.conf.dist` into `hamper.conf` and adjusting
+settings as necessary. Then all you need to do is run `docker build -t <yourname>/hamper .`
+and you that will build a new Docker image to be used.
+
+To use this container run `docker run -p 22 -t -i <yourname>/hamper`, this will
+startup hamper and sshd on the container using supervisord. You can ssh to the
+container by running the following command:
+
+`ssh root@localhost -p $(docker port $(docker ps -q | head -n 1) 22 | cut -d":" -f2)`
+
+The password is `password`. You can then use supervisorctl to check the status of
+hamper and to restart/manage the process running.
