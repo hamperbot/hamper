@@ -7,12 +7,12 @@ Quick Start
 ```shell
 $ git clone https://github.com/mythmon/hamper
 $ cd hamper
-$ virtualenv .
-$ source bin/activate
-$ pip install -r requirements.txt
+$ virtualenv venv
+$ source venv/bin/activate
+$ python setup.py install
 $ cp hamper.conf.dist hamper.conf
 $ vim hamper.conf
-$ PYTHONPATH="." scripts/hamper
+$ ./scripts/hamper
 ```
 
 
