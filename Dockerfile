@@ -13,4 +13,4 @@ WORKDIR /hamper
 # Dont need postgres adapater
 RUN python setup.py install
 
-CMD ["./scripts/hamper"]
+CMD ["hamper"]
