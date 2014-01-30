@@ -6,11 +6,9 @@ RUN apt-get upgrade -y
 
 RUN apt-get install -y build-essential python-dev python-pip
 
-# Add our directory and the supervisor config to the proper locations
 ADD . /hamper
 WORKDIR /hamper
 
-# Dont need postgres adapater
 RUN python setup.py install
 
 CMD ["hamper"]
