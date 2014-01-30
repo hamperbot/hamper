@@ -11,3 +11,6 @@ build/
 /_trial_temp*/
 hamper.acl
 /man/
+
+dist/
+hamper.egg-info/
