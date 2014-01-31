@@ -1,5 +1,6 @@
 from bisect import insort
 from collections import deque, namedtuple
+import importlib
 import logging
 import re
 import traceback
@@ -17,7 +18,7 @@ from sqlalchemy import orm
 
 import hamper.config
 import hamper.log
-from hamper import plugins
+import hamper.plugins
 from hamper.acl import ACL, AllowAllACL
 from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
                                IPopulationPlugin)
@@ -224,8 +225,7 @@ class CommanderFactory(protocol.ClientFactory):
         else:
             self.acl = AllowAllACL()
 
-        self.loader = PluginLoader()
-        self.loader.config = config
+        self.loader = PluginLoader(config)
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -238,17 +238,7 @@ class CommanderFactory(protocol.ClientFactory):
 
         self.loader.db = DB(db_engine, session)
 
-        # Load all plugins mentioned in the configuration. Allow globbing.
-        config_matches = set()
-        for plugin in getPlugins(BaseInterface, package=plugins):
-            for pattern in config['plugins']:
-                if fnmatch(plugin.name, pattern):
-                    self.loader.registerPlugin(plugin)
-                    config_matches.add(pattern)
-                    break
-        for pattern in config['plugins']:
-            if pattern not in config_matches:
-                log.warning('No plugin matched pattern "%s"', pattern)
+        self.loader.loadAll()
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s)." % (reason)
@@ -276,13 +266,64 @@ class PluginLoader(object):
     details of the network.
     """
 
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.plugins = {
             'base_plugin': [],
             'presence': [],
             'chat': [],
             'population': [],
         }
+
+    def loadAll(self):
+        """
+        Find and load all plugins mentioned in config['plugins'].
+
+        This will allow for globbing and external plugins. To load an
+        external plugin, give an import path like
+
+            base/plugin
+
+        where base is a import path to a package, and plugin is the name
+        of a plugin that can be found *in one of that package's modules.*
+
+        In other words, if you have a package foo, and in that package
+        a module bar, and in that module a plugin named baz, listing
+        'foo/bar/baz' *WILL NOT WORK*.
+
+        Instead, list 'foo/baz', since the importer will look for a
+        module that contains a plugin name 'baz' in the package 'foo'.
+        Twisted's plugin loader is weird.
+
+        For confusion's sake, I recommend naming modules in packages
+        after the plugin they contain. So in the last example, either
+        rename the plugin to bar or rename the module to baz.
+        """
+        modules = [('', hamper.plugins)]
+        for spec in self.config['plugins']:
+            # if this is not a qualified name, `hamper.plugins` will cover it.
+            if '/' not in spec:
+                continue
+            # Given something with some dots, get everything up to but
+            # excluding the last dot.
+            index = spec.rindex('/')
+            base = spec[:index].replace('/', '.')
+
+            modules.append((base + '/', importlib.import_module(base)))
+
+        config_matches = set()
+        for base, module in modules:
+            for plugin in getPlugins(BaseInterface, module):
+                for pattern in self.config['plugins']:
+                    full_name = base + plugin.name
+                    if fnmatch(full_name, pattern):
+                        self.registerPlugin(plugin)
+                        config_matches.add(pattern)
+                        break
+
+        for pattern in self.config['plugins']:
+            if pattern not in config_matches:
+                log.warning('No plugin loaded for "{0}"'.format(pattern))
 
     def registerPlugin(self, plugin):
         """Registers a plugin."""
