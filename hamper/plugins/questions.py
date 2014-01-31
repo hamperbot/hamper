@@ -86,6 +86,7 @@ class ChoicesPlugin(ChatCommandPlugin):
             if random.random() <= 0.05:
                 choice = "Neither."
             bot.reply(comm, '{0}: {1}'.format(comm['user'], choice))
+            return True
 
         @staticmethod
         def parse(question):
