@@ -78,18 +78,18 @@ class CommanderProtocol(irc.IRCClient):
 
     def joined(self, channel):
         """Called after successfully joining a channel."""
-        log.info("Joined {0}.".format(channel))
+        log.info("Joined %s.", channel)
         # ask for the current list of users in the channel
         self.dispatch('presence', 'joined', channel)
 
     def left(self, channel):
         """Called after leaving a channel."""
-        log.info("Left {0}.".format(channel))
+        log.info("Left %s.", channel)
         self.dispatch('presence', 'left', channel)
 
     def privmsg(self, raw_user, channel, raw_message):
         """Called when a message is received from a channel or user."""
-        log.info(channel, raw_user, raw_message)
+        log.info("%s %s %s", channel, raw_user, raw_message)
 
         if not raw_user:
             # ignore server messages
@@ -228,7 +228,7 @@ class CommanderFactory(protocol.ClientFactory):
         self.loader = PluginLoader(config)
 
         if 'db' in config:
-            log.info('Loading db from config: ' + config['db'])
+            log.info('Loading db from config: %s', config['db'])
             db_engine = sqlalchemy.create_engine(config['db'])
         else:
             log.info('Using in-memory db')
@@ -241,12 +241,12 @@ class CommanderFactory(protocol.ClientFactory):
         self.loader.loadAll()
 
     def clientConnectionLost(self, connector, reason):
-        log.info("Lost connection (%s)." % (reason))
+        log.info('Lost connection (%s).', (reason))
         # Reconnect
         connector.connect()
 
     def clientConnectionFailed(self, connector, reason):
-        log.info("Could not connect: %s" % (reason,))
+        log.info('Could not connect: %s', (reason,))
 
 
 class DB(namedtuple("DB", "engine, session")):
@@ -323,7 +323,7 @@ class PluginLoader(object):
 
         for pattern in self.config['plugins']:
             if pattern not in config_matches:
-                log.warning('No plugin loaded for "{0}"'.format(pattern))
+                log.warning('No plugin loaded for "%s"', pattern)
 
     def registerPlugin(self, plugin):
         """Registers a plugin."""
@@ -360,7 +360,7 @@ class PluginLoader(object):
         log.info('registered plugin %s as %s', plugin.name, valid_types)
 
     def removePlugin(self, plugin):
-        log.info("Unloading %r" % plugin)
+        log.info("Unloading %r", plugin)
         for plugin_type, plugins in self.plugins.items():
             if plugin in plugins:
                 log.debug('plugin is a %s', plugin_type)
