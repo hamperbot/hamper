@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import random
 
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
@@ -73,7 +75,7 @@ class ChoicesPlugin(ChatCommandPlugin):
     priority = 0
 
     class ChoicesCommand(Command):
-        regex = r'^.* or .*$\?'
+        regex = r'^.* or .*\?$'
 
         name = 'choices'
         short_desc = None
@@ -83,9 +85,23 @@ class ChoicesPlugin(ChatCommandPlugin):
             choices = self.parse(comm['message'])
             choice = random.choice(choices) + '.'
             print choices
-            if random.random() <= 0.05:
-                choice = "Neither."
-            bot.reply(comm, '{0}: {1}'.format(comm['user'], choice))
+
+            r = random.random()
+
+            flavor = [
+                (0.02, ['Neither', 'None of them.']),
+                (0.02, ['Why not both?', 'Why not all of them?']),
+                (0.02, [u'¿Por qué no los dos?', u'¿Por qué no los todos?']),
+            ]
+
+            for chance, flavors in flavor:
+                if r < chance:
+                    i = int(len(choices) > 2)
+                    choice = flavors[i]
+                    break
+                r -= chance
+
+            bot.reply(comm, u'{0}: {1}'.format(comm['user'], choice))
             return True
 
         @staticmethod
