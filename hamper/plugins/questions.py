@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import random
+import re
 
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 from hamper.utils import ude
@@ -52,10 +53,11 @@ class YesNoPlugin(ChatPlugin):
             real_resp.append((resp, share * divisor))
 
         self.responses = real_resp
+        self.is_question = re.compile('.*\?(\?|!)*$')
 
     def message(self, bot, comm):
         msg = ude(comm['message'].strip())
-        if comm['directed'] and msg.endswith('?'):
+        if comm['directed'] and self.is_question.search(msg):
             r = random.random()
             for resp, prob in self.responses:
                 r -= prob
