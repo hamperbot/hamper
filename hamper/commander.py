@@ -87,7 +87,13 @@ class CommanderProtocol(irc.IRCClient):
         log.info("Left %s.", channel)
         self.dispatch('presence', 'left', channel)
 
+    def action(self, raw_user, channel, raw_message):
+        return self.process_action(raw_user, channel, raw_message)
+
     def privmsg(self, raw_user, channel, raw_message):
+        return self.process_action(raw_user, channel, raw_message)
+
+    def process_action(self, raw_user, channel, raw_message):
         """Called when a message is received from a channel or user."""
         log.info("%s %s %s", channel, raw_user, raw_message)
 
