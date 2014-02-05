@@ -20,6 +20,7 @@ plugins:
     - botsnack
     - karma
     - plugins
+    - names
 
 # Sign up for an API key here http://developer.worldweatheronline.com
 # This plugin allows you to look up local time for different timezones
