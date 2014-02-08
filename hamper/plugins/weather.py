@@ -1,6 +1,5 @@
-import requests
 from pyquery import PyQuery as pq
-
+import requests
 
 from hamper.interfaces import ChatCommandPlugin, Command
 
