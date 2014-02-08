@@ -12,14 +12,20 @@ class Weather(ChatCommandPlugin):
     """What's the weather?"""
     name = 'weather'
     priority = 2
+    short_desc = 'weather <location> - look the weather for a location'
+    long_desc = 'Try !weather <zip-code> or !weather <city> <state>'
 
     class Weather(Command):
         name = 'weather'
-        regex = '^weather\s+(.*)'
+        regex = '^weather\s*(.*)'
         api_url = 'http://api.wunderground.com/auto/wui/geo/WXCurrentObXML/index.xml?query={0}'  # noqa
 
         def command(self, bot, comm, groups):
             query = groups[0].strip()
+            if not query:
+                bot.reply(comm, self.plugin.long_desc)
+                return False
+
             resp = requests.get(self.api_url.format(query))
             dom = pq(resp.content)
             if not resp.status_code == 200:
