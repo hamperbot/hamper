@@ -159,7 +159,7 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^(?:score|karma) ([^-].+)$'
+        regex = r'^(?:score|karma)\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
