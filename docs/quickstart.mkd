@@ -13,14 +13,14 @@ and activate it. This keeps Hamper's libraries isolated from the rest of
 your system, which helps avoid version conflicts. Run these commands in
 the git repo you cloned.
 
-```shell
+```bash
 $ virtualenv venv
 $ source venv/bin/activate
 ```
 
 To install the requirements, run
 
-```shell
+```bash
 $ pip install -r requirements.txt
 ```
 
@@ -28,14 +28,14 @@ $ pip install -r requirements.txt
 
 A good way to make sure you have all the requirements is by running the tests. The tests don't rely on any confifguration, so you can run them now. To run the tests run the command
 
-```shell
+```bashs
 $ trial hamper
 ```
 
 If you get "command not found" you may have to give a better path to trial. Try
 
-```shell
-venv/bin/trial hamper
+```bash
+$ venv/bin/trial hamper
 ```
 
 ## Configuration
@@ -58,9 +58,13 @@ forward, but if you want more details, read
 The main entry point for Hamper is `scripts/hamper`, which imports the
 bot, does any needed path mangling, and calls the main function.
 
-If all you configured the bot correctly, it should start up, connect to
-the irc server, and join the specified channels, where you can start
-interacting with it. Yay!
+```bash
+$ scripts/hamper
+```
+
+If all you configured the bot correctly, it should start up, load any
+listed plugins, connect to the irc server, and join the specified
+channels, where you can start interacting with it. Yay!
 
 For more information about where to go from here, see the docs about
 [adminstration][admin] or [plugin development][plugindev], or if you
