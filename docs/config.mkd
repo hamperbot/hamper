@@ -14,9 +14,9 @@ The core of hamper only uses a few configuration options.
   `irc.freenode.net`. (Required)
 * `port` - The port to connect to the server on. Try `6667`. Make sure to use 
   an SSL enabled port if `ssl` is enabled. (Required)
-* `db` - This is a database URL as described [here][dburl]. This is not
-  required. If you leave it unspecified, Hamper will use a in-memory
-  database instead. The url `sqlite:///hamper.db` will make a sqlite
+* `db` - This is a database URL as described [in the SQLAlechmy docs][dburl].
+  This is not required. If you leave it unspecified, Hamper will use a
+  in-memory database instead. The url `sqlite:///hamper.db` will make a sqlite
   database in a file named `hamper.db` in the current directory.
 * `channels` - A list of channels to join, including the leading `#`.
 * `plugins` - A list of plugins to load.
@@ -24,6 +24,8 @@ The core of hamper only uses a few configuration options.
 * `password` - Iff this is supplied, Hamper will attempt to authenticate with
   NickServ using `nickname` and this password. If this happens, it will delay
   loading channels until after NickServ has responded.
+
+[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
 ## Plugin Configuration
 
