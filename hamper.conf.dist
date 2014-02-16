@@ -1,34 +1,14 @@
+# Sample configuration file for Hamper
 nickname: cool_bot
-
-# Uncomment and set password for nickserv auth
-# password:
-
 server: irc.freenode.net
 port: 6667
+
 db: "sqlite:///hamper.db"
 
-# Uncomment and setup .acl file if you need it
-# acl: hamper.acl
+channels:
+    - "#hamper-testing"
 
-channels: ["#awesome-channel", "#cool-channel"]
 plugins:
-    - quit
     - sed
-    - lmgtfy
     - friendly
     - ponies
-    - botsnack
-    - karma
-    - plugins
-
-# Sign up for an API key here http://developer.worldweatheronline.com
-# This plugin allows you to look up local time for different timezones
-# timez:
-#    api-key:
-
-tinyurl:
-    # Sites that should not have their links shortened
-    excluded-urls:
-        - imgur.com
-        - gist.github.com
-        - pastebin.com

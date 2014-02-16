@@ -1,6 +1,6 @@
-# Hamper
+# Quickstart
 
-## Getting Started
+## Installation
 
 You'll need Python 2.7, and the tools [Virtualenv][venv] and [Pip][pip] are
 highly recommended.
@@ -17,6 +17,12 @@ the git repo you cloned.
 $ virtualenv venv
 $ source venv/bin/activate
 ```
+
+> Note that on systems like Arch Linux, where Python 3 is the default, you will
+> have to specificy that you want to use Python 2. In particular, you should
+> use the command `virtualenv2` instead of `virtualenv`. This will create a
+> Python 2 virtualenv, so you would have to worry about it for the rest of this
+> guide.
 
 To install the requirements, run
 
@@ -49,14 +55,14 @@ template, `hamper.conf.dist`. Copy that file, name the copy
 In particular, you problably want to change the `nickname`, `server`,
 `port`, `channels`, and `plugins`. These should be pretty straight
 forward, but if you want more details, read
-[the configuration docs][docs].
+[the configuration docs][config].
 
-[docs]: docs.mkd
+[config]: config.mkd
 
 ## Running
 
-The main entry point for Hamper is `scripts/hamper`, which imports the
-bot, does any needed path mangling, and calls the main function.
+The main entry point for Hamper is `scripts/hamper`, which imports the bot,
+tries to set up the Python path if needed, and runs the main function.
 
 ```bash
 $ scripts/hamper
