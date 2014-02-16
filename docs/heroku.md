@@ -43,6 +43,7 @@ to write docs about. Run these commands from inside the hamper repository.
    $ heroku config:set plugins='[karma,help,sed]'
    $ heroku config:set server=irc.freenode.net port=6697 ssl=true
    $ heroku config:set channels='["#hamper-testing"]'
+   $ heroku config:set PYTHON_EXTRA_REQS=psycopg2==2.5.1
    ```
 
    Remember that environment variables are parsed as YAML if they are valid as
@@ -81,6 +82,20 @@ to write docs about. Run these commands from inside the hamper repository.
 
 Heroku is a much more powerful tool than how it is used here, capable of
 hosting complex applications. This, however, is all we need for Hamper.
+
+> #### Note: Extra dependencies
+> This is technically a violation of 12 Factor, but it makes hacking on
+> hamper much easier. All of the core dependencies for Hamper are listed
+> in `requirements.txt`, but to use a Postgresql database, like we did
+> above, you also need the Postgresql python drive, psycopg2.
+>
+> Hamper uses a modified Python buildpack that will install extra Python
+> requirements listed in the `$PYTHON_EXTRA_REQS` argument. This gets
+> appended directly to `requirements.txt` during the build phase, so
+> newlines are needed for any more requirements. This is the mechanism
+> by which you could run [external plugins][extplug] on Heroku.
+
+[extplug]: [externalplugins.md]
 
 
 ## Theory
