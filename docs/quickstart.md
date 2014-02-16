@@ -57,7 +57,7 @@ In particular, you problably want to change the `nickname`, `server`,
 forward, but if you want more details, read
 [the configuration docs][config].
 
-[config]: config.mkd
+[config]: config.md
 
 ## Running
 
@@ -77,7 +77,7 @@ For more information about where to go from here, see the docs about
 want to deploy Hamper in a little more permanent way, check out the
 deployment docs for [Heroku][heroku] or [Docker][docker]
 
-[admin]: admin.mkd
-[plugindev]: plugindev.mkd
-[heroku]: heroku.mkd
-[docker]: docker.mkd
+[admin]: admin.md
+[plugindev]: plugindev.md
+[heroku]: heroku.md
+[docker]: docker.md

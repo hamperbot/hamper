@@ -53,7 +53,7 @@ This plugin will automatically shorten long urls pasted into the channel.
   the seen urls, they won't be shortened. (Default:
   `['imgur.com', 'gist.github.com', 'pastebin.com']`).
 
-[Tinyurl]: plugins/tinyurl.mkd
+[Tinyurl]: plugins/tinyurl.md
 
 ### [Timez][]
 
@@ -62,7 +62,7 @@ The timez plugin allows you to look up local time for different timezones.
 * `api-key` - An API key for the service. Get it from [here][timezapi]. The 
   free api should work fine.
 
-[Timez]: plugins/timez.mkd
+[Timez]: plugins/timez.md
 [timezapi]: http://developer.worldweatheronline.com 
 
 
@@ -81,5 +81,5 @@ If you aren't sure if you need to do this, you likely don't have to. It's
 pretty specialized. Be aware of any escaping you may have to do to set these
 environment variables.
 
-[Heroku]: heroku.mkd
-[Docker]: docker.mkd
+[Heroku]: heroku.md
+[Docker]: docker.md
