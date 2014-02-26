@@ -63,8 +63,10 @@ forward, but if you want more details, read
 
 The main entry point for Hamper is `scripts/hamper`, which imports the bot,
 tries to set up the Python path if needed, and runs the main function.
+You will need to tell Python where to find packages for now.
 
 ```bash
+$ export PYTHONPATH=.
 $ scripts/hamper
 ```
 
