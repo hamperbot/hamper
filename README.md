@@ -42,9 +42,24 @@ Using Docker
 
 This already assumes you've got docker configured and installed on your system.
 
-To begin, start by copying the `hamper.conf.dist` into `hamper.conf` and adjusting
-settings as necessary. Then all you need to do is run `docker build -t <yourname>/hamper .`
-and you that will build a new Docker image to be used.
+To begin you need to build the docker image for hamper: `docker build -t <yourname>/hamper .`
 
-To use this container run `docker run -t -i <yourname>/hamper`, this will
-startup hamper in the container.
+Now we can start the container using that image, but first start by copying the
+`hamper.env.dist` into `hamper.env` and adjusting settings as necessary.
+
+Now all we need to do is start the container by telling where to read our
+settings, and we should also create a volume so that if we're using a sqlite,
+it database will exist after the container gets stopped.
+
+
+````shell
+$ HAMPER=$(docker run -d -v /host/path/to/db:/var/lib/hamper --env-file ./hamper.env <yourname>/hamper)
+````
+
+
+Then to stop the container type `docker stop $HAMPER`. To see logs of the
+running container use `docker logs $HAMPER`. You can get the id by using
+`docker ps` or `echo $HAMPER`. Refer to the [docker docs][docker] for more
+usage detail details.
+
+[docker]: http://docs.docker.io/en/latest/
