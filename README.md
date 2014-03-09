@@ -5,7 +5,7 @@ Quick Start
 -----------
 
 ```shell
-$ git clone https://github.com/mythmon/hamper
+$ git clone https://github.com/hamperbot/hamper
 $ cd hamper
 $ virtualenv venv
 $ source venv/bin/activate
