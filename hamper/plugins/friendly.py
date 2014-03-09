@@ -6,7 +6,7 @@ from hamper.interfaces import ChatPlugin
 
 
 class Friendly(ChatPlugin):
-    """Be polite. When people say hello, response."""
+    """Be polite. When people say hello, respond."""
 
     name = 'friendly'
     priority = 2
