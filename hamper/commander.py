@@ -117,6 +117,9 @@ class CommanderProtocol(irc.IRCClient):
             message = message[1:]
             directed = True
 
+        if directed:
+            message = message.rstrip()
+
         try:
             user, mask = raw_user.split('!', 1)
         except ValueError:
