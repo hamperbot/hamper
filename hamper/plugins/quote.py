@@ -5,6 +5,7 @@ from sqlalchemy import Integer, String, Date, Column
 from sqlalchemy.ext.declarative import declarative_base
 
 from hamper.interfaces import Command, ChatCommandPlugin
+from hamper.utils import uen
 
 
 SQLAlchemyBase = declarative_base()
@@ -33,8 +34,7 @@ class Quotes(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             index = random.randrange(0, bot.db.session.query(Quote).count())
             quote = bot.factory.loader.db.session.query(Quote)[index]
-            # Lame twisted irc doesn't support unicode.
-            bot.reply(comm, str(quote.text))
+            bot.reply(comm, uen(quote.text))
             return True
 
     class AddQuote(Command):
