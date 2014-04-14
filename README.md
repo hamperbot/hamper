@@ -53,9 +53,12 @@ it database will exist after the container gets stopped.
 
 
 ````shell
+# replace /host/path/to/db with where you want hamper's database file to be stored
 $ HAMPER=$(docker run -d -v /host/path/to/db:/var/lib/hamper --env-file ./hamper.env <yourname>/hamper)
 ````
 
+This would create a folder at `/host/path/to/db/` on your computer, and if
+you're using the default config, you'll find a file `hamper.db` in that folder.
 
 Then to stop the container type `docker stop $HAMPER`. To see logs of the
 running container use `docker logs $HAMPER`. You can get the id by using
