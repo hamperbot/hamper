@@ -53,16 +53,29 @@ it database will exist after the container gets stopped.
 
 
 ````shell
-# replace /host/path/to/db with where you want hamper's database file to be stored
-$ HAMPER=$(docker run -d -v /host/path/to/db:/var/lib/hamper --env-file ./hamper.env <yourname>/hamper)
+# replace ~/hamper_db with where you want hamper's database file to be stored
+docker run -d -v ~/hamper_db:/var/lib/hamper --env-file ./hamper.env --name hamper <yourname>/hamper
 ````
 
-This would create a folder at `/host/path/to/db/` on your computer, and if
-you're using the default config, you'll find a file `hamper.db` in that folder.
+This would create a folder at `~/hamper_db` on your computer, and if you're
+using the default config, you'll find a sqlite file `hamper.db` in that folder.
 
-Then to stop the container type `docker stop $HAMPER`. To see logs of the
-running container use `docker logs $HAMPER`. You can get the id by using
-`docker ps` or `echo $HAMPER`. Refer to the [docker docs][docker] for more
-usage detail details.
+This is great and all, but perhaps you want to hack on hamper and use docker.
+Here's how to do that:
+
+````shell
+docker run -it --env-file ./hamper.env - /path/to/hamper:/hamper -v ~/hamper_db:/var/lib/hamper --name hamper ecnahc515/hamper bash
+````
+
+This will open up a bash prompt and mount your hamper project repo (in this
+example at `/path/to/hamper`) in place of the hamper project in your container.
+When you make changes to the code, they'll be seen in the container. The reason
+we run bash is so you can easily stop and restart the bot with the hamper
+command, however you can leave out the `bash` command at the end and just stop
+and start the container.
+
+Then to stop the container type `docker stop hamper`. To start it back up type
+`docker start hamper` To see logs of the running container use `docker logs hamper`.
+Refer to the [docker docs][docker] for more usage detail details.
 
 [docker]: http://docs.docker.io/en/latest/
