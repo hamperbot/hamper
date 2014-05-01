@@ -123,7 +123,8 @@ class Karma(ChatCommandPlugin):
         kt = self.db.session.query(KarmaTable)
         for receiver in receiverkarma:
             if receiver != giver:
-                urow = KarmaTable(giver, receiver, receiverkarma[receiver])
+                urow = KarmaTable(ude(giver), ude(receiver),
+                                  receiverkarma[receiver])
                 self.db.session.add(urow)
         self.db.session.commit()
 
