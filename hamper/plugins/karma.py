@@ -30,7 +30,7 @@ class Karma(ChatCommandPlugin):
 
     priority = -2
 
-    short_desc = 'karma/score - Give or take karma from someone'
+    short_desc = 'karma - Give or take karma from someone'
     long_desc = ('username++ - Give karma\n'
                  'username-- - Take karma\n'
                  '!karma --top - Show the top 5 karma earners\n'
@@ -132,7 +132,7 @@ class Karma(ChatCommandPlugin):
         Return the top or bottom 5
         """
 
-        regex = r'^(?:score|karma) --(top|bottom)$'
+        regex = r'^karma --(top|bottom)$'
 
         LIST_MAX = 5
 
@@ -157,7 +157,7 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^(?:score|karma)\s+([^-].*)$'
+        regex = r'^karma\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
