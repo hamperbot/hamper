@@ -1,10 +1,11 @@
 import re
 from collections import defaultdict
+from datetime import datetime
 
 from hamper.interfaces import ChatCommandPlugin, Command
 from hamper.utils import ude, uen
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 SQLAlchemyBase = declarative_base()
@@ -78,7 +79,7 @@ class Karma(ChatCommandPlugin):
             if comm['user'] in karmas.keys():
                 bot.reply(comm, "Nice try, no modifying your own karma")
             # Commit karma changes to the db
-            self.update_db(karmas, comm['user'])
+            self.update_db(comm["user"], karmas)
 
     def modify_karma(self, words):
         """
@@ -112,20 +113,17 @@ class Karma(ChatCommandPlugin):
                     k[word] += change
         return k
 
-    def update_db(self, userkarma, username):
+    def update_db(self, giver, receiverkarma):
         """
-        Change the users karma by the karma amount (either 1 or -1)
+        Record a the giver of karma, the receiver of karma, and the karma
+        amount. Typically the count will be 1, but it can be any positive or
+        negative integer.
         """
 
         kt = self.db.session.query(KarmaTable)
-        for user in userkarma:
-            if user != username:
-                # Modify the db accourdingly
-                urow = kt.filter(KarmaTable.user == ude(user)).first()
-                # If the user doesn't exist, create it
-                if not urow:
-                    urow = KarmaTable(ude(user))
-                urow.kcount += userkarma[user]
+        for receiver in receiverkarma:
+            if receiver != giver:
+                urow = KarmaTable(giver, receiver, receiverkarma[receiver])
                 self.db.session.add(urow)
         self.db.session.commit()
 
@@ -186,11 +184,15 @@ class KarmaTable(SQLAlchemyBase):
     __tablename__ = 'karma'
 
     # Calling the primary key user, though, really, this can be any string
-    user = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    giver = Column(String)
+    receiver = Column(String)
     kcount = Column(Integer)
+    datetime = Column(DateTime, default=datetime.utcnow())
 
-    def __init__(self, user, kcount=0):
-        self.user = user
+    def __init__(self, giver, receiver, kcount):
+        self.giver = giver
+        self.receiver = receiver
         self.kcount = kcount
 
 
