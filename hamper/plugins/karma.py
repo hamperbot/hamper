@@ -1,3 +1,4 @@
+import operator
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -130,24 +131,41 @@ class Karma(ChatCommandPlugin):
 
     class KarmaList(Command):
         """
-        Return the top or bottom 5
+        Return the highest or lowest 5 receivers of karma
         """
 
         regex = r'^karma --(top|bottom)$'
 
-        LIST_MAX = 5
+        LIMIT = 5
 
         def command(self, bot, comm, groups):
-            users = bot.factory.loader.db.session.query(KarmaTable)
-            user_count = users.count()
-            top = self.LIST_MAX if user_count >= self.LIST_MAX else user_count
+            # We'll need all the rows
+            kts = bot.factory.loader.db.session.query(KarmaTable).all()
+            # From all the rows, tally the karma for each receiver
+            receivers = defaultdict(int)
+            for row in kts:
+                receivers[row.receiver] += row.kcount
+            rec_count = len(receivers.keys())
+            rec_sorted = sorted(receivers.iteritems(),
+                                key=operator.itemgetter(1))
 
-            if top:
-                show = (KarmaTable.kcount.desc() if groups[0] == 'top'
-                        else KarmaTable.kcount)
-                for user in users.order_by(show)[0:top]:
+            # We should limit the list of users to at most self.LIMIT
+            limit = self.LIMIT if rec_count >= self.LIMIT else rec_count
+            if limit:
+                if groups[0] == 'top':
+                    snippet = rec_sorted[-limit:]
+                elif groups[0] == 'bottom':
+                    snippet = rec_sorted[0:limit]
+                else:
                     bot.reply(
-                        comm, str('%s\x0f: %d' % (user.user, user.kcount))
+                        comm, r'Something went wrong with karma\'s regex'
+                    )
+                    return
+
+                for rec in snippet:
+                    bot.reply(
+                        comm, '%s\x0f: %d' % (uen(rec[0]), rec[1]),
+                        encode=False
                     )
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
