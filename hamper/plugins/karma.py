@@ -117,7 +117,6 @@ class Karma(ChatCommandPlugin):
         negative integer.
         """
 
-        kt = self.db.session.query(KarmaTable)
         for receiver in receiverkarma:
             if receiver != giver:
                 urow = KarmaTable(ude(giver), ude(receiver),
