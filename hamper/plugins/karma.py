@@ -1,10 +1,12 @@
+import operator
 import re
 from collections import defaultdict
+from datetime import datetime
 
 from hamper.interfaces import ChatCommandPlugin, Command
 from hamper.utils import ude, uen
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 
 SQLAlchemyBase = declarative_base()
@@ -17,10 +19,6 @@ class Karma(ChatCommandPlugin):
     Hamper will look for lines that end in ++ or -- and modify that user's
     karma value accordingly
 
-    !karma --top: shows (at most) the top 5
-    !karma --bottom: shows (at most) the bottom 5
-    !karma <username>: displays the karma for a given user
-
     NOTE: The user is just a string, this really could be anything...like
     potatoes or the infamous cookie clicker....
     """
@@ -29,7 +27,7 @@ class Karma(ChatCommandPlugin):
 
     priority = -2
 
-    short_desc = 'karma/score - Give or take karma from someone'
+    short_desc = 'karma - Give or take karma from someone'
     long_desc = ('username++ - Give karma\n'
                  'username-- - Take karma\n'
                  '!karma --top - Show the top 5 karma earners\n'
@@ -78,7 +76,7 @@ class Karma(ChatCommandPlugin):
             if comm['user'] in karmas.keys():
                 bot.reply(comm, "Nice try, no modifying your own karma")
             # Commit karma changes to the db
-            self.update_db(karmas, comm['user'])
+            self.update_db(comm["user"], karmas)
 
     def modify_karma(self, words):
         """
@@ -112,43 +110,57 @@ class Karma(ChatCommandPlugin):
                     k[word] += change
         return k
 
-    def update_db(self, userkarma, username):
+    def update_db(self, giver, receiverkarma):
         """
-        Change the users karma by the karma amount (either 1 or -1)
+        Record a the giver of karma, the receiver of karma, and the karma
+        amount. Typically the count will be 1, but it can be any positive or
+        negative integer.
         """
 
-        kt = self.db.session.query(KarmaTable)
-        for user in userkarma:
-            if user != username:
-                # Modify the db accourdingly
-                urow = kt.filter(KarmaTable.user == ude(user)).first()
-                # If the user doesn't exist, create it
-                if not urow:
-                    urow = KarmaTable(ude(user))
-                urow.kcount += userkarma[user]
+        for receiver in receiverkarma:
+            if receiver != giver:
+                urow = KarmaTable(ude(giver), ude(receiver),
+                                  receiverkarma[receiver])
                 self.db.session.add(urow)
         self.db.session.commit()
 
     class KarmaList(Command):
         """
-        Return the top or bottom 5
+        Return the highest or lowest 5 receivers of karma
         """
 
-        regex = r'^(?:score|karma) --(top|bottom)$'
+        regex = r'^karma --(top|bottom)$'
 
-        LIST_MAX = 5
+        LIMIT = 5
 
         def command(self, bot, comm, groups):
-            users = bot.factory.loader.db.session.query(KarmaTable)
-            user_count = users.count()
-            top = self.LIST_MAX if user_count >= self.LIST_MAX else user_count
+            # We'll need all the rows
+            kts = bot.factory.loader.db.session.query(KarmaTable).all()
+            # From all the rows, tally the karma for each receiver
+            receivers = defaultdict(int)
+            for row in kts:
+                receivers[row.receiver] += row.kcount
+            rec_count = len(receivers.keys())
+            rec_sorted = sorted(receivers.iteritems(),
+                                key=operator.itemgetter(1))
 
-            if top:
-                show = (KarmaTable.kcount.desc() if groups[0] == 'top'
-                        else KarmaTable.kcount)
-                for user in users.order_by(show)[0:top]:
+            # We should limit the list of users to at most self.LIMIT
+            limit = self.LIMIT if rec_count >= self.LIMIT else rec_count
+            if limit:
+                if groups[0] == 'top':
+                    snippet = rec_sorted[-limit:]
+                elif groups[0] == 'bottom':
+                    snippet = rec_sorted[0:limit]
+                else:
                     bot.reply(
-                        comm, str('%s\x0f: %d' % (user.user, user.kcount))
+                        comm, r'Something went wrong with karma\'s regex'
+                    )
+                    return
+
+                for rec in snippet:
+                    bot.reply(
+                        comm, '%s\x0f: %d' % (uen(rec[0]), rec[1]),
+                        encode=False
                     )
             else:
                 bot.reply(comm, r'No one has any karma yet :-(')
@@ -159,17 +171,20 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^(?:score|karma)\s+([^-].*)$'
+        regex = r'^karma\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
             thing = ude(groups[0].strip().lower())
-            user = kt.filter(KarmaTable.user == thing).first()
+            rec_list = kt.filter(KarmaTable.receiver == thing).all()
 
-            if user:
+            if rec_list:
+                total = 0
+                for r in rec_list:
+                    total += r.kcount
                 bot.reply(
-                    comm, '%s has %d points' % (uen(user.user), user.kcount),
+                    comm, '%s has %d points' % (uen(thing), total),
                     encode=False
                 )
             else:
@@ -186,11 +201,15 @@ class KarmaTable(SQLAlchemyBase):
     __tablename__ = 'karma'
 
     # Calling the primary key user, though, really, this can be any string
-    user = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True)
+    giver = Column(String)
+    receiver = Column(String)
     kcount = Column(Integer)
+    datetime = Column(DateTime, default=datetime.utcnow())
 
-    def __init__(self, user, kcount=0):
-        self.user = user
+    def __init__(self, giver, receiver, kcount):
+        self.giver = giver
+        self.receiver = receiver
         self.kcount = kcount
 
 
