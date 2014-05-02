@@ -32,8 +32,8 @@ class Karma(ChatCommandPlugin):
                  'username-- - Take karma\n'
                  '!karma --top - Show the top 5 karma earners\n'
                  '!karma --bottom - Show the bottom 5 karma earners\n'
-                 '!karma --giver - Shows the user who has given the most positive karma\n'
-                 '!karma --taker - Shows the user who has gevin the most negative karma\n'
+                 '!karma --giver - Show who\'s given the most positive karma\n'
+                 '!karma --taker - Show who\'s given the most negative karma\n'
                  '!karma username - Show the user\'s karma count\n')
 
     gotta_catch_em_all = r"""# 3 or statement
@@ -194,7 +194,6 @@ class Karma(ChatCommandPlugin):
                     comm, 'No karma for %s ' % uen(thing), encode=False
                 )
 
-
     class KarmaGiver(Command):
         """
         Identifies the person who gives the most karma
@@ -217,7 +216,7 @@ class Karma(ChatCommandPlugin):
                     bot.reply(
                         comm,
                         '%s has given the most karma (%d)' %
-                            (uen(most[0]), most[1])
+                        (uen(most[0]), most[1])
                     )
                 else:
                     bot.reply(
@@ -236,13 +235,14 @@ class Karma(ChatCommandPlugin):
                     bot.reply(
                         comm,
                         '%s has given the most negative karma (%d)' %
-                            (uen(most[0]), most[1])
+                        (uen(most[0]), most[1])
                     )
                 else:
                     bot.reply(
                         comm,
                         'No negative karma has been given yet'
                     )
+
 
 class KarmaTable(SQLAlchemyBase):
     """
