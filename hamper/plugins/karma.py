@@ -19,10 +19,6 @@ class Karma(ChatCommandPlugin):
     Hamper will look for lines that end in ++ or -- and modify that user's
     karma value accordingly
 
-    !karma --top: shows (at most) the top 5
-    !karma --bottom: shows (at most) the bottom 5
-    !karma <username>: displays the karma for a given user
-
     NOTE: The user is just a string, this really could be anything...like
     potatoes or the infamous cookie clicker....
     """
