@@ -178,11 +178,14 @@ class Karma(ChatCommandPlugin):
             # Play nice when the user isn't in the db
             kt = bot.factory.loader.db.session.query(KarmaTable)
             thing = ude(groups[0].strip().lower())
-            user = kt.filter(KarmaTable.user == thing).first()
+            rec_list = kt.filter(KarmaTable.receiver == thing).all()
 
-            if user:
+            if rec_list:
+                total = 0
+                for r in rec_list:
+                    total += r.kcount
                 bot.reply(
-                    comm, '%s has %d points' % (uen(user.user), user.kcount),
+                    comm, '%s has %d points' % (uen(thing), total),
                     encode=False
                 )
             else:
