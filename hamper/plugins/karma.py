@@ -203,14 +203,14 @@ class Karma(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             kt = bot.factory.loader.db.session.query(KarmaTable)
+            counter = Counter()
 
             if groups[0] == 'giver':
-                givers = Counter()
                 positive_karma = kt.filter(KarmaTable.kcount > 0)
                 for row in positive_karma:
-                    givers[row.giver] += row.kcount
+                    counter[row.giver] += row.kcount
 
-                m = givers.most_common(1)
+                m = counter.most_common(1)
                 most = m[0] if m else None
                 if most:
                     bot.reply(
@@ -224,12 +224,11 @@ class Karma(ChatCommandPlugin):
                         'No positive karma has been given yet :-('
                     )
             elif groups[0] == 'taker':
-                takers = Counter()
                 negative_karma = kt.filter(KarmaTable.kcount < 0)
                 for row in negative_karma:
-                    takers[row.giver] += row.kcount
+                    counter[row.giver] += row.kcount
 
-                m = takers.most_common()
+                m = counter.most_common()
                 most = m[-1] if m else None
                 if most:
                     bot.reply(
