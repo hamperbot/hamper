@@ -32,10 +32,10 @@ class Karma(ChatCommandPlugin):
                  "username-- - Take karma\n"
                  "!karma --top - Show the top 5 karma earners\n"
                  "!karma --bottom - Show the bottom 5 karma earners\n"
-                 "!karma --giver - Show who's given the most positive karma\n"
-                 "!karma --taker - Show who's given the most negative karma\n"
-                 "!karma --when-positive - See when people are the most positive\n"
-                 "!karma --when-negative - See when people are the most positive\n"
+                 "!karma --giver or --taker - Show who's given the most"
+                 " positive or negative karma\n"
+                 "!karma --when-positive or --when-negative "
+                 " - Show when people are the most positive or negative\n"
                  "!karma username - Show the user's karma count\n")
 
     gotta_catch_em_all = r"""# 3 or statement
