@@ -280,6 +280,7 @@ class Karma(ChatCommandPlugin):
                     '%s karma has been given yet' % title_case
                 )
 
+
 class KarmaTable(SQLAlchemyBase):
     """
     Keep track of users karma in a persistant manner
