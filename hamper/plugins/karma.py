@@ -1,6 +1,6 @@
 import operator
 import re
-from collections import defaultdict
+from collections import Counter, defaultdict
 from datetime import datetime
 
 from hamper.interfaces import ChatCommandPlugin, Command
@@ -32,6 +32,8 @@ class Karma(ChatCommandPlugin):
                  'username-- - Take karma\n'
                  '!karma --top - Show the top 5 karma earners\n'
                  '!karma --bottom - Show the bottom 5 karma earners\n'
+                 '!karma --giver - Show who\'s given the most positive karma\n'
+                 '!karma --taker - Show who\'s given the most negative karma\n'
                  '!karma username - Show the user\'s karma count\n')
 
     gotta_catch_em_all = r"""# 3 or statement
@@ -191,6 +193,54 @@ class Karma(ChatCommandPlugin):
                 bot.reply(
                     comm, 'No karma for %s ' % uen(thing), encode=False
                 )
+
+    class KarmaGiver(Command):
+        """
+        Identifies the person who gives the most karma
+        """
+
+        regex = r'^karma --(giver|taker)$'
+
+        def command(self, bot, comm, groups):
+            kt = bot.factory.loader.db.session.query(KarmaTable)
+            counter = Counter()
+
+            if groups[0] == 'giver':
+                positive_karma = kt.filter(KarmaTable.kcount > 0)
+                for row in positive_karma:
+                    counter[row.giver] += row.kcount
+
+                m = counter.most_common(1)
+                most = m[0] if m else None
+                if most:
+                    bot.reply(
+                        comm,
+                        '%s has given the most karma (%d)' %
+                        (uen(most[0]), most[1])
+                    )
+                else:
+                    bot.reply(
+                        comm,
+                        'No positive karma has been given yet :-('
+                    )
+            elif groups[0] == 'taker':
+                negative_karma = kt.filter(KarmaTable.kcount < 0)
+                for row in negative_karma:
+                    counter[row.giver] += row.kcount
+
+                m = counter.most_common()
+                most = m[-1] if m else None
+                if most:
+                    bot.reply(
+                        comm,
+                        '%s has given the most negative karma (%d)' %
+                        (uen(most[0]), most[1])
+                    )
+                else:
+                    bot.reply(
+                        comm,
+                        'No negative karma has been given yet'
+                    )
 
 
 class KarmaTable(SQLAlchemyBase):
