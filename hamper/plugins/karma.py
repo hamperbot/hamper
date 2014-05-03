@@ -242,6 +242,41 @@ class Karma(ChatCommandPlugin):
                         'No negative karma has been given yet'
                     )
 
+    class MostActive(Command):
+        """
+        Least/Most active hours of karma giving/taking
+        """
+
+        regex = r'^karma\s+--when-(positive|negative)'
+
+        def command(self, bot, comm, groups):
+            kt = bot.factory.loader.db.session.query(KarmaTable)
+            counter = Counter()
+
+            if groups[0] == "positive":
+                karma = kt.filter(KarmaTable.kcount > 0)
+            elif groups[0] == "negative":
+                karma = kt.filter(KarmaTable.kcount < 0)
+
+            for row in karma:
+                hour = row.datetime.hour
+                counter[hour] += row.kcount
+
+            common_hour = (counter.most_common(1)[0][0]
+                           if counter.most_common(1) else None)
+            title_case = groups[0][0].upper() + groups[0][1:]
+
+            if common_hour:
+                bot.reply(
+                    comm,
+                    '%s karma is usually given during the %d:00 hour (UTC)' %
+                    (title_case, common_hour)
+                )
+            else:
+                bot.reply(
+                    comm,
+                    '%s karma has been given yet' % title_case
+                )
 
 class KarmaTable(SQLAlchemyBase):
     """
