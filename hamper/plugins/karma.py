@@ -28,13 +28,13 @@ class Karma(ChatCommandPlugin):
     priority = -2
 
     short_desc = 'karma - Give or take karma from someone'
-    long_desc = ('username++ - Give karma\n'
-                 'username-- - Take karma\n'
-                 '!karma --top - Show the top 5 karma earners\n'
-                 '!karma --bottom - Show the bottom 5 karma earners\n'
-                 '!karma --giver - Show who\'s given the most positive karma\n'
-                 '!karma --taker - Show who\'s given the most negative karma\n'
-                 '!karma username - Show the user\'s karma count\n')
+    long_desc = ("username++ - Give karma\n"
+                 "username-- - Take karma\n"
+                 "!karma --top - Show the top 5 karma earners\n"
+                 "!karma --bottom - Show the bottom 5 karma earners\n"
+                 "!karma --giver - Show who's given the most positive karma\n"
+                 "!karma --taker - Show who's given the most negative karma\n"
+                 "!karma username - Show the user's karma count\n")
 
     gotta_catch_em_all = r"""# 3 or statement
                              (
