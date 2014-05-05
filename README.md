@@ -76,6 +76,6 @@ and start the container.
 
 Then to stop the container type `docker stop hamper`. To start it back up type
 `docker start hamper` To see logs of the running container use `docker logs hamper`.
-Refer to the [docker docs][docker] for more usage detail details.
+Refer to the [docker docs][docker] for more usage details.
 
 [docker]: http://docs.docker.io/en/latest/
