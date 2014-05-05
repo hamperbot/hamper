@@ -6,7 +6,7 @@ from datetime import datetime
 from hamper.interfaces import ChatCommandPlugin, Command
 from hamper.utils import ude, uen
 
-from sqlalchemy import Column, DateTime, Integer, String
+from sqlalchemy import Column, DateTime, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 
 SQLAlchemyBase = declarative_base()
@@ -139,26 +139,22 @@ class Karma(ChatCommandPlugin):
 
         regex = r'^(?:score|karma) --(top|bottom)$'
 
-        LIMIT = 5
+        LIST_MAX = 5
 
         def command(self, bot, comm, groups):
             # We'll need all the rows
-            kts = bot.factory.loader.db.session.query(KarmaTable).all()
-            # From all the rows, tally the karma for each receiver
-            receivers = defaultdict(int)
-            for row in kts:
-                receivers[row.receiver] += row.kcount
-            rec_count = len(receivers.keys())
-            rec_sorted = sorted(receivers.iteritems(),
-                                key=operator.itemgetter(1))
-
-            # We should limit the list of users to at most self.LIMIT
-            limit = self.LIMIT if rec_count >= self.LIMIT else rec_count
-            if limit:
+            kts = bot.factory.loader.db.session\
+                                    .query(KarmaTable.receiver,
+                                           func.sum(KarmaTable.kcount))\
+                                    .group_by(KarmaTable.receiver)
+            if kts.count():
+                # We should limit the list of users to at most self.LIST_MAX
                 if groups[0] == 'top':
-                    snippet = rec_sorted[-limit:]
+                    snippet = kts.order_by(KarmaTable.kcount.desc())\
+                                 .limit(self.LIST_MAX).all()
                 elif groups[0] == 'bottom':
-                    snippet = rec_sorted[0:limit]
+                    snippet = kts.order_by(KarmaTable.kcount)\
+                                 .limit(self.LIST_MAX).all()
                 else:
                     bot.reply(
                         comm, r'Something went wrong with karma\'s regex'
