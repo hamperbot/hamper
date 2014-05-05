@@ -27,7 +27,8 @@ class Karma(ChatCommandPlugin):
 
     priority = -2
 
-    short_desc = 'karma - Give or take karma from someone'
+    short_desc = ("karma - Give positive or negative karma. Where you see"
+                  " !karma, !score will work as well")
     long_desc = ("username++ - Give karma\n"
                  "username-- - Take karma\n"
                  "!karma --top - Show the top 5 karma earners\n"
@@ -136,7 +137,7 @@ class Karma(ChatCommandPlugin):
         Return the highest or lowest 5 receivers of karma
         """
 
-        regex = r'^karma --(top|bottom)$'
+        regex = r'^(?:score|karma) --(top|bottom)$'
 
         LIMIT = 5
 
@@ -178,7 +179,7 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^karma\s+([^-].*)$'
+        regex = r'^(?:score|karma)\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
             # Play nice when the user isn't in the db
@@ -204,7 +205,7 @@ class Karma(ChatCommandPlugin):
         Identifies the person who gives the most karma
         """
 
-        regex = r'^karma --(giver|taker)$'
+        regex = r'^(?:score|karma) --(giver|taker)$'
 
         def command(self, bot, comm, groups):
             kt = bot.factory.loader.db.session.query(KarmaTable)
@@ -252,7 +253,7 @@ class Karma(ChatCommandPlugin):
         Least/Most active hours of karma giving/taking
         """
 
-        regex = r'^karma\s+--when-(positive|negative)'
+        regex = r'^(?:score|karma)\s+--when-(positive|negative)'
 
         def command(self, bot, comm, groups):
             kt = bot.factory.loader.db.session.query(KarmaTable)
