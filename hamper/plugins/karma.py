@@ -1,4 +1,3 @@
-import operator
 import re
 from collections import Counter, defaultdict
 from datetime import datetime
