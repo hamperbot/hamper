@@ -150,11 +150,13 @@ class Karma(ChatCommandPlugin):
             if kts.count():
                 # We should limit the list of users to at most self.LIST_MAX
                 if groups[0] == 'top':
-                    snippet = kts.order_by(KarmaTable.kcount.desc())\
-                                 .limit(self.LIST_MAX).all()
+                    query = kts.order_by(KarmaTable.kcount.desc())\
+                               .limit(self.LIST_MAX).all()
+                    snippet = Counter(dict(query)).most_common()
                 elif groups[0] == 'bottom':
-                    snippet = kts.order_by(KarmaTable.kcount)\
-                                 .limit(self.LIST_MAX).all()
+                    query = kts.order_by(KarmaTable.kcount)\
+                               .limit(self.LIST_MAX).all()
+                    snippet = reversed(Counter(dict(query)).most_common())
                 else:
                     bot.reply(
                         comm, r'Something went wrong with karma\'s regex'
