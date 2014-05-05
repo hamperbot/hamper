@@ -78,7 +78,10 @@ class Karma(ChatCommandPlugin):
             karmas = self.modify_karma(words)
             # Notify the users they can't modify their own karma
             if comm['user'] in karmas.keys():
-                bot.reply(comm, "Nice try, no modifying your own karma")
+                if karmas[comm['user']] <= 0:
+                    bot.reply(comm, "Don't be so hard on yourself.")
+                else:
+                    bot.reply(comm, "Tisk, tisk, no up'ing your own karma.")
             # Commit karma changes to the db
             self.update_db(comm["user"], karmas)
 
