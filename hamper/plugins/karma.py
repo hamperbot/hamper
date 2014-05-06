@@ -298,7 +298,7 @@ class KarmaTable(SQLAlchemyBase):
         self.kcount = kcount
 
 
-class KarmaTable(SQLAlchemyBase):
+class KarmaStatsTable(SQLAlchemyBase):
     """
     Keep track of users karma in a persistant manner
     """
