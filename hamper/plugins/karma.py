@@ -127,7 +127,7 @@ class Karma(ChatCommandPlugin):
         for receiver in receiverkarma:
             if receiver != giver:
                 urow = KarmaStatsTable(ude(giver), ude(receiver),
-                                  receiverkarma[receiver])
+                                       receiverkarma[receiver])
                 self.db.session.add(urow)
         self.db.session.commit()
 
@@ -150,29 +150,26 @@ class Karma(ChatCommandPlugin):
 
             # Forlegacy support
             classic = bot.factory.loader.db.session.query(KarmaTable)
+            # Counter for sorting and updating data
+            counter = Counter()
 
             if kts.count() or classic.count():
                 # We should limit the list of users to at most self.LIST_MAX
                 if groups[0] == 'top':
-                    print "top"
                     classic_q = classic.order_by(KarmaTable.kcount.desc())\
                                        .limit(self.LIST_MAX).all()
                     query = kts.order_by(KarmaStatsTable.kcount.desc())\
                                .limit(self.LIST_MAX).all()
-                    # Combine the two lists into one counter and retrieve a list
-                    # of length at most self.LIST_MAX
-                    counter = Counter(dict(classic_q))
+
+                    counter.update(dict(classic_q))
                     counter.update(dict(query))
                     snippet = counter.most_common(self.LIST_MAX)
                 elif groups[0] == 'bottom':
-                    print "bottom"
                     classic_q = classic.order_by(KarmaTable.kcount)\
                                        .limit(self.LIST_MAX).all()
                     query = kts.order_by(KarmaStatsTable.kcount)\
                                .limit(self.LIST_MAX).all()
-                    # Combine the two lists into one counter and retrieve a list
-                    # of length at most self.LIST_MAX
-                    counter = Counter(dict(classic_q))
+                    counter.update(dict(classic_q))
                     counter.update(dict(query))
                     snippet = reversed(counter.most_common(self.LIST_MAX))
                 else:
@@ -180,7 +177,6 @@ class Karma(ChatCommandPlugin):
                         comm, r'Something went wrong with karma\'s regex'
                     )
                     return
-
 
                 for rec in snippet:
                     bot.reply(
