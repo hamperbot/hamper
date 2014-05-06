@@ -148,21 +148,39 @@ class Karma(ChatCommandPlugin):
                                            func.sum(KarmaStatsTable.kcount))\
                                     .group_by(KarmaStatsTable.receiver)
 
-            if kts.count():
+            # Forlegacy support
+            classic = bot.factory.loader.db.session.query(KarmaTable)
+
+            if kts.count() or classic.count():
                 # We should limit the list of users to at most self.LIST_MAX
                 if groups[0] == 'top':
+                    print "top"
+                    classic_q = classic.order_by(KarmaTable.kcount.desc())\
+                                       .limit(self.LIST_MAX).all()
                     query = kts.order_by(KarmaStatsTable.kcount.desc())\
                                .limit(self.LIST_MAX).all()
-                    snippet = Counter(dict(query)).most_common()
+                    # Combine the two lists into one counter and retrieve a list
+                    # of length at most self.LIST_MAX
+                    counter = Counter(dict(classic_q))
+                    counter.update(dict(query))
+                    snippet = counter.most_common(self.LIST_MAX)
                 elif groups[0] == 'bottom':
+                    print "bottom"
+                    classic_q = classic.order_by(KarmaTable.kcount)\
+                                       .limit(self.LIST_MAX).all()
                     query = kts.order_by(KarmaStatsTable.kcount)\
                                .limit(self.LIST_MAX).all()
-                    snippet = reversed(Counter(dict(query)).most_common())
+                    # Combine the two lists into one counter and retrieve a list
+                    # of length at most self.LIST_MAX
+                    counter = Counter(dict(classic_q))
+                    counter.update(dict(query))
+                    snippet = reversed(counter.most_common(self.LIST_MAX))
                 else:
                     bot.reply(
                         comm, r'Something went wrong with karma\'s regex'
                     )
                     return
+
 
                 for rec in snippet:
                     bot.reply(
