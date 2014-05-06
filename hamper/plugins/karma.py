@@ -284,6 +284,22 @@ class Karma(ChatCommandPlugin):
 
 class KarmaTable(SQLAlchemyBase):
     """
+    Bringing back the classic table so data doesn't need to be dumped
+    """
+
+    __tablename__ = 'karma'
+
+    # Karma Classic Table
+    user = Column(String, primary_key=True)
+    kcount = Column(Integer)
+
+    def __init__(self, user, kcount):
+        self.user = user
+        self.kcount = kcount
+
+
+class KarmaTable(SQLAlchemyBase):
+    """
     Keep track of users karma in a persistant manner
     """
 
