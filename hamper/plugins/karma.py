@@ -195,23 +195,37 @@ class Karma(ChatCommandPlugin):
         regex = r'^(?:score|karma)\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
-            # Play nice when the user isn't in the db
-            kt = bot.factory.loader.db.session.query(KarmaStatsTable)
-            thing = ude(groups[0].strip().lower())
-            rec_list = kt.filter(KarmaStatsTable.receiver == thing).all()
+            # The receiver (or in old terms, user) of the karma being tallied
+            receiver = ude(groups[0].strip().lower())
 
-            if rec_list:
-                total = 0
-                for r in rec_list:
-                    total += r.kcount
-                bot.reply(
-                    comm, '%s has %d points' % (uen(thing), total),
-                    encode=False
-                )
-            else:
-                bot.reply(
-                    comm, 'No karma for %s ' % uen(thing), encode=False
-                )
+            # Manage both tables
+            sesh = bot.factory.loader.db.session
+
+            # Old Table
+            kt = sesh.query(KarmaTable)
+            user = kt.filter(KarmaTable.user == receiver).first()
+
+            # New Table
+            kst = sesh.query(KarmaStatsTable)
+            kst_list = kst.filter(KarmaStatsTable.receiver == receiver).all()
+
+            # The total amount of karma from both tables
+            total = 0
+
+            # Add karma from the old table
+            if user:
+                total += user.kcount
+
+            # Add karma from the new table
+            if kst_list:
+                for row in kst_list:
+                    total += row.kcount
+
+            # Send the message
+            bot.reply(
+                comm, '%s has %d points' % (uen(receiver), total),
+                encode=False
+            )
 
     class KarmaGiver(Command):
         """
