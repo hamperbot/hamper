@@ -13,13 +13,3 @@ notifications:
     - chat.freenode.org#hamper
     on_success: always
     on_failure: always
-
-deploy:
-  provider: heroku
-  strategy: git
-  api_key:
-    secure: IyqF1XElOg+KTCci7FyAUsCYs5h71v4QgapRShe2dotYrVuCT2VCYS6I0s6lWcLvSOiHhRAFn4mak/6Yi1bItZwxUoo8MWmApoyyXJvBTJaGjn+WlhLz0HlOvIhhwLlq6j1+aKy5+KG0D242pmcd87NqyIrGijEtZKvMKilHzTE=
-  app: heroku-lug
-  on:
-    repo: hamperbot/hamper
-    branch: master
