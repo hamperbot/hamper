@@ -126,8 +126,8 @@ class Karma(ChatCommandPlugin):
 
         for receiver in receiverkarma:
             if receiver != giver:
-                urow = KarmaTable(ude(giver), ude(receiver),
-                                  receiverkarma[receiver])
+                urow = KarmaStatsTable(ude(giver), ude(receiver),
+                                       receiverkarma[receiver])
                 self.db.session.add(urow)
         self.db.session.commit()
 
@@ -141,21 +141,37 @@ class Karma(ChatCommandPlugin):
         LIST_MAX = 5
 
         def command(self, bot, comm, groups):
-            # We'll need all the rows
+            # Let the database restrict the amount of rows we get back.
+            # We can then just deal with a few rows later on
             kts = bot.factory.loader.db.session\
-                                    .query(KarmaTable.receiver,
-                                           func.sum(KarmaTable.kcount))\
-                                    .group_by(KarmaTable.receiver)
-            if kts.count():
+                                    .query(KarmaStatsTable.receiver,
+                                           func.sum(KarmaStatsTable.kcount))\
+                                    .group_by(KarmaStatsTable.receiver)
+
+            # Forlegacy support
+            classic = bot.factory.loader.db.session.query(KarmaTable)
+            # Counter for sorting and updating data
+            counter = Counter()
+
+            if kts.count() or classic.count():
                 # We should limit the list of users to at most self.LIST_MAX
                 if groups[0] == 'top':
-                    query = kts.order_by(KarmaTable.kcount.desc())\
+                    classic_q = classic.order_by(KarmaTable.kcount.desc())\
+                                       .limit(self.LIST_MAX).all()
+                    query = kts.order_by(KarmaStatsTable.kcount.desc())\
                                .limit(self.LIST_MAX).all()
-                    snippet = Counter(dict(query)).most_common()
+
+                    counter.update(dict(classic_q))
+                    counter.update(dict(query))
+                    snippet = counter.most_common(self.LIST_MAX)
                 elif groups[0] == 'bottom':
-                    query = kts.order_by(KarmaTable.kcount)\
+                    classic_q = classic.order_by(KarmaTable.kcount)\
+                                       .limit(self.LIST_MAX).all()
+                    query = kts.order_by(KarmaStatsTable.kcount)\
                                .limit(self.LIST_MAX).all()
-                    snippet = reversed(Counter(dict(query)).most_common())
+                    counter.update(dict(classic_q))
+                    counter.update(dict(query))
+                    snippet = reversed(counter.most_common(self.LIST_MAX))
                 else:
                     bot.reply(
                         comm, r'Something went wrong with karma\'s regex'
@@ -179,23 +195,37 @@ class Karma(ChatCommandPlugin):
         regex = r'^(?:score|karma)\s+([^-].*)$'
 
         def command(self, bot, comm, groups):
-            # Play nice when the user isn't in the db
-            kt = bot.factory.loader.db.session.query(KarmaTable)
-            thing = ude(groups[0].strip().lower())
-            rec_list = kt.filter(KarmaTable.receiver == thing).all()
+            # The receiver (or in old terms, user) of the karma being tallied
+            receiver = ude(groups[0].strip().lower())
 
-            if rec_list:
-                total = 0
-                for r in rec_list:
-                    total += r.kcount
-                bot.reply(
-                    comm, '%s has %d points' % (uen(thing), total),
-                    encode=False
-                )
-            else:
-                bot.reply(
-                    comm, 'No karma for %s ' % uen(thing), encode=False
-                )
+            # Manage both tables
+            sesh = bot.factory.loader.db.session
+
+            # Old Table
+            kt = sesh.query(KarmaTable)
+            user = kt.filter(KarmaTable.user == receiver).first()
+
+            # New Table
+            kst = sesh.query(KarmaStatsTable)
+            kst_list = kst.filter(KarmaStatsTable.receiver == receiver).all()
+
+            # The total amount of karma from both tables
+            total = 0
+
+            # Add karma from the old table
+            if user:
+                total += user.kcount
+
+            # Add karma from the new table
+            if kst_list:
+                for row in kst_list:
+                    total += row.kcount
+
+            # Send the message
+            bot.reply(
+                comm, '%s has %d points' % (uen(receiver), total),
+                encode=False
+            )
 
     class KarmaGiver(Command):
         """
@@ -205,11 +235,11 @@ class Karma(ChatCommandPlugin):
         regex = r'^(?:score|karma) --(giver|taker)$'
 
         def command(self, bot, comm, groups):
-            kt = bot.factory.loader.db.session.query(KarmaTable)
+            kt = bot.factory.loader.db.session.query(KarmaStatsTable)
             counter = Counter()
 
             if groups[0] == 'giver':
-                positive_karma = kt.filter(KarmaTable.kcount > 0)
+                positive_karma = kt.filter(KarmaStatsTable.kcount > 0)
                 for row in positive_karma:
                     counter[row.giver] += row.kcount
 
@@ -227,7 +257,7 @@ class Karma(ChatCommandPlugin):
                         'No positive karma has been given yet :-('
                     )
             elif groups[0] == 'taker':
-                negative_karma = kt.filter(KarmaTable.kcount < 0)
+                negative_karma = kt.filter(KarmaStatsTable.kcount < 0)
                 for row in negative_karma:
                     counter[row.giver] += row.kcount
 
@@ -253,13 +283,13 @@ class Karma(ChatCommandPlugin):
         regex = r'^(?:score|karma)\s+--when-(positive|negative)'
 
         def command(self, bot, comm, groups):
-            kt = bot.factory.loader.db.session.query(KarmaTable)
+            kt = bot.factory.loader.db.session.query(KarmaStatsTable)
             counter = Counter()
 
             if groups[0] == "positive":
-                karma = kt.filter(KarmaTable.kcount > 0)
+                karma = kt.filter(KarmaStatsTable.kcount > 0)
             elif groups[0] == "negative":
-                karma = kt.filter(KarmaTable.kcount < 0)
+                karma = kt.filter(KarmaStatsTable.kcount < 0)
 
             for row in karma:
                 hour = row.datetime.hour
@@ -284,10 +314,26 @@ class Karma(ChatCommandPlugin):
 
 class KarmaTable(SQLAlchemyBase):
     """
-    Keep track of users karma in a persistant manner
+    Bringing back the classic table so data doesn't need to be dumped
     """
 
     __tablename__ = 'karma'
+
+    # Karma Classic Table
+    user = Column(String, primary_key=True)
+    kcount = Column(Integer)
+
+    def __init__(self, user, kcount):
+        self.user = user
+        self.kcount = kcount
+
+
+class KarmaStatsTable(SQLAlchemyBase):
+    """
+    Keep track of users karma in a persistant manner
+    """
+
+    __tablename__ = 'karmastats'
 
     # Calling the primary key user, though, really, this can be any string
     id = Column(Integer, primary_key=True)
