@@ -5,6 +5,9 @@ from datetime import datetime
 from hamper.interfaces import ChatCommandPlugin, Command
 from hamper.utils import ude, uen
 
+import pytz
+from pytz import timezone
+
 from sqlalchemy import Column, DateTime, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -62,6 +65,15 @@ class Karma(ChatCommandPlugin):
         super(Karma, self).setup(loader)
         self.db = loader.db
         SQLAlchemyBase.metadata.create_all(self.db.engine)
+
+        # Config
+        config = loader.config.get("karma", {})
+        self.timezone = config.get('timezone', 'UTC')
+        try:
+            self.tzinfo = timezone(self.timezone)
+        except:
+            self.tzinfo = timezone('UTC')
+            self.timezone = 'UTC'
 
     def message(self, bot, comm):
         """
@@ -278,6 +290,15 @@ class Karma(ChatCommandPlugin):
     class MostActive(Command):
         """
         Least/Most active hours of karma giving/taking
+
+        This will now look in the config for a timezone to use when displaying
+        the hour.
+
+        Example
+        Karma:
+            timezone: 'America/Los_Angeles'
+
+        If no timezone is given, or it's invalid, time will be reported in UTC
         """
 
         regex = r'^(?:score|karma)\s+--when-(positive|negative)'
@@ -297,15 +318,26 @@ class Karma(ChatCommandPlugin):
 
             common_hour = (counter.most_common(1)[0][0]
                            if counter.most_common(1) else None)
+
+            # Title case for when
             title_case = groups[0][0].upper() + groups[0][1:]
 
             if common_hour:
+                # Create a datetime object
+                current_time = datetime.now(pytz.utc)
+                # Give it the common_hour
+                current_time = current_time.replace(hour=int(common_hour))
+                # Get the localized common hour
+                hour = karma_zone.normalize(
+                    current_time.astimezone(self.plugin.tzinfo)).hour
+                # Report to the channel
                 bot.reply(
                     comm,
-                    '%s karma is usually given during the %d:00 hour (UTC)' %
-                    (title_case, common_hour)
+                    '%s karma is usually given during the %d:00 hour (%s)' %
+                    (title_case, hour, self.plugin.timezone)
                 )
             else:
+                # Inform that no karma of that type has been awarded yet
                 bot.reply(
                     comm,
                     '%s karma has been given yet' % title_case
