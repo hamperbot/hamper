@@ -296,7 +296,7 @@ class Karma(ChatCommandPlugin):
 
         Example
         Karma:
-            timezone: 'America/Los_Angeles'
+            timezone: America/Los_Angeles
 
         If no timezone is given, or it's invalid, time will be reported in UTC
         """
@@ -328,7 +328,7 @@ class Karma(ChatCommandPlugin):
                 # Give it the common_hour
                 current_time = current_time.replace(hour=int(common_hour))
                 # Get the localized common hour
-                hour = karma_zone.normalize(
+                hour = self.plugin.tzinfo.normalize(
                     current_time.astimezone(self.plugin.tzinfo)).hour
                 # Report to the channel
                 bot.reply(
