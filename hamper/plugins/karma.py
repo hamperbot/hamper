@@ -7,6 +7,7 @@ from hamper.utils import ude, uen
 
 import pytz
 from pytz import timezone
+from pytz.exceptions import UnknownTimeZoneError
 
 from sqlalchemy import Column, DateTime, Integer, String, func
 from sqlalchemy.ext.declarative import declarative_base
@@ -71,7 +72,7 @@ class Karma(ChatCommandPlugin):
         self.timezone = config.get('timezone', 'UTC')
         try:
             self.tzinfo = timezone(self.timezone)
-        except:
+        except UnknownTimeZoneError:
             self.tzinfo = timezone('UTC')
             self.timezone = 'UTC'
 
