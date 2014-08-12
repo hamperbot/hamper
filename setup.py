@@ -17,4 +17,10 @@ setup(
     url='https://www.github.com/hamperbot/hamper',
     packages=find_packages(),
     scripts=['scripts/hamper'],
+    entry_points = {
+        'hamperbot.plugins': [
+                'karma = hamper.plugins.karma:Karma',
+                'friendly = hamper.plugins.friendly:Friendly',
+            ],
+    },
 )
