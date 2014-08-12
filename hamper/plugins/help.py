@@ -18,7 +18,7 @@ class Help(ChatCommandPlugin):
         self._command_cache = []
 
     @classmethod
-    def helpful_commands(cls, bot):
+    def toplevel_commands(cls, bot):
         commands = set()
         for kind, plugins in bot.factory.loader.plugins.items():
             for plugin in plugins:
@@ -26,11 +26,20 @@ class Help(ChatCommandPlugin):
                         and hasattr(plugin, 'long_desc')):
                     commands.add(plugin)
 
-                commands.update(plugin.commands)
-
         for cmd in commands:
             if getattr(cmd, 'short_desc', None) is not None:
                 yield cmd
+
+    @classmethod
+    def plugin_commands(cls, bot, plugin_name):
+        commands = set()
+        for kind, plugins in bot.factory.loader.plugins.items():
+            for plugin in plugins:
+                if plugin.name == plugin_name:
+                    commands.update(plugin.commands)
+
+        for command in commands:
+            yield command
 
     class HelpMainMenu(Command):
         name = 'help'
@@ -42,10 +51,12 @@ class Help(ChatCommandPlugin):
                      'should, poke the plugin author.')
 
         def command(self, bot, comm, groups):
-            commands = Help.helpful_commands(bot)
-            response = ['Available commands']
+            commands = Help.toplevel_commands(bot)
+            response = ['Available plugins']
             for command in commands:
-                response.append('{0.short_desc}'.format(command))
+                response.append(
+                    '{0} - {1}'.format(command.name, command.short_desc)
+                )
             response = '\n'.join(response)
 
             bot.reply(comm, response)
@@ -56,17 +67,19 @@ class Help(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             search = groups[0]
-
-            commands = Help.helpful_commands(bot)
-            try:
-                command = [c for c in commands if c.name == search][0]
-            except IndexError:
+            commands = Help.plugin_commands(bot, search)
+            if not commands:
                 bot.reply(comm, 'Unknown command')
                 return
 
-            if command.short_desc:
-                bot.reply(comm, '{0.short_desc}'.format(command))
-                if command.long_desc:
-                    bot.reply(comm, '{0.long_desc}'.format(command))
+            print commands
+            bot.reply(comm, 'Available commands for ' + search)
+            for command in commands:
+                print commands
+                bot.reply(comm, '{0} - {1}'
+                          .format(command.name, command.short_desc))
+                if hasattr(command, 'long_desc'):
+                    bot.reply(comm, '{0}   {1}'
+                              .format(len(command.name) * ' ', command.long_desc))
 
 help = Help()
