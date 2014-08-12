@@ -276,6 +276,9 @@ class PluginLoader(object):
             if plugin.name in self.config['plugins']:
                 plugin_class = plugin.load()
                 plugin_obj = plugin_class()
+                if not self.dependencies_satisfied(plugin_obj):
+                    # don't load the plugin.
+                    continue
                 self.plugins.add(plugin_obj)
                 plugin_obj.setup(self)
         plugin_names = {x.name for x in self.plugins}
@@ -283,6 +286,22 @@ class PluginLoader(object):
             if pattern not in plugin_names:
                 log.warning('Sorry, I couldn\'t find a plugin named "%s"',
                     pattern)
+
+    def dependencies_satisfied(self, plugin):
+        """
+        Checks whether a plugin's dependencies are satisfied.
+
+        Logs an error if there is an unsatisfied dependencies
+        Returns: Bool
+        """
+        for depends in plugin.dependencies:
+            if depends not in self.config['plugins']:
+                log.error("{0} depends on {1}, but {1} wasn't in the "
+                          "config file. To use {0}, install {1} and add "
+                          "it to the config.".format(plugin.name, depends))
+                return False
+        return True
+
 
     def runPlugins(self, category, func, protocol, *args):
         """
