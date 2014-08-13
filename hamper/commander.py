@@ -246,7 +246,6 @@ class CommanderFactory(protocol.ClientFactory):
 
 
 class DB(namedtuple("DB", "engine, session")):
-
     """
     A small data structure that stores database information.
     """
