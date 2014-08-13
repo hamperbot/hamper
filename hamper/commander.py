@@ -269,10 +269,10 @@ class PluginLoader(object):
     details of the network.
     """
 
-    plugins = set()
-
     def __init__(self, config):
         self.config = config
+        self.plugins = set()
+
 
     def loadAll(self):
         for plugin in iter_entry_points(group='hamperbot.plugins', name=None):
