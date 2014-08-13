@@ -8,7 +8,7 @@ from fnmatch import fnmatch
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor, ssl
-from pkg_resources import iter_entry_points 
+from pkg_resources import iter_entry_points
 
 import sqlalchemy
 from sqlalchemy import orm
@@ -38,6 +38,7 @@ def main():
 
 
 class CommanderProtocol(irc.IRCClient):
+
     """Interacts with a single server, and delegates to the plugins."""
 
     ##### Properties #####
@@ -250,12 +251,14 @@ class CommanderFactory(protocol.ClientFactory):
 
 
 class DB(namedtuple("DB", "engine, session")):
+
     """
     A small data structure that stores database information.
     """
 
 
 class PluginLoader(object):
+
     """
     I am a repository for plugins.
 
@@ -285,7 +288,7 @@ class PluginLoader(object):
         for pattern in self.config['plugins']:
             if pattern not in plugin_names:
                 log.warning('Sorry, I couldn\'t find a plugin named "%s"',
-                    pattern)
+                            pattern)
 
     def dependencies_satisfied(self, plugin):
         """
@@ -301,7 +304,6 @@ class PluginLoader(object):
                           "it to the config.".format(plugin.name, depends))
                 return False
         return True
-
 
     def runPlugins(self, category, func, protocol, *args):
         """
