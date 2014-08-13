@@ -1,17 +1,11 @@
-import importlib
 import logging
 import re
 import traceback
-from bisect import insort
 from collections import deque, namedtuple
-from fnmatch import fnmatch
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor, ssl
-from twisted.plugin import getPlugins
-from zope.interface import implementedBy
-from zope.interface.verify import verifyObject
-from zope.interface.exceptions import DoesNotImplement
+from pkg_resources import iter_entry_points
 
 import sqlalchemy
 from sqlalchemy import orm
@@ -20,8 +14,6 @@ import hamper.config
 import hamper.log
 import hamper.plugins
 from hamper.acl import ACL, AllowAllACL
-from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
-                               IPopulationPlugin)
 
 log = logging.getLogger('hamper')
 
@@ -217,7 +209,6 @@ class CommanderProtocol(irc.IRCClient):
 
 
 class CommanderFactory(protocol.ClientFactory):
-
     protocol = CommanderProtocol
 
     def __init__(self, config):
@@ -277,118 +268,54 @@ class PluginLoader(object):
 
     def __init__(self, config):
         self.config = config
-        self.plugins = {
-            'base_plugin': [],
-            'presence': [],
-            'chat': [],
-            'population': [],
-        }
+        self.plugins = set()
+
 
     def loadAll(self):
-        """
-        Find and load all plugins mentioned in config['plugins'].
-
-        This will allow for globbing and external plugins. To load an
-        external plugin, give an import path like
-
-            base/plugin
-
-        where base is a import path to a package, and plugin is the name
-        of a plugin that can be found *in one of that package's modules.*
-
-        In other words, if you have a package foo, and in that package
-        a module bar, and in that module a plugin named baz, listing
-        'foo/bar/baz' *WILL NOT WORK*.
-
-        Instead, list 'foo/baz', since the importer will look for a
-        module that contains a plugin name 'baz' in the package 'foo'.
-        Twisted's plugin loader is weird.
-
-        For confusion's sake, I recommend naming modules in packages
-        after the plugin they contain. So in the last example, either
-        rename the plugin to bar or rename the module to baz.
-        """
-        modules = [('', hamper.plugins)]
-        for spec in self.config['plugins']:
-            # if this is not a qualified name, `hamper.plugins` will cover it.
-            if '/' not in spec:
-                continue
-            # Given something with some dots, get everything up to but
-            # excluding the last dot.
-            index = spec.rindex('/')
-            base = spec[:index].replace('/', '.')
-
-            modules.append((base + '/', importlib.import_module(base)))
-
-        config_matches = set()
-        for base, module in modules:
-            for plugin in getPlugins(BaseInterface, module):
-                for pattern in self.config['plugins']:
-                    full_name = base + plugin.name
-                    if fnmatch(full_name, pattern):
-                        self.registerPlugin(plugin)
-                        config_matches.add(pattern)
-                        break
-
+        for plugin in iter_entry_points(group='hamperbot.plugins', name=None):
+            if plugin.name in self.config['plugins']:
+                plugin_class = plugin.load()
+                plugin_obj = plugin_class()
+                if not self.dependencies_satisfied(plugin_obj):
+                    # don't load the plugin.
+                    continue
+                self.plugins.add(plugin_obj)
+                plugin_obj.setup(self)
+        plugin_names = {x.name for x in self.plugins}
         for pattern in self.config['plugins']:
-            if pattern not in config_matches:
-                log.warning('No plugin loaded for "%s"', pattern)
+            if pattern not in plugin_names:
+                log.warning('Sorry, I couldn\'t find a plugin named "%s"',
+                            pattern)
 
-    def registerPlugin(self, plugin):
-        """Registers a plugin."""
+    def dependencies_satisfied(self, plugin):
+        """
+        Checks whether a plugin's dependencies are satisfied.
 
-        plugin_types = {
-            'presence': IPresencePlugin,
-            'chat': IChatPlugin,
-            'population': IPopulationPlugin,
-            'base_plugin': BaseInterface,
-        }
-
-        # Everything is, at least, a base plugin.
-        valid_types = set(['baseplugin'])
-        # Loop through the types of plugins and check for implentation
-        # of each.
-
-        claimed_compliances = list(implementedBy(type(plugin)))
-        # Can we use this as a map instead?
-        for t, interface in plugin_types.iteritems():
-            if interface in claimed_compliances:
-                try:
-                    verifyObject(interface, plugin)
-                except DoesNotImplement:
-                    log.error('Plugin %s claims to be a %s, but is not!',
-                              plugin.name, t)
-                else:
-                    # If the above succeeded, then `plugin` implements
-                    # `interface`.
-                    insort(self.plugins[t], plugin)
-                    valid_types.add(t)
-
-        plugin.setup(self)
-
-        log.info('registered plugin %s as %s', plugin.name, valid_types)
-
-    def removePlugin(self, plugin):
-        log.info("Unloading %r", plugin)
-        for plugin_type, plugins in self.plugins.items():
-            if plugin in plugins:
-                log.debug('plugin is a %s', plugin_type)
-                plugins.remove(plugin)
+        Logs an error if there is an unsatisfied dependencies
+        Returns: Bool
+        """
+        for depends in plugin.dependencies:
+            if depends not in self.config['plugins']:
+                log.error("{0} depends on {1}, but {1} wasn't in the "
+                          "config file. To use {0}, install {1} and add "
+                          "it to the config.".format(plugin.name, depends))
+                return False
+        return True
 
     def runPlugins(self, category, func, protocol, *args):
         """
         Run the specified set of plugins against a given protocol.
         """
-
-        stop = False
-
         # Plugins are already sorted by priority
-        for plugin in self.plugins[category]:
+        for plugin in self.plugins:
             # If a plugin throws an exception, we should catch it gracefully.
             try:
                 stop = getattr(plugin, func)(protocol, *args)
                 if stop:
                     break
+            except AttributeError:
+                # If the plugin doesn't implement the event, do nothing
+                pass
             except Exception:
                 # A plugin should not be able to crash the bot.
                 # Catch and log all errors.

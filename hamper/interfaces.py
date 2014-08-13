@@ -21,6 +21,7 @@ class BaseInterface(Interface):
 
 class Plugin(object):
     name = "genericplugin"
+    dependencies = []
     implements(IPlugin)
 
     def __init__(self):
