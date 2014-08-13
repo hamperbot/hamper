@@ -1,10 +1,7 @@
-import importlib
 import logging
 import re
 import traceback
-from bisect import insort
 from collections import deque, namedtuple
-from fnmatch import fnmatch
 
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor, ssl
@@ -17,8 +14,6 @@ import hamper.config
 import hamper.log
 import hamper.plugins
 from hamper.acl import ACL, AllowAllACL
-from hamper.interfaces import (BaseInterface, IPresencePlugin, IChatPlugin,
-                               IPopulationPlugin)
 
 log = logging.getLogger('hamper')
 
