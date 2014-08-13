@@ -33,7 +33,6 @@ def main():
 
 
 class CommanderProtocol(irc.IRCClient):
-
     """Interacts with a single server, and delegates to the plugins."""
 
     ##### Properties #####
@@ -204,7 +203,6 @@ class CommanderProtocol(irc.IRCClient):
 
 
 class CommanderFactory(protocol.ClientFactory):
-
     protocol = CommanderProtocol
 
     def __init__(self, config):
@@ -252,7 +250,6 @@ class DB(namedtuple("DB", "engine, session")):
 
 
 class PluginLoader(object):
-
     """
     I am a repository for plugins.
 
