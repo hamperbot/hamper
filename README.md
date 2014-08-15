@@ -49,11 +49,10 @@ setup(
 ```
 For the new plugin system you no longer need to create an instance of each one
 at the bottom.
-Once you have declared youd class as a plugin you need to build it with
-`setup.py` and install it with `pip`:
+Once you have declared your class as a plugin you need to install it with
+`setup.py`:
 ```sh
-$ python setup.py sdist # build the package
-$ pip install -U path/to/plugin-distribution.tar.gz # install it
+$ python setup.py install
 
 ```
 This is so that setuptools can advertise your plugins to hamper. hamper uses
