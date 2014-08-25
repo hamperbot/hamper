@@ -48,7 +48,8 @@ class Help(ChatCommandPlugin):
                 response.append('{0.short_desc}'.format(command))
             response = '\n'.join(response)
 
-            bot.reply(comm, response)
+            print 'found response from !help'
+            bot.reply(comm['user'], response)
 
     class HelpCommand(Command):
         name = 'help.individual'
@@ -64,9 +65,10 @@ class Help(ChatCommandPlugin):
                 bot.reply(comm, 'Unknown command')
                 return
 
+            print 'found response from !help <command'
             if command.short_desc:
-                bot.reply(comm, '{0.short_desc}'.format(command))
+                bot.reply(comm['user'], '{0.short_desc}'.format(command))
                 if command.long_desc:
-                    bot.reply(comm, '{0.long_desc}'.format(command))
+                    bot.reply(comm['user'], '{0.long_desc}'.format(command))
 
 help = Help()
