@@ -31,7 +31,7 @@ setup(
                 'dice = hamper.plugins.commands:Dice',
                 'sed = hamper.plugins.commands:Sed',
                 'lookup = hamper.plugins.dictionary:Lookup',
-                'factoids = hamper.plugins.factorids:Factoids',
+                'factoids = hamper.plugins.factoids:Factoids',
                 'flip = hamper.plugins.flip:Flip',
                 'botsnack = hamper.plugins.friendly:Botsnack',
                 'ponies = hamper.plugins.friendly:OmgPonies',
