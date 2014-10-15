@@ -41,7 +41,7 @@ setup(
                 'choices = hamper.plugins.questions:ChoicesPlugin',
                 'quotes = hamper.plugins.quotes:Quotes',
                 'remindme = hamper.plugins.remindme:Reminder',
-                'roulette = hamper.plugins.routlette:Routlette',
+                'roulette = hamper.plugins.roulette:Roulette',
                 'seen = hamper.plugins.seen:Seen',
                 'suggest = hamper.plugins.suggest:Suggest',
                 'timez = hamper.plugins.timez:Timez',
