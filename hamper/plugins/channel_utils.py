@@ -33,7 +33,7 @@ class ChannelUtils(ChatCommandPlugin):
         long_desc = 'If channel is ommited, leave the current channel.'
 
         def command(self, bot, comm, groups):
-            """Join a channel, and say you did."""
+            """Leave a channel."""
             if not bot.acl.has_permission(comm, 'channel_utils.leave'):
                 bot.reply(comm, "You don't have permission to do that.")
                 return
