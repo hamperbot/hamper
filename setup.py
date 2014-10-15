@@ -33,7 +33,7 @@ setup(
                 'lookup = hamper.plugins.dictionary:Lookup',
                 'factoids = hamper.plugins.factoids:Factoids',
                 'flip = hamper.plugins.flip:Flip',
-                'botsnack = hamper.plugins.friendly:Botsnack',
+                'botsnack = hamper.plugins.friendly:BotSnack',
                 'ponies = hamper.plugins.friendly:OmgPonies',
                 'goodbye = hamper.plugins.goodbye:GoodBye',
                 'help = hamper.plugins.help:Help',
