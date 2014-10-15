@@ -15,6 +15,10 @@ class ChannelUtils(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             """Join a channel, and say you did."""
+            if not bot.acl.has_permission(comm, 'channel_utils.join'):
+                bot.reply(comm, "You don't have permission to do that.")
+                return
+
             chan = groups[0]
             if not chan.startswith('#'):
                 chan = '#' + chan
@@ -30,6 +34,10 @@ class ChannelUtils(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             """Join a channel, and say you did."""
+            if not bot.acl.has_permission(comm, 'channel_utils.leave'):
+                bot.reply(comm, "You don't have permission to do that.")
+                return
+
             chan = groups[0]
             if chan is None:
                 chan = comm['channel']
