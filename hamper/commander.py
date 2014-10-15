@@ -222,8 +222,10 @@ class CommanderFactory(protocol.ClientFactory):
             # Bubble up an IOError if they passed a bad file
             with open(acl_fname, 'r') as acl_fd:
                 self.acl = ACL(acl_fd.read())
+            log.info('Loaded ACLs from %s', acl_fname)
         else:
             self.acl = AllowAllACL()
+            log.info('Using no-op ACLs.')
 
         self.loader = PluginLoader(config)
 
