@@ -312,13 +312,14 @@ class PluginLoader(object):
         for plugin in self.plugins:
             # If a plugin throws an exception, we should catch it gracefully.
             try:
-                stop = getattr(plugin, func)(protocol, *args)
-                if stop:
-                    break
+                event_listener = getattr(plugin, func)
             except AttributeError:
                 # If the plugin doesn't implement the event, do nothing
                 pass
-            except Exception:
-                # A plugin should not be able to crash the bot.
-                # Catch and log all errors.
-                traceback.print_exc()
+            else:
+                try:
+                    event_listener(protocol, *args)
+                except Exception:
+                    # A plugin should not be able to crash the bot.
+                    # Catch and log all errors.
+                    traceback.print_exc()
