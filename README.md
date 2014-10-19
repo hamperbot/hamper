@@ -33,9 +33,33 @@ For an example check out `hamper.conf.dist`.
 
 Plugin Development
 ==================
-Read `hamper/plugins/friendly.py`. Add a file to `hamper/plugins`, and write
-plugins in it. Don't forget to create an instance of each one at the bottom.
+Read `hamper/plugins/friendly.py`. 
+To declare a plugin so that it can be used you need to edit *your* plugin's
+`setup.py` and add something like the following lines:
+```python
+setup(                                                                             
+    name='YOUR_PLUGIN',                                                                 
+	# ...More lines here...
+    entry_points = {                                                               
+        'hamperbot.plugins': [                                                     
+                'plugin_name = module.import.path.to.plugin:PluginClass',
+		],
+	},
+	# ...Possibly more lines here too...
+```
+For the new plugin system you no longer need to create an instance of each one
+at the bottom.
+Once you have declared your class as a plugin you need to install it with
+`setup.py`:
+```sh
+$ python setup.py install
 
+```
+This is so that setuptools can advertise your plugins to hamper. hamper uses
+setuptools to determine what plugins are available.
+Note that if you change your `setup.py`, you'll have to repeat those last two
+steps. However, you'll probably be won't have to rebuild the package every time
+you change your plugin.
 
 Using Docker
 ------------
