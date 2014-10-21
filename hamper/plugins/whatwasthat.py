@@ -9,7 +9,7 @@ class WhatWasThat(ChatCommandPlugin):
     '''
 
     name = 'whatwasthat'
-    priority = 0
+    priority = 2
 
     class WhatWasThat(Command):
         regex = r'^what\s*was\s*that\??$'
