@@ -190,11 +190,11 @@ class CommanderProtocol(irc.IRCClient):
         self.factory.loader.runPlugins(category, func, self, *args)
 
     def _hamper_send(self, func, comm, message, encode, tag, vars, kwvars):
-        format_vars = {}
-        format_vars.update(kwvars)
-        format_vars.update(comm)
+        format_kwargs = {}
+        format_kwargs.update(kwvars)
+        format_kwargs.update(comm)
         try:
-            message = message.format(*vars, **kwvars)
+            message = message.format(*vars, **format_kwargs)
         except (ValueError, KeyError, IndexError) as e:
             pass
 
