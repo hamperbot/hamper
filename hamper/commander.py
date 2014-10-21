@@ -333,7 +333,9 @@ class PluginLoader(object):
                 pass
             else:
                 try:
-                    event_listener(protocol, *args)
+                    stop = event_listener(protocol, *args)
+                    if stop:
+                        break
                 except Exception:
                     # A plugin should not be able to crash the bot.
                     # Catch and log all errors.
