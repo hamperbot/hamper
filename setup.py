@@ -45,6 +45,7 @@ setup(
                 'suggest = hamper.plugins.suggest:Suggest',
                 'timez = hamper.plugins.timez:Timez',
                 'tinyurl = hamper.plugins.tinyurl:Tinyurl',
+                'whatwasthat = hamper.plugins.whatwasthat:WhatWasThat',
             ],
     },
 )

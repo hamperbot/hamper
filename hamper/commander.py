@@ -138,9 +138,7 @@ class CommanderProtocol(irc.IRCClient):
 
         self.dispatch('chat', 'message', comm)
 
-        if not channel in self.factory.history:
-            self.factory.history[channel] = deque(maxlen=100)
-        self.factory.history[channel].append(comm)
+        self.factory.history.setdefault(channel, deque(maxlen=100)).append(comm)
 
     def connectionLost(self, reason):
         """Called when the connection is lost to the server."""
@@ -188,11 +186,10 @@ class CommanderProtocol(irc.IRCClient):
     ##### Hamper specific functions. #####
 
     def dispatch(self, category, func, *args):
-        """Take a comm that has been parsed and dispatch it to plugins."""
-
+        """Dispatch an event to all listening plugins."""
         self.factory.loader.runPlugins(category, func, self, *args)
 
-    def reply(self, comm, message, encode=True):
+    def reply(self, comm, message, encode=True, tag=None):
         if encode:
             message = message.encode('utf8')
         if comm['pm']:
@@ -200,12 +197,29 @@ class CommanderProtocol(irc.IRCClient):
         else:
             self.msg(comm['channel'], message)
 
-    def me(self, comm, message):
+        (self.factory.sent_messages
+            .setdefault(comm['channel'], deque(maxlen=100))
+            .append({
+                'comm': comm,
+                'message': message,
+                'tag': tag,
+            }))
+
+    def me(self, comm, message, tag=None):
         message = message.encode('utf8')
         if comm['pm']:
             self.describe(comm['user'], message)
         else:
             self.describe(comm['channel'], message)
+
+        (self.factory.sent_messages
+            .setdefault(comm['channel'], deque(maxlen=100))
+            .append({
+                'comm': comm,
+                'message': message,
+                'tag': tag,
+            }))
+
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -216,6 +230,7 @@ class CommanderFactory(protocol.ClientFactory):
         self.nickname = config['nickname']
         self.password = config.get('password', None)
         self.history = {}
+        self.sent_messages = {}
         acl_fname = config.get('acl', None)
 
         if acl_fname:
