@@ -189,13 +189,22 @@ class CommanderProtocol(irc.IRCClient):
         """Dispatch an event to all listening plugins."""
         self.factory.loader.runPlugins(category, func, self, *args)
 
-    def reply(self, comm, message, encode=True, tag=None):
+    def _hamper_send(self, func, comm, message, encode, tag, vars, kwvars):
+        format_vars = {}
+        format_vars.update(kwvars)
+        format_vars.update(comm)
+        try:
+            message = message.format(*vars, **kwvars)
+        except (ValueError, KeyError, IndexError) as e:
+            pass
+
         if encode:
             message = message.encode('utf8')
+
         if comm['pm']:
-            self.msg(comm['user'], message)
+            func(comm['user'], message)
         else:
-            self.msg(comm['channel'], message)
+            func(comm['channel'], message)
 
         (self.factory.sent_messages
             .setdefault(comm['channel'], deque(maxlen=100))
@@ -205,20 +214,12 @@ class CommanderProtocol(irc.IRCClient):
                 'tag': tag,
             }))
 
-    def me(self, comm, message, tag=None):
-        message = message.encode('utf8')
-        if comm['pm']:
-            self.describe(comm['user'], message)
-        else:
-            self.describe(comm['channel'], message)
 
-        (self.factory.sent_messages
-            .setdefault(comm['channel'], deque(maxlen=100))
-            .append({
-                'comm': comm,
-                'message': message,
-                'tag': tag,
-            }))
+    def reply(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):
+        self._hamper_send(self.msg, comm, message, encode, tag, vars, kwvars)
+
+    def me(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):
+        self._hamper_send(self.describe, comm, message, encode, tag, vars, kwvars)
 
 
 
