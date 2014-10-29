@@ -2,13 +2,11 @@
 
 from setuptools import setup, find_packages
 
-from hamper import version
-
 requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
-    version=version.encode('utf8'),
+    version='1.4',
     description='Yet another IRC bot',
     install_requires=requires,
     author='Mike Cooper',
