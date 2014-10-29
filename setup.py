@@ -4,9 +4,7 @@ from setuptools import setup, find_packages
 
 from hamper import version
 
-#requires = open('requirements.txt').read().split('\n')
-#requires = [dep for dep in requires if 'psycopg' not in dep]
-requires = []
+requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
