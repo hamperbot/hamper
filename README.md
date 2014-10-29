@@ -12,7 +12,7 @@ $ source venv/bin/activate
 $ python setup.py install
 $ cp hamper.conf.dist hamper.conf
 $ vim hamper.conf
-$ ./scripts/hamper
+$ hamper
 ```
 
 

@@ -15,8 +15,10 @@ setup(
     author_email='mythmon@gmail.com',
     url='https://www.github.com/hamperbot/hamper',
     packages=find_packages(),
-    scripts=['scripts/hamper'],
     entry_points = {
+        'console_scripts': [
+            'hamper = hamper.commander:main',
+        ],
         'hamperbot.plugins': [
                 'karma = hamper.plugins.karma:Karma',
                 'friendly = hamper.plugins.friendly:Friendly',

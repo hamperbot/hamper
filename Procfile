@@ -1,1 +1,1 @@
-irc: python scripts/hamper
+irc: hamper
