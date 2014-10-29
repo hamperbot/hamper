@@ -4,9 +4,7 @@ from setuptools import setup, find_packages
 
 from hamper import version
 
-#requires = open('requirements.txt').read().split('\n')
-#requires = [dep for dep in requires if 'psycopg' not in dep]
-requires = []
+requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
@@ -17,8 +15,10 @@ setup(
     author_email='mythmon@gmail.com',
     url='https://www.github.com/hamperbot/hamper',
     packages=find_packages(),
-    scripts=['scripts/hamper'],
     entry_points = {
+        'console_scripts': [
+            'hamper = hamper.commander:main',
+        ],
         'hamperbot.plugins': [
                 'karma = hamper.plugins.karma:Karma',
                 'friendly = hamper.plugins.friendly:Friendly',
