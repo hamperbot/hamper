@@ -195,7 +195,7 @@ class CommanderProtocol(irc.IRCClient):
         format_kwargs.update(comm)
         try:
             message = message.format(*vars, **format_kwargs)
-        except (ValueError, KeyError, IndexError) as e:
+        except (ValueError, KeyError, IndexError):
             pass
 
         if encode:
