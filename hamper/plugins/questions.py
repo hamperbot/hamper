@@ -15,18 +15,28 @@ class YesNoPlugin(ChatPlugin):
     def setup(self, *args):
         """
         Set up the list of responses, with weights. If the weight of a response
-        is 'eq', it will be assigned equal value after everything that has a
-        number is assigned. If it's weight is some fraction of 'eq' (ie: 'eq/2'
-        or 'eq/3'), then it will be assigned 1/2, 1/3, etc of the 'eq' weight.
-        All probabilities will up to 1.0 (plus/minus any rounding errors).
+        is 'eq', it will be assigned a value that splits what is left after
+        everything that has a number is assigned. If it's weight is some
+        fraction of 'eq' (ie: 'eq/2' or 'eq/3'), then it will be assigned
+        1/2, 1/3, etc of the 'eq' weight. All probabilities will add up to
+        1.0 (plus or minus any rounding errors).
         """
 
         responses = [
-            ('I think... Yes.', 'eq'), ('Maybe. Possibly. It could be.', 'eq'),
-            ("No. No, I don't think so.", 'eq'), ("I don't know.", 'eq'),
-            ('Ask again later.', 'eq/2'), ('Without a doubt.', 'eq/2'),
+            ('Yes.', 'eq'),
+            ('No.', 'eq'),
+            ('Nope.', 'eq'),
+            ('Maybe.', 'eq'),
+            ('Possibly.', 'eq'),
+            ('It could be.', 'eq'),
+            ("No. No, I don't think so.", 'eq/2'),
+            ('Without a doubt.', 'eq/2'),
+            ('I think... Yes.', 'eq/2'),
             ('Heck yes!', 'eq/2'),
-            ("I'm sorry, I was thinking of bananas", .03),
+            ('Maybe. Possibly. It could be.', 'eq/2'),
+            ('Ask again later.', 'eq/3'),
+            ("I don't know.", 'eq/3'),
+            ("I'm sorry, I was thinking of bananas", 0.03),
         ]
 
         total_prob = 0
