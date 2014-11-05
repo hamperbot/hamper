@@ -71,7 +71,7 @@ class ChatCommandPlugin(ChatPlugin):
             cls = getattr(self, name)
             try:
                 if ICommand in implementedBy(cls):
-                    log.info("Loading command {0}".format(cls))
+                    log.info("Loading command {0}".format(cls.__name__))
                     self.commands.append(cls(self))
             except (DoesNotImplement, TypeError, AttributeError):
                 pass

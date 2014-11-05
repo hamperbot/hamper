@@ -286,19 +286,32 @@ class PluginLoader(object):
 
     def __init__(self, config):
         self.config = config
-        self.plugins = set()
+        self.plugins = []
 
 
     def loadAll(self):
+        plugins_to_load = set()
+
+        # Gather plugins
         for plugin in iter_entry_points(group='hamperbot.plugins', name=None):
             if plugin.name in self.config['plugins']:
-                plugin_class = plugin.load()
-                plugin_obj = plugin_class()
-                if not self.dependencies_satisfied(plugin_obj):
-                    # don't load the plugin.
-                    continue
-                self.plugins.add(plugin_obj)
-                plugin_obj.setup(self)
+                plugins_to_load.add(plugin.load())
+
+        # Sort by priority, highest first
+        plugins_to_load = sorted(plugins_to_load, key=lambda p: -p.priority)
+
+        # Check dependencies and load plugins.
+        for plugin_class in plugins_to_load:
+            plugin_obj = plugin_class()
+            if not self.dependencies_satisfied(plugin_obj):
+                log.warning('Dependency not satisfied for {0}. Not loading.'
+                            .format(plugin_class.__name__))
+                continue
+            log.info('Loading plugin {0}.'.format(plugin_class.__name__))
+            plugin_obj.setup(self)
+            self.plugins.append(plugin_obj)
+
+        # Check for missing plugins
         plugin_names = {x.name for x in self.plugins}
         for pattern in self.config['plugins']:
             if pattern not in plugin_names:
