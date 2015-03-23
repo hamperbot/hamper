@@ -64,39 +64,42 @@ you change your plugin.
 Using Docker
 ------------
 
+**requires docker > 1.3**
+
 This already assumes you've got docker configured and installed on your system.
 
-To begin you need to build the docker image for hamper: `docker build -t <yourname>/hamper .`
+To begin you need to build the docker image for hamper: `docker build -t hamper .`
 
 Now we can start the container using that image, but first start by copying the
 `hamper.env.dist` into `hamper.env` and adjusting settings as necessary.
 
 Now all we need to do is start the container by telling where to read our
-settings, and we should also create a volume so that if we're using a sqlite,
-it database will exist after the container gets stopped.
+settings.
+
+```shell
+docker run --env-file ./hamper.env --name hamper hamper
+```
+
+This *creates and starts* the container. If you want to re-use the same
+database then you should use `docker start hamper` to just *start* an existing
+container.  If you want to create a new container with a new config, but the
+old database use `docker run --env-file ./hamper.env --volumes-from hamper
+--name hamper-new hamper` to create a container with a new name, but import the
+volume containing the database from the old container.
 
 
-````shell
-# replace ~/hamper_db with where you want hamper's database file to be stored
-docker run -d -v ~/hamper_db:/var/lib/hamper --env-file ./hamper.env --name hamper <yourname>/hamper
-````
+This is great and all, but perhaps you want to hack on hamper and use docker
+simply to run hamper with your current directory. Here's how to do that:
 
-This would create a folder at `~/hamper_db` on your computer, and if you're
-using the default config, you'll find a sqlite file `hamper.db` in that folder.
+```shell
+docker run -it --env-file ./hamper.env -v $(pwd):/hamper hamper bash
+```
 
-This is great and all, but perhaps you want to hack on hamper and use docker.
-Here's how to do that:
-
-````shell
-docker run -it --env-file ./hamper.env - /path/to/hamper:/hamper -v ~/hamper_db:/var/lib/hamper --name hamper ecnahc515/hamper bash
-````
-
-This will open up a bash prompt and mount your hamper project repo (in this
-example at `/path/to/hamper`) in place of the hamper project in your container.
-When you make changes to the code, they'll be seen in the container. The reason
-we run bash is so you can easily stop and restart the bot with the hamper
-command, however you can leave out the `bash` command at the end and just stop
-and start the container.
+This will mount the directory located at `$(pwd)` on the host running docker
+in place of the hamper project in your container.  When you make changes to the
+code, they'll be seen in the container. The reason we run bash is so you can
+easily stop and restart the bot with the hamper command, however you can leave
+out the `bash` command at the end and just stop and start the container.
 
 Then to stop the container type `docker stop hamper`. To start it back up type
 `docker start hamper` To see logs of the running container use `docker logs hamper`.
