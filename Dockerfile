@@ -1,10 +1,17 @@
-FROM  mythmon/python-dev
+FROM python:2.7.9
 
-RUN apt-get install -y git
+RUN mkdir -p /usr/src/hamper 
+WORKDIR /usr/src/hamper 
 
-RUN git clone https://github.com/mythmon/hamper.git /hamper
+ENV HAMPER_DB_DIR /var/lib/hamper
+VOLUME $HAMPER_DB_DIR
+ENV DATABASE_URL sqlite:///$HAMPER_DB_DIR/hamper.db
 
-WORKDIR /hamper
-RUN python setup.py develop
+# helps with caching
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+
+COPY . /usr/src/hamper
+RUN pip install -e /usr/src/hamper
 
 CMD ["hamper"]
