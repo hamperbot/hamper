@@ -20,13 +20,12 @@ class Help(ChatCommandPlugin):
     @classmethod
     def helpful_commands(cls, bot):
         commands = set()
-        for kind, plugins in bot.factory.loader.plugins.items():
-            for plugin in plugins:
-                if (hasattr(plugin, 'name') and hasattr(plugin, 'short_desc')
-                        and hasattr(plugin, 'long_desc')):
-                    commands.add(plugin)
+        for plugin in bot.factory.loader.plugins:
+            if (hasattr(plugin, 'name') and hasattr(plugin, 'short_desc')
+                    and hasattr(plugin, 'long_desc')):
+                commands.add(plugin)
 
-                commands.update(plugin.commands)
+            commands.update(plugin.commands)
 
         for cmd in commands:
             if getattr(cmd, 'short_desc', None) is not None:
