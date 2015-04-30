@@ -81,6 +81,3 @@ class Tinyurl(ChatPlugin):
 
         # Always let the other plugins run
         return False
-
-
-tinyurl = Tinyurl()

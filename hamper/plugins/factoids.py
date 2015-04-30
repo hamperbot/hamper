@@ -178,6 +178,3 @@ class Factoid(SQLAlchemyBase):
         self.trigger = trigger
         self.action = action
         self.response = response
-
-
-factoids = Factoids()

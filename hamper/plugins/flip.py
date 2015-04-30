@@ -31,6 +31,3 @@ class Flip(ChatCommandPlugin):
                 ret = u'ಠ_ಠ'.encode('utf-8')
             bot.reply(comm, ret, encode=False)
             return True
-
-
-quotes = Flip()

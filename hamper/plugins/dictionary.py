@@ -96,6 +96,3 @@ class Lookup(ChatCommandPlugin):
 
             # Always let the other plugins run
             return False
-
-
-lookup = Lookup()

@@ -146,10 +146,6 @@ class ChoicesPlugin(ChatCommandPlugin):
             return choices
 
 
-yesno = YesNoPlugin()
-choices = ChoicesPlugin()
-
-
 if __name__ == '__main__':
     import doctest
     doctest.testmod()

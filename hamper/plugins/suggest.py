@@ -54,6 +54,3 @@ class Suggest(ChatCommandPlugin):
 
             # Always let the other plugins run
             return False
-
-
-suggest = Suggest()

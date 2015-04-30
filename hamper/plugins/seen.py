@@ -116,5 +116,3 @@ class SeenTable(SQLAlchemyBase):
 
     def __repr__(self):
         return "<Seen %s>" % self
-
-seen = Seen()

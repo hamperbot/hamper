@@ -27,6 +27,3 @@ class GoodBye(ChatPlugin):
                 return True
 
         return False
-
-
-goodbye = GoodBye()

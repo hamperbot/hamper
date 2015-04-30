@@ -76,6 +76,3 @@ class PluginUtils(ChatCommandPlugin):
             bot.factory.loader.removePlugin(target_plugin)
             bot.reply(comm, 'Unloading {0}.'.format(target_plugin))
             return True
-
-
-plugin_utils = PluginUtils()

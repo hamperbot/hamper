@@ -74,8 +74,3 @@ class BotSnack(ChatPlugin):
                 return True
 
         return False
-
-
-friendly = Friendly()
-omgponies = OmgPonies()
-botsnack = BotSnack()

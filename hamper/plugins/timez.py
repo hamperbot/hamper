@@ -60,6 +60,3 @@ class Timez(ChatCommandPlugin):
 
             # Always let the other plugins run
             return False
-
-
-timez = Timez()
