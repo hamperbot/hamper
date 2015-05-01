@@ -379,6 +379,3 @@ class KarmaStatsTable(SQLAlchemyBase):
         self.giver = giver
         self.receiver = receiver
         self.kcount = kcount
-
-
-karma = Karma()

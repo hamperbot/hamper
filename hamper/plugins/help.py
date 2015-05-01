@@ -68,5 +68,3 @@ class Help(ChatCommandPlugin):
                 bot.reply(comm, '{0.short_desc}'.format(command))
                 if command.long_desc:
                     bot.reply(comm, '{0.long_desc}'.format(command))
-
-help = Help()

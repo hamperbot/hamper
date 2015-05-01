@@ -205,10 +205,3 @@ class Dice(ChatCommandPlugin):
             output += "for a total of %s" % sum(result)
 
             bot.say(com['channel'], output)
-
-
-lmgtfy = LetMeGoogleThatForYou()
-rot13 = Rot13()
-sed = Sed()
-quit = Quit()
-dice = Dice()

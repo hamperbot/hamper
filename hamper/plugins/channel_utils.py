@@ -45,6 +45,3 @@ class ChannelUtils(ChatCommandPlugin):
                 chan = '#' + chan
             bot.reply(comm, 'Bye!')
             bot.leave(chan)
-
-
-channel_utils = ChannelUtils()

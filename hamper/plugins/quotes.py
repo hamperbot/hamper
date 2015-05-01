@@ -73,6 +73,3 @@ class Quote(SQLAlchemyBase):
         self.text = text
         self.adder = adder
         self.added = added
-
-
-quotes = Quotes()

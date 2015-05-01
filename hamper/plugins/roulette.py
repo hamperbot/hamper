@@ -29,5 +29,3 @@ class Roulette(ChatCommandPlugin):
                 bot.reply(comm, "*click*")
 
             return True
-
-roulette = Roulette()

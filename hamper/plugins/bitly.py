@@ -92,6 +92,3 @@ class Bitly(ChatPlugin):
 
         # Always let the other plugins run
         return False
-
-
-bitly = Bitly()
