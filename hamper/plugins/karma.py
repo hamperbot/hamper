@@ -234,9 +234,14 @@ class Karma(ChatCommandPlugin):
                 for row in kst_list:
                     total += row.kcount
 
+            # Pluralization
+            points = "points"
+            if total == 1 or total == -1:
+                points = "point"
+
             # Send the message
             bot.reply(
-                comm, '%s has %d points' % (uen(receiver), total),
+                comm, '%s has %d %s' % (uen(receiver), total, points),
                 encode=False
             )
 
