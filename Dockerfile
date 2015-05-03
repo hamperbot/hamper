@@ -8,7 +8,7 @@ VOLUME $HAMPER_DB_DIR
 ENV DATABASE_URL sqlite:///$HAMPER_DB_DIR/hamper.db
 
 # helps with caching
-COPY requirements.txt requirements.txt
+COPY requirements.txt /usr/src/hamper/requirements.txt
 RUN pip install -r requirements.txt
 
 COPY . /usr/src/hamper
