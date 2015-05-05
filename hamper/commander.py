@@ -190,13 +190,18 @@ class CommanderProtocol(irc.IRCClient):
         self.factory.loader.runPlugins(category, func, self, *args)
 
     def _hamper_send(self, func, comm, message, encode, tag, vars, kwvars):
+        if type(message) == str:
+            log.warning('Warning, passing message as ascii instead of unicode '
+                        'will cause problems. The message is: {0}'
+                        .format(message))
+
         format_kwargs = {}
         format_kwargs.update(kwvars)
         format_kwargs.update(comm)
         try:
             message = message.format(*vars, **format_kwargs)
-        except (ValueError, KeyError, IndexError):
-            pass
+        except (ValueError, KeyError, IndexError) as e:
+            log.error('Could not format message: {e}'.format(e=e))
 
         if encode:
             message = message.encode('utf8')
