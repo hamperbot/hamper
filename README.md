@@ -39,13 +39,13 @@ To declare a plugin so that it can be used you need to edit *your* plugin's
 ```python
 setup(                                                                             
     name='YOUR_PLUGIN',                                                                 
-	# ...More lines here...
+        # ...More lines here...
     entry_points = {                                                               
         'hamperbot.plugins': [                                                     
                 'plugin_name = module.import.path.to.plugin:PluginClass',
-		],
-	},
-	# ...Possibly more lines here too...
+                ],
+        },
+        # ...Possibly more lines here too...
 ```
 For the new plugin system you no longer need to create an instance of each one
 at the bottom.
@@ -58,8 +58,8 @@ $ python setup.py install
 This is so that setuptools can advertise your plugins to hamper. hamper uses
 setuptools to determine what plugins are available.
 Note that if you change your `setup.py`, you'll have to repeat those last two
-steps. However, you'll probably be won't have to rebuild the package every time
-you change your plugin.
+steps. However, you probably won't have to rebuild the package every time you
+change your plugin.
 
 Using Docker
 ------------
