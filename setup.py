@@ -6,7 +6,7 @@ requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
-    version='1.4',
+    version='1.5',
     description='Yet another IRC bot',
     install_requires=requires,
     author='Mike Cooper',
