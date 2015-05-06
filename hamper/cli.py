@@ -1,18 +1,13 @@
-from fnmatch import fnmatch
-
 from twisted.internet import reactor
 from twisted.internet.stdio import StandardIO
 from twisted.protocols.basic import LineReceiver
-from twisted.plugin import getPlugins
 
 import sqlalchemy
 from sqlalchemy import orm
 
 from hamper.commander import DB, PluginLoader
 import hamper.config
-from hamper.interfaces import BaseInterface
 import hamper.log
-import hamper.plugins
 
 
 class CLIProtocol(LineReceiver):
@@ -24,8 +19,7 @@ class CLIProtocol(LineReceiver):
     delimiter = "\n"
 
     def __init__(self, config):
-        self.loader = PluginLoader()
-        self.loader.config = config
+        self.loader = PluginLoader(config)
 
         self.history = {}
 
@@ -42,14 +36,11 @@ class CLIProtocol(LineReceiver):
 
         # Load all plugins mentioned in the configuration. Allow globbing.
         print "Loading plugins", config["plugins"]
-        plugins = getPlugins(BaseInterface, package=hamper.plugins)
-        for plugin in plugins:
-            for pattern in config["plugins"]:
-                if fnmatch(plugin.name, pattern):
-                    self.loader.registerPlugin(plugin)
+        self.loader.loadAll()
 
     def connectionLost(self, reason):
-        reactor.stop()
+        if reactor.running:
+            reactor.stop()
 
     def lineReceived(self, line):
         comm = {
@@ -57,6 +48,7 @@ class CLIProtocol(LineReceiver):
             'message': line,
             'raw_user': "user",
             'user': "user",
+            'mask': "",
             'target': "hamper",
             'channel': "hamper",
             'directed': True,
@@ -65,9 +57,38 @@ class CLIProtocol(LineReceiver):
 
         self.loader.runPlugins("chat", "message", self, comm)
 
-    def reply(self, comm, message):
-        print "Sending", message
+    def _sendLine(self, user, message):
+        if user != "hamper":
+            message = "[%s] %s" % (user, message)
         self.sendLine(message)
+
+    # Stub out some IRCClient methods
+
+    def quit(self):
+        self.stopProducing()
+
+    def msg(self, user, message, length=None):
+        for line in message.splitlines():
+            self._sendLine(user, line)
+
+    def notice(self, user, message):
+        self._sendLine(user, '** ' + message)
+
+
+    # CommanderProtocol methods
+
+    def reply(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):
+        kwvars = kwvars.copy()
+        kwvars.update(comm)
+        message = message.format(*vars, **kwvars)
+        if encode:
+            message = message.encode('utf-8')
+        self.msg(comm['channel'], message)
+
+    # The help plugin expects bot.factory.loader to exist.
+    @property
+    def factory(self):
+        return self
 
 
 def main():
