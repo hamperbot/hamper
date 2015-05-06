@@ -156,13 +156,14 @@ class Karma(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             # Let the database restrict the amount of rows we get back.
             # We can then just deal with a few rows later on
-            kts = bot.factory.loader.db.session\
-                                    .query(KarmaStatsTable.receiver,
-                                           func.sum(KarmaStatsTable.kcount))\
-                                    .group_by(KarmaStatsTable.receiver)
+            session = bot.factory.loader.db.session
+            kcount = func.sum(KarmaStatsTable.kcount).label('kcount')
+            kts = session.query(KarmaStatsTable.receiver, kcount) \
+                         .group_by(KarmaStatsTable.receiver)
 
-            # Forlegacy support
-            classic = bot.factory.loader.db.session.query(KarmaTable)
+            # For legacy support
+            classic = session.query(KarmaTable)
+
             # Counter for sorting and updating data
             counter = Counter()
 
@@ -171,7 +172,7 @@ class Karma(ChatCommandPlugin):
                 if groups[0] == 'top':
                     classic_q = classic.order_by(KarmaTable.kcount.desc())\
                                        .limit(self.LIST_MAX).all()
-                    query = kts.order_by(KarmaStatsTable.kcount.desc())\
+                    query = kts.order_by(kcount.desc())\
                                .limit(self.LIST_MAX).all()
 
                     counter.update(dict(classic_q))
@@ -180,7 +181,7 @@ class Karma(ChatCommandPlugin):
                 elif groups[0] == 'bottom':
                     classic_q = classic.order_by(KarmaTable.kcount)\
                                        .limit(self.LIST_MAX).all()
-                    query = kts.order_by(KarmaStatsTable.kcount)\
+                    query = kts.order_by(kcount)\
                                .limit(self.LIST_MAX).all()
                     counter.update(dict(classic_q))
                     counter.update(dict(query))
@@ -197,7 +198,7 @@ class Karma(ChatCommandPlugin):
                         encode=False
                     )
             else:
-                bot.reply(comm, r'No one has any karma yet :-(')
+                bot.reply(comm, 'No one has any karma yet :-(')
 
     class UserKarma(Command):
         """
