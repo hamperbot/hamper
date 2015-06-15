@@ -24,7 +24,7 @@ class Timez(ChatCommandPlugin):
         regex = '^timez (.*)'
 
         long_desc = short_desc = (
-            "timez - Look up time for [ZIP code | City, State (US Only) | "
+            "timez <something> - Look up time for [ZIP code | City, State (US Only) | "
             "City Name, State, Country | City Name, Country | "
             "Airport Code | IP "
         )
