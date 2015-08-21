@@ -3,7 +3,7 @@ SQLAlchemy==0.9.7
 Twisted==12.2.0
 upsidedown==0.3
 zope.interface==4.0.1
-pyOpenSSL==0.13.1
-requests==2.0.1
+pyOpenSSL==0.15.1
+requests==2.7.0
 flake8==2.1.0
 pytz==2014.3
