@@ -9,7 +9,7 @@ $ git clone https://github.com/hamperbot/hamper
 $ cd hamper
 $ virtualenv venv
 $ source venv/bin/activate
-$ python setup.py install
+$ python setup.py develop
 $ cp hamper.conf.dist hamper.conf
 $ vim hamper.conf
 $ hamper
@@ -29,7 +29,6 @@ fields:
 
 For an example check out `hamper.conf.dist`.
 
-[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
 Plugin Development
 ==================
@@ -52,7 +51,7 @@ at the bottom.
 Once you have declared your class as a plugin you need to install it with
 `setup.py`:
 ```sh
-$ python setup.py install
+$ python setup.py develop
 
 ```
 This is so that setuptools can advertise your plugins to Hamper. Hamper uses
@@ -60,6 +59,17 @@ setuptools to determine what plugins are available.
 Note that if you change your `setup.py`, you'll have to repeat those last two
 steps. However, you probably won't have to rebuild the package every time you
 change your plugin.
+
+Testing
+=======
+
+<<<<<<< HEAD
+Hamper uses Twisted's [Trial][] unit testing system, which is an extension of
+=======
+Hamper uses twisted's [trial][trial] unit testing system, which is an extension of
+>>>>>>> 88ed46c703649039702ceb69412f1dffde48ae28
+Python's unittest module. To run the tests, execute `trial hamper' in the top
+level directory of hamper.
 
 Using Docker
 ------------
@@ -106,3 +116,5 @@ Then to stop the container type `docker stop hamper`. To start it back up type
 Refer to the [docker docs][docker] for more usage details.
 
 [docker]: http://docs.docker.io/en/latest/
+[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
+[trial]: http://twistedmatrix.com/trac/wiki/TwistedTrial
