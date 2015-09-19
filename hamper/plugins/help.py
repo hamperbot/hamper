@@ -47,7 +47,7 @@ class Help(ChatCommandPlugin):
                 response.append('{0.short_desc}'.format(command))
             response = '\n'.join(response)
 
-            bot.reply(comm, response)
+            bot.msg(comm['user'], response)
 
     class HelpCommand(Command):
         name = 'help.individual'
