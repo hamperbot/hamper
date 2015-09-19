@@ -9,7 +9,7 @@ $ git clone https://github.com/hamperbot/hamper
 $ cd hamper
 $ virtualenv venv
 $ source venv/bin/activate
-$ python setup.py install
+$ python setup.py develop
 $ cp hamper.conf.dist hamper.conf
 $ vim hamper.conf
 $ hamper
@@ -29,19 +29,18 @@ fields:
 
 For an example check out `hamper.conf.dist`.
 
-[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
 
 Plugin Development
 ==================
-Read `hamper/plugins/friendly.py`. 
+Read `hamper/plugins/friendly.py`.
 To declare a plugin so that it can be used you need to edit *your* plugin's
 `setup.py` and add something like the following lines:
 ```python
-setup(                                                                             
-    name='YOUR_PLUGIN',                                                                 
+setup(
+    name='YOUR_PLUGIN',
         # ...More lines here...
-    entry_points = {                                                               
-        'hamperbot.plugins': [                                                     
+    entry_points = {
+        'hamperbot.plugins': [
                 'plugin_name = module.import.path.to.plugin:PluginClass',
                 ],
         },
@@ -52,7 +51,7 @@ at the bottom.
 Once you have declared your class as a plugin you need to install it with
 `setup.py`:
 ```sh
-$ python setup.py install
+$ python setup.py develop
 
 ```
 This is so that setuptools can advertise your plugins to hamper. hamper uses
@@ -60,6 +59,13 @@ setuptools to determine what plugins are available.
 Note that if you change your `setup.py`, you'll have to repeat those last two
 steps. However, you probably won't have to rebuild the package every time you
 change your plugin.
+
+Testing
+=======
+
+Hamper uses twisted's [trial][trial] unit testing system, which is an extension of
+Python's unittest module. To run the tests, execute `trial hamper' in the top
+level directory of hamper.
 
 Using Docker
 ------------
@@ -106,3 +112,5 @@ Then to stop the container type `docker stop hamper`. To start it back up type
 Refer to the [docker docs][docker] for more usage details.
 
 [docker]: http://docs.docker.io/en/latest/
+[dburl]: http://www.sqlalchemy.org/docs/core/engines.html#sqlalchemy.create_engine
+[trial]: http://twistedmatrix.com/trac/wiki/TwistedTrial
