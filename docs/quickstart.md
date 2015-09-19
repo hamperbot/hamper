@@ -32,7 +32,7 @@ $ pip install -r requirements.txt
 
 ## Tests
 
-A good way to make sure you have all the requirements is by running the tests. The tests don't rely on any confifguration, so you can run them now. To run the tests run the command
+A good way to make sure you have all the requirements is by running the tests. The tests don't rely on any configuration, so you can run them now. To run the tests run the command
 
 ```bashs
 $ trial hamper
@@ -68,7 +68,7 @@ $ hamper
 ```
 
 If all you configured the bot correctly, it should start up, load any
-listed plugins, connect to the irc server, and join the specified
+listed plugins, connect to the IRC server, and join the specified
 channels, where you can start interacting with it. Yay!
 
 For more information about where to go from here, see the docs about
