@@ -71,7 +71,7 @@ to write docs about. Run these commands from inside the hamper repository.
    $ heroku ps:scale irc=1
    ```
 
-7. Check the logs. This is not strictly neccesary, but it is good to know
+7. Check the logs. This is not strictly necessary, but it is good to know
    in case anything goes wrong.
 
    ```bash
