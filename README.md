@@ -63,7 +63,11 @@ change your plugin.
 Testing
 =======
 
+<<<<<<< HEAD
 Hamper uses Twisted's [Trial][] unit testing system, which is an extension of
+=======
+Hamper uses twisted's [trial][trial] unit testing system, which is an extension of
+>>>>>>> 88ed46c703649039702ceb69412f1dffde48ae28
 Python's unittest module. To run the tests, execute `trial hamper' in the top
 level directory of hamper.
 
