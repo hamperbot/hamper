@@ -43,9 +43,9 @@ setup(
     entry_points = {
         'hamperbot.plugins': [
                 'plugin_name = module.import.path.to.plugin:PluginClass',
-                ],
-        },
-        # ...Possibly more lines here too...
+        ],
+    },
+    # ...Possibly more lines here too...
 ```
 For the new plugin system you no longer need to create an instance of each one
 at the bottom.
