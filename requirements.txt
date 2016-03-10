@@ -7,3 +7,4 @@ pyOpenSSL==0.15.1
 requests==2.7.0
 flake8==2.1.0
 pytz==2014.3
+cryptography==1.0
