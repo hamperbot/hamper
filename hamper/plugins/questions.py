@@ -95,23 +95,26 @@ class ChoicesPlugin(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             choices = self.parse(comm['message'])
-            choice = random.choice(choices) + '.'
-            print choices
 
-            r = random.random()
-
-            flavor = [
-                (0.02, ['Neither', 'None of them.']),
-                (0.02, ['Why not both?', 'Why not all of them?']),
-                (0.02, [u'¿Por qué no los dos?', u'¿Por qué no los todos?']),
+            chance_of_snark = 0.05
+            snarks = [
+                "I don't know, I'm just a bot",
+                ['Neither', 'None of them.'],
+                ['Why not both?', 'Why not all of them?'],
+                [u'¿Por qué no los dos?', u'¿Por qué no los todos?'],
             ]
 
-            for chance, flavors in flavor:
-                if r < chance:
-                    i = int(len(choices) > 2)
-                    choice = flavors[i]
-                    break
-                r -= chance
+            if random.random() < chance_of_snark:
+                # snark. ignore choices and choose something funny
+                snark = random.choice(snarks)
+                if isinstance(snarks, list):
+                    conjugation = 0 if len(choices) == 2 else 1
+                    choice = snark[conjugation]
+                else:
+                    choice = snark
+            else:
+                # no snark, give one of the original choices
+                choice = random.choices(choices) + '.'
 
             bot.reply(comm, u'{0}: {1}'.format(comm['user'], choice))
             return True
