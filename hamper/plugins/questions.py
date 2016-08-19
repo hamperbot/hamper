@@ -36,9 +36,10 @@ class YesNoPlugin(ChatPlugin):
             ('Maybe. Possibly. It could be.', 'eq/2'),
             ('Ask again later.', 'eq/3'),
             ("I don't know.", 'eq/3'),
-            ("I'm sorry, I was thinking of bananas", 0.03),
+            ("I'm sorry, I was thinking of bananas", 'eq/100'),
         ]
 
+        responses += [(x, 'eq/10') for x in (list(open('oblique.txt')))]
         total_prob = 0
         real_resp = []
         evens = []
@@ -103,6 +104,7 @@ class ChoicesPlugin(ChatCommandPlugin):
                 ['Why not both?', 'Why not all of them?'],
                 [u'¿Por qué no los dos?', u'¿Por qué no los todos?'],
             ]
+            snarks += list(open('obliques.txt'))
 
             if random.random() < chance_of_snark:
                 # snark. ignore choices and choose something funny
@@ -115,7 +117,6 @@ class ChoicesPlugin(ChatCommandPlugin):
             else:
                 # no snark, give one of the original choices
                 choice = random.choices(choices) + '.'
-
             bot.reply(comm, u'{0}: {1}'.format(comm['user'], choice))
             return True
 
