@@ -31,13 +31,10 @@ obliques = [
     "Remove half.",
     "Abandon normal instruments.",
     "Accept advice.",
-    "Accretion.",
     "A line has two sides.",
     "Balance the consistency principle with the inconsistency principle.",
     "Breathe more deeply.",
-    "Bridges -build -burn.",
-    "Cascades.",
-    "Cluster analysis.",
+    "Bridges: -build, -burn.",
     "Consider different fading systems.",
     "Courage!",
     "Cut a vital connection.",
@@ -75,9 +72,8 @@ obliques = [
     "Look at the order in which you do things.",
     "Look closely at the most embarrassing details and amplify them.",
     "Make a blank valuable by putting it in an exquisite frame.",
-    "Make an exhaustive list of everything you might do and do the last thing on",
-    "the list.",
-    "Make a sudden, destructive unpredictable action; incorporate.",
+    "Make an exhaustive list of everything you might do and do the last thing on the list.",
+    "Make a sudden, destructive, unpredictable action; incorporate.",
     "Only one element of each kind.",
     "Remember those quiet evenings.",
     "Remove ambiguities and convert to specifics.",
@@ -141,6 +137,7 @@ class YesNoPlugin(ChatPlugin):
         ]
 
         responses += [(x, 'eq/10') for x in obliques]
+        self.advices = [(x, 1) for x in obliques]
         total_prob = 0
         real_resp = []
         evens = []
@@ -171,7 +168,11 @@ class YesNoPlugin(ChatPlugin):
         msg = ude(comm['message'].strip())
         if comm['directed'] and self.is_question.search(msg):
             r = random.random()
-            for resp, prob in self.responses:
+            if " should " in msg:
+                replies = self.advices
+            else:
+                replies = self.responses
+            for resp, prob in replies:
                 r -= prob
                 if r < 0:
                     bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
