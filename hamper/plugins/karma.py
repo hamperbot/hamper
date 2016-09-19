@@ -210,7 +210,7 @@ class Karma(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             # The receiver (or in old terms, user) of the karma being tallied
-            reciever = groups[0]
+            receiver = groups[0]
             if receiver is None:
                 reciever = comm['user']
             receiver = ude(reciever.strip().lower())
