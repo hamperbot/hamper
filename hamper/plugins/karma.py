@@ -206,11 +206,14 @@ class Karma(ChatCommandPlugin):
         """
 
         # !karma <username>
-        regex = r'^(?:score|karma)\s+([^-].*)$'
+        regex = r'^(?:score|karma)(?:\s+([^-].*))?$'
 
         def command(self, bot, comm, groups):
             # The receiver (or in old terms, user) of the karma being tallied
-            receiver = ude(groups[0].strip().lower())
+            reciever = groups[0]
+            if receiver is None:
+                reciever = comm['user']
+            receiver = ude(reciever.strip().lower())
 
             # Manage both tables
             sesh = bot.factory.loader.db.session
