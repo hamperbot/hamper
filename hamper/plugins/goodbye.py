@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 import random
 from hamper.interfaces import ChatPlugin
 
@@ -24,13 +25,16 @@ goodbyes = [
     "So long",
     "Farewell",
     "Bon voyage",
-    "May you never awaken one morning and find yourself with Iranian death camps for hands and Gorbachev's eyelids attached to your feet.",
+    ("May you never awaken one morning and find yourself with Iranian death "
+        "camps for hands and Gorbachev's eyelids attached to your feet."),
     "Aloha",
     "L'hitraot",
     "Kol Tuv",
     "Shalom",
     "Peace out",
-    "May your spleen never transform into a solution to the European Union's impending energy crisis and become a battlefield for an upcoming war to end all wars.",
+    ("May your spleen never transform into a solution to the European Union's "
+        "impending energy crisis and become a battlefield for an upcoming war "
+        "to end all wars."),
     "Be well, fellow citizen",
     "I must take leave of you now",
     "Adios",
@@ -50,7 +54,8 @@ goodbyes = [
     "Bis dann",
     "Bis bald",
     "Bis später",
-    "May you never have your soul absorbed into the Netherworld by a power-hungry televangelist.",
+    ("May you never have your soul absorbed into the Netherworld by a "
+        "power-hungry televangelist."),
     "Bis morgen",
     "Bis Freitagabend",
     "Bis nächste Woche",
@@ -65,8 +70,12 @@ goodbyes = [
     "Avrio",
     "adeus",
     "That is all.",
-    "daa daa dit daa daa daa daa daa daa daa dit dit daa dit dit dit daa dit daa daa dit",
-    "(*wave flags down and down-right) (*wave flags left and up-left) (*wave flags left and up-left) (*wave flags up and down) (*wave flags left and down) (*wave flags up-left and right) (*wave flags down and up-right)",
+    ("daa daa dit daa daa daa daa daa daa daa dit dit daa dit dit dit daa dit "
+        "daa daa dit"),
+    ("(*wave flags down and down-right) (*wave flags left and up-left) "
+        "(*wave flags left and up-left) (*wave flags up and down) (*wave "
+        "flags left and down) (*wave flags up-left and right) (*wave flags "
+        "down and up-right)"),
     "No more of you.",
     "SHOO! SHOO!",
     "And...I'm out.",
@@ -102,7 +111,8 @@ goodbyes = [
     "Dasvedania",
     "Paka",
     "Keep it real",
-    "May your mother's cousin never be assaulted by Attila the Hun at the supermarket",
+    ("May your mother's cousin never be assaulted by Attila the Hun at the "
+        "supermarket"),
     "Hasta luego",
     "Leb wohl!",
     "Mach's gut!",
