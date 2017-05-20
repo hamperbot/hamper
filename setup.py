@@ -6,7 +6,7 @@ requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
-    version='1.10.0',
+    version='1.10.1',
     description='Yet another IRC bot',
     install_requires=requires,
     author='Mike Cooper',
@@ -37,8 +37,8 @@ setup(
             'quotes = hamper.plugins.quotes:Quotes',
             'remindme = hamper.plugins.remindme:Reminder',
             'rot13 = hamper.plugins.commands:Rot13',
-            'sed = hamper.plugins.commands:Sed',
             'roulette = hamper.plugins.roulette:Roulette',
+            'sed = hamper.plugins.commands:Sed',
             'seen = hamper.plugins.seen:Seen',
             'suggest = hamper.plugins.suggest:Suggest',
             'timez = hamper.plugins.timez:Timez',
