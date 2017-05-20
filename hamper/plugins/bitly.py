@@ -39,8 +39,6 @@ class Bitly(ChatPlugin):
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
         self.api_url = 'https://api-ssl.bitly.com/v3/shorten'
-        self.username = loader.config['bitly']['login']
-        self.api_key = loader.config['bitly']['api_key']
         # If an exclude value is found in the url
         # it will not be shortened
         self.excludes = ['imgur.com', 'gist.github.com', 'pastebin.com']

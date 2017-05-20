@@ -15,7 +15,7 @@ class Roulette(ChatCommandPlugin):
         regex = r'^roulette$'
 
         name = 'roulette'
-        short_desc = 'feeling lucky?'
+        short_desc = "roulette - feeling lucky? [hint: !roulette]"
         long_desc = "See how lucky you are, just don't bleed everywhere"
 
         def command(self, bot, comm, groups):

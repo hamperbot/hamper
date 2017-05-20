@@ -74,7 +74,6 @@ class CLIProtocol(LineReceiver):
     def notice(self, user, message):
         self._sendLine(user, '** ' + message)
 
-
     # CommanderProtocol methods
 
     def reply(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):

@@ -35,7 +35,7 @@ def main():
 class CommanderProtocol(irc.IRCClient):
     """Interacts with a single server, and delegates to the plugins."""
 
-    ##### Properties #####
+    # #### Properties #####
     @property
     def nickname(self):
         return self.factory.nickname
@@ -52,7 +52,7 @@ class CommanderProtocol(irc.IRCClient):
     def acl(self):
         return self.factory.acl
 
-    ##### Twisted events #####
+    # #### Twisted events #####
 
     def signedOn(self):
         """Called after successfully signing on to the server."""
@@ -138,7 +138,8 @@ class CommanderProtocol(irc.IRCClient):
 
         self.dispatch('chat', 'message', comm)
 
-        self.factory.history.setdefault(channel, deque(maxlen=100)).append(comm)
+        self.factory.history.setdefault(
+            channel, deque(maxlen=100)).append(comm)
 
     def connectionLost(self, reason):
         """Called when the connection is lost to the server."""
@@ -183,7 +184,7 @@ class CommanderProtocol(irc.IRCClient):
                 log.info("NickServ AUTH FAILED!!!!!!!")
                 reactor.stop()
 
-    ##### Hamper specific functions. #####
+    # #### Hamper specific functions. #####
 
     def dispatch(self, category, func, *args):
         """Dispatch an event to all listening plugins."""
@@ -219,13 +220,12 @@ class CommanderProtocol(irc.IRCClient):
                 'tag': tag,
             }))
 
-
     def reply(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):
         self._hamper_send(self.msg, comm, message, encode, tag, vars, kwvars)
 
     def me(self, comm, message, encode=True, tag=None, vars=[], kwvars={}):
-        self._hamper_send(self.describe, comm, message, encode, tag, vars, kwvars)
-
+        self._hamper_send(
+            self.describe, comm, message, encode, tag, vars, kwvars)
 
 
 class CommanderFactory(protocol.ClientFactory):
@@ -293,7 +293,6 @@ class PluginLoader(object):
         self.config = config
         self.plugins = []
 
-
     def loadAll(self):
         plugins_to_load = set()
 
@@ -318,6 +317,12 @@ class PluginLoader(object):
 
         # Check for missing plugins
         plugin_names = {x.name for x in self.plugins}
+        # Don't allow karma and karma_adv to be loaded at once
+        if ('karma' in self.config['plugins'] and
+                'karma_adv' in self.config['plugins']):
+            quit(
+                "Unable to load both karma and karma_adv at the same time")
+
         for pattern in self.config['plugins']:
             if pattern not in plugin_names:
                 log.warning('Sorry, I couldn\'t find a plugin named "%s"',

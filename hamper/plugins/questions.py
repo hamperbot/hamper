@@ -72,7 +72,8 @@ obliques = [
     "Look at the order in which you do things.",
     "Look closely at the most embarrassing details and amplify them.",
     "Make a blank valuable by putting it in an exquisite frame.",
-    "Make an exhaustive list of everything you might do and do the last thing on the list.",
+    ("Make an exhaustive list of everything you might do and do the last "
+        "thing on the list."),
     "Make a sudden, destructive, unpredictable action; incorporate.",
     "Only one element of each kind.",
     "Remember those quiet evenings.",

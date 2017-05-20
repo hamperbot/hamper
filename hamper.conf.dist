@@ -1,14 +1,60 @@
 # Sample configuration file for Hamper
+
+# IRC Settings
 nickname: cool_bot
+# password: your_password
 server: irc.freenode.net
 port: 6667
+# ssl: true
 
 db: "sqlite:///hamper.db"
 
 channels:
     - "#hamper-testing"
+    # - #another
+    # - #possibly_a_third
+
+# Available plugins with a few enabled.
+# See below for plugin specific configurations
+# WARNINGs:
+# Settings may or may not be mandatory for any given plugin.
+# Everything enabled enables two url shortners (bitly, tinurl)
 
 plugins:
-    - sed
+    # - bitly
+    # - botsnack
+    # - choices
+    # - dice
+    # - factoids
+    # - flip
     - friendly
+    # - goodbye
+    # - help
+    # - karma
+    # - lmgtfy
+    # - lookup
     - ponies
+    # - quit
+    # - quotes
+    # - rot13
+    # - roulette
+    - sed
+    # - seen
+    # - suggest
+    # - timez
+    # - tinyurl
+    # - yesno
+
+# bitly:
+#    login: user_name
+#    api_key: username_s_api_key
+
+# karma:
+#    timezone: UTC
+
+# tinyurl:
+#    excluded-urls:
+#        - imgur.com
+#        - gist.github.com
+#        - pastebin.com
+#    min-length: 40
