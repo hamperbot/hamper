@@ -37,7 +37,7 @@ class Sed(ChatCommandPlugin):
 
     class SedCommand(Command):
         name = 'sed'
-        regex = r's/(.*)/(.*)/(.*)'
+        regex = r's/(.*?)/(.*?)/([mig]*)(?:\s+s/(.*?)/(.*?)/([mig]*))*'
         onlyDirected = False
 
         short_desc = 's/find/replace/ - Perform sed style find and replace.'
@@ -51,24 +51,38 @@ class Sed(ChatCommandPlugin):
         def command(self, bot, comm, groups):
             if self.plugin.onlyDirected and not comm['directed']:
                 return False
-            usr_replace = groups[1]
-            options = groups[2]
-            regex_opts = re.I if 'i' in options else 0
-            try:
-                usr_regex = re.compile(groups[0], regex_opts)
-            except RegexError:
-                bot.reply(comm, 'Do you even lift?')
-                return False
-
-            g = 0 if 'g' in options else 1
 
             key = comm['channel']
             if key not in bot.factory.history:
                 bot.reply(comm, 'Who are you?! How did you get in my house?!')
                 return False
 
+            groups_len = len(groups)
+            user_regexs = []
+            try:
+                for idx in range(0, groups_len, 3):
+                    user_regexs.append(re.compile(groups[idx]))
+            except RegexError:
+                bot.reply(comm, 'Do you even lift?')
+                return False
+            user_replaces = [groups[idx] for idx in range(1, groups_len, 3)]
+            regex_opts = [groups[idx] for idx in range(2, groups_len, 3)]
+
+            # m is a global flag, meaning if any regex wants to match user
+            # messages only, all regexs will only match user messages
+            m_found = False
+            for opts in regex_opts:
+                if 'm' in opts:
+                    m_found = True
+                    break
+            if m_found:
+                for opts in regex_opts:
+                    if 'm' not in opts:
+                        opts += 'm'
+
             for hist in reversed(bot.factory.history[key]):
-                if 'm' in options and hist['user'] != comm['user']:
+                # Remember that 'm' is global
+                if 'm' in regex_opts[0] and hist['user'] != comm['user']:
                     # Only look at the user's messages
                     continue
 
@@ -76,20 +90,22 @@ class Sed(ChatCommandPlugin):
                 if 's/' in hist['raw_message']:
                     continue
 
-                if usr_regex.search(hist['raw_message']):
-                    try:
-                        new_msg = usr_regex.sub(
-                            usr_replace, hist['raw_message'], g
-                        )
-                    except RegexError:
-                        bot.reply(comm, 'Do you even lift?')
-                        return False
-                    bot.reply(comm, '{0} actually meant: {1}'
-                              .format(hist['user'], new_msg))
-                    break
+                tmp = hist['raw_message']
+                for idx in range(0, len(user_regexs)):
+                    if user_regexs[idx].search(tmp):
+                        try:
+                            tmp = user_regexs[idx].sub(
+                                user_replaces[idx], tmp, 'g' in regex_opts[idx]
+                            )
+                        except RegexError:
+                            bot.reply(comm, 'Do you even lift?')
+                            return False
+                bot.reply(comm, '{0} actually meant: {1}'.format(
+                    hist['user'], tmp))
+                break
             else:
                 bot.reply(comm, "Sorry, I couldn't match '{0}'."
-                          .format(usr_regex.pattern))
+                          .format(", ".join(r.pattern for r in user_regexs)))
 
 
 class LetMeGoogleThatForYou(ChatCommandPlugin):
