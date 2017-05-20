@@ -317,6 +317,12 @@ class PluginLoader(object):
 
         # Check for missing plugins
         plugin_names = {x.name for x in self.plugins}
+        # Don't allow karma and karma_adv to be loaded at once
+        if ('karma' in self.config['plugins'] and
+                'karma_adv' in self.config['plugins']):
+            quit(
+                "Unable to load both karma and karma_adv at the same time")
+
         for pattern in self.config['plugins']:
             if pattern not in plugin_names:
                 log.warning('Sorry, I couldn\'t find a plugin named "%s"',

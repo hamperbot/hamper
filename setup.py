@@ -29,6 +29,7 @@ setup(
             'goodbye = hamper.plugins.goodbye:GoodBye',
             'help = hamper.plugins.help:Help',
             'karma = hamper.plugins.karma:Karma',
+            'karma_adv = hamper.plugins.karma_adv:KarmAdv',
             'lmgtfy = hamper.plugins.commands:LetMeGoogleThatForYou',
             'lookup = hamper.plugins.dictionary:Lookup',
             'ponies = hamper.plugins.friendly:OmgPonies',
