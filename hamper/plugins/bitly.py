@@ -1,7 +1,8 @@
+import json
+import StringIO as SIO
 import re
 import urllib
 import urllib2
-import json
 
 from hamper.interfaces import ChatPlugin
 
@@ -35,9 +36,11 @@ class Bitly(ChatPlugin):
       )
     )
     """
+    title_regex = ur"<title>(.*?)</title>"
 
     def setup(self, loader):
         self.regex = re.compile(self.regex, re.VERBOSE | re.IGNORECASE | re.U)
+        self.title_regex = re.compile(self.title_regex, re.I | re.U)
         self.api_url = 'https://api-ssl.bitly.com/v3/shorten'
         # If an exclude value is found in the url
         # it will not be shortened
@@ -85,8 +88,16 @@ class Bitly(ChatPlugin):
             data = json.load(response)
 
             if data['status_txt'] == 'OK':
+                # Grab the title of said link
+                page_req = urllib2.Request(long_url)
+                page_resp = urllib2.urlopen(page_req)
+                contents = SIO.StringIO()
+                contents.write(page_resp.read())
+                title = self.title_regex.search(contents.getvalue()).group(1)
+
                 bot.reply(comm, "{0[user]}'s shortened url is {1[url]}"
                           .format(comm, data['data']))
+                bot.reply(comm, "Title: {0}".format(title))
 
         # Always let the other plugins run
         return False
