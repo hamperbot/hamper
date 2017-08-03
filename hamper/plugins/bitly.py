@@ -67,7 +67,7 @@ class Bitly(ChatPlugin):
             long_url = match.group(0)
 
             # Only shorten urls which are longer than a bitly url (12 chars)
-            if len(long_url) <= 12:
+            if len(long_url) <= 21:
                 return False
 
             # Don't shorten url's which are in the exclude list
