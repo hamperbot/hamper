@@ -10,7 +10,7 @@ class Help(ChatCommandPlugin):
     """Provide an interface to get help on commands."""
 
     name = 'help'
-
+    priority = 0
     _command_cache = []
 
     def __init__(self, *args, **kwargs):

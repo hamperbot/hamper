@@ -9,7 +9,7 @@ class Friendly(ChatPlugin):
     """Be polite. When people say hello, respond."""
 
     name = 'friendly'
-    priority = 2
+    priority = 0
 
     def setup(self, factory):
         self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola', 'ping',

@@ -29,7 +29,7 @@ class Quit(ChatCommandPlugin):
 class Sed(ChatCommandPlugin):
     """To be honest, I feel strange in channels that don't have this."""
     name = 'sed'
-    priority = -1
+    priority = 3
 
     def setup(self, loader):
         self.onlyDirected = loader.config.get('sed', {}).get('only-directed')
