@@ -137,7 +137,6 @@ class YesNoPlugin(ChatPlugin):
             ("I'm sorry, I was thinking of bananas", 'eq/100'),
         ]
 
-        responses += [(x, 'eq/10') for x in obliques]
         self.advices = [(x, 1) for x in obliques]
         total_prob = 0
         real_resp = []
