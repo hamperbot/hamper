@@ -218,7 +218,7 @@ class ChoicesPlugin(ChatCommandPlugin):
                     choice = snark
             else:
                 # no snark, give one of the original choices
-                choice = random.choices(choices) + '.'
+                choice = random.choice(choices) + '.'
             bot.reply(comm, u'{0}: {1}'.format(comm['user'], choice))
             return True
 
