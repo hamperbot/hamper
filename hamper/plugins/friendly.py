@@ -15,6 +15,7 @@ class Friendly(ChatPlugin):
         self.greetings = ['hi',
                          'hey look a squirrel',
                          'meh',
+                         'wtf',
                          'wb',
                          'laundrybot',
                          'y tho',
