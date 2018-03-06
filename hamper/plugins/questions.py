@@ -466,6 +466,28 @@ canstarts = [
     "Perhaps try with ",
 ]
 
+affirmatives = [
+    'Yes.',
+    'Maybe.',
+    'Possibly.',
+    'It could be.',
+    'Without a doubt.',
+    'I think... Yes.',
+    'Heck yes!',
+    'you said it',
+    'does the pope... er, is this the right channel?'
+]
+
+negatories = [
+    'NEVAR',
+    'Nope.',
+    'No.',
+    'Eww.',
+    'No. No, no way',
+    'That would be negatory.',
+    'Why would anyone?',
+]
+
 class YesNoPlugin(ChatPlugin):
 
     name = 'yesno'
@@ -536,7 +558,7 @@ class YesNoPlugin(ChatPlugin):
 
     def articleize(self, noun):
         if random.random() < .3:
-            noun = random.choice(adjs) + ' ' + noun 
+            noun = random.choice(adjs) + ' ' + noun
         if noun[0] in ['a', 'e', 'i', 'o', 'u', 'y']:
             return "an " + noun
         return "a " + noun
@@ -546,20 +568,30 @@ class YesNoPlugin(ChatPlugin):
         resp += self.articleize(random.choice(nouns))
         if random.random() < .5:
                 resp += " and " + self.articleize(random.choice(nouns))
-        if random.random() < .1:    
+        if random.random() < .1:
                 resp += " and " + self.articleize(random.choice(nouns))
         resp += random.choice(['...', '.', '?'])
         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
         return True
 
-    def hamperesque(self, bot, comm):
-            r = random.random()
-            replies = self.responses
-            for resp, prob in replies:
-                r -= prob
-                if r < 0:
-                    bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
-                    return True
+    def hamperesque(self, bot, comm, msg):
+            whatsay = ""
+            for n in negatories:
+                if n in msg:
+                    whatsay = random.choice(negatories)
+            for a in affirmatives:
+                if a in msg:
+                    whatsay = random.choice(affirmatives)
+            if whatsay != "":
+                bot.reply(comm, '{0}: {1}'.format(comm['user'], whatsay))
+            else:
+                r = random.random()
+                replies = self.responses
+                for resp, prob in replies:
+                    r -= prob
+                    if r < 0:
+                        bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
+                        return True
 
     def message(self, bot, comm):
         msg = ude(comm['message'].strip())
@@ -570,7 +602,7 @@ class YesNoPlugin(ChatPlugin):
                     elif "can " in msg or "could" in msg:
                         self.canq(bot, comm)
                     else:
-                        self.hamperesque(bot, comm)
+                        self.hamperesque(bot, comm, msg)
                 elif random.random() < .2:
                         self.shouldq(bot, comm)
         return False
