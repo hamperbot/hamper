@@ -6,6 +6,156 @@ import re
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 from hamper.utils import ude
 
+adjs = ["able",
+    "acid",
+    "angry",
+    "automatic",
+    "awake",
+    "bad",
+    "beautiful",
+    "bent",
+    "bitter",
+    "black",
+    "blue",
+    "boiling",
+    "bright",
+    "broken",
+    "brown",
+    "certain",
+    "cheap",
+    "chemical",
+    "chief",
+    "clean",
+    "clear",
+    "cold",
+    "common",
+    "complete",
+    "complex",
+    "conscious",
+    "cruel",
+    "cut",
+    "dark",
+    "dead",
+    "dear",
+    "deep",
+    "delicate",
+    "dependent",
+    "different",
+    "dirty",
+    "dry",
+    "early",
+    "elastic",
+    "electric",
+    "equal",
+    "false",
+    "fat",
+    "feeble",
+    "female",
+    "fertile",
+    "first",
+    "fixed",
+    "flat",
+    "free",
+    "frequent",
+    "full",
+    "future",
+    "general",
+    "good",
+    "gray",
+    "great",
+    "green",
+    "hanging",
+    "happy",
+    "hard",
+    "healthy",
+    "high",
+    "hollow",
+    "ill",
+    "important",
+    "kind",
+    "last",
+    "late",
+    "left",
+    "like",
+    "living",
+    "long",
+    "loose",
+    "loud",
+    "low",
+    "male",
+    "married",
+    "material",
+    "medical",
+    "military",
+    "mixed",
+    "narrow",
+    "natural",
+    "necessary",
+    "new",
+    "normal",
+    "old",
+    "open",
+    "opposite",
+    "parallel",
+    "past",
+    "physical",
+    "political",
+    "poor",
+    "possible",
+    "present",
+    "private",
+    "public",
+    "quick",
+    "quiet",
+    "ready",
+    "red",
+    "regular",
+    "responsible",
+    "right",
+    "rough",
+    "round",
+    "sad",
+    "safe",
+    "same",
+    "second",
+    "secret",
+    "separate",
+    "serious",
+    "sharp",
+    "short",
+    "shut",
+    "simple",
+    "slow",
+    "small",
+    "smooth",
+    "soft",
+    "solid",
+    "special",
+    "sticky",
+    "stiff",
+    "straight",
+    "strange",
+    "strong",
+    "sudden",
+    "sweet",
+    "tall",
+    "thick",
+    "thin",
+    "tight",
+    "tired",
+    "true",
+    "violent",
+    "waiting",
+    "warm",
+    "wet",
+    "white",
+    "wide",
+    "wise",
+    "wrong",
+    "yellow",
+    "young",
+    ]
+
 obliques = [
     "Turn it over.",
     "Switch the axes.",
@@ -385,6 +535,8 @@ class YesNoPlugin(ChatPlugin):
         return True
 
     def articleize(self, noun):
+        if random.random() < .3:
+            noun = random.choice(adjs) + ' ' + noun 
         if noun[0] in ['a', 'e', 'i', 'o', 'u', 'y']:
             return "an " + noun
         return "a " + noun
@@ -411,13 +563,16 @@ class YesNoPlugin(ChatPlugin):
 
     def message(self, bot, comm):
         msg = ude(comm['message'].strip())
-        if comm['directed'] and self.is_question.search(msg):
-            if "should " in msg:
-                self.shouldq(bot, comm)
-            elif "can " in msg or "could" in msg:
-                self.canq(bot, comm)
-            else:
-                self.hamperesque(bot, comm)
+        if self.is_question.search(msg):
+                if comm['directed']:
+                    if "should " in msg:
+                        self.shouldq(bot, comm)
+                    elif "can " in msg or "could" in msg:
+                        self.canq(bot, comm)
+                    else:
+                        self.hamperesque(bot, comm)
+                elif random.random() < .2:
+                        self.shouldq(bot, comm)
         return False
 
 
