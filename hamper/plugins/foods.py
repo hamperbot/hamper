@@ -272,7 +272,7 @@ class FoodsPlugin(ChatPlugin):
         """ apple. tart apple with vinegar. """
         resp = random.choice(ingredients)
         if random.random() < .2:
-            resp = random.choice(foodqualities) + resp
+            resp = random.choice(foodqualities) + " " + resp
         if random.random() < .2:
             resp += " with " + self.describe_additive()
         return resp
@@ -304,7 +304,7 @@ class FoodsPlugin(ChatPlugin):
     def describe_meal(self):
         resp = self.describe_dish()
         if random.random() < .1:
-            resp += " and " + self.describe_meal()
+            resp += ", and " + self.describe_meal()
         return resp
 
     def suggest(self):
@@ -314,8 +314,8 @@ class FoodsPlugin(ChatPlugin):
             if random.random() < .5:
                 resp = random.choice(suggestions) + ' ' + resp
             if random.random() < .3:
-                resp += ' ' + random.choice(['with', 'on', 'using'])
-                resp += ' ' + self.articleize(random.choice(foodtools))
+                resp += random.choice([' with ', ' on ', ' using '])
+                resp += self.articleize(random.choice(foodtools))
         return resp
 
     def foodyreply(self, bot, comm):
