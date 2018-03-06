@@ -105,6 +105,217 @@ obliques = [
 ]
 
 
+nouns = ["angle",
+     "ant",
+     "apple",
+     "arch",
+     "arm",
+     "army",
+     "baby",
+     "bag",
+     "ball",
+     "band",
+     "basin",
+     "basket",
+     "bath",
+     "bed",
+     "bee",
+     "bell",
+     "berry",
+     "bird",
+     "blade",
+     "board",
+     "boat",
+     "bone",
+     "book",
+     "boot",
+     "bottle",
+     "box",
+     "boy",
+     "brain",
+     "brake",
+     "branch",
+     "brick",
+     "bridge",
+     "brush",
+     "bucket",
+     "bulb",
+     "button",
+     "cake",
+     "camera",
+     "card",
+     "carriage",
+     "cart",
+     "cat",
+     "chain",
+     "cheese",
+     "chess",
+     "chin",
+     "church",
+     "circle",
+     "clock",
+     "cloud",
+     "coat",
+     "collar",
+     "comb",
+     "cord",
+     "cow",
+     "cup",
+     "curtain",
+     "cushion",
+     "dog",
+     "door",
+     "drain",
+     "drawer",
+     "dress",
+     "drop",
+     "ear",
+     "egg",
+     "engine",
+     "eye",
+     "face",
+     "farm",
+     "feather",
+     "finger",
+     "fish",
+     "flag",
+     "floor",
+     "fly",
+     "foot",
+     "fork",
+     "fowl",
+     "frame",
+     "garden",
+     "girl",
+     "glove",
+     "goat",
+     "gun",
+     "hair",
+     "hammer",
+     "hand",
+     "hat",
+     "head",
+     "heart",
+     "hook",
+     "horn",
+     "horse",
+     "hospital",
+     "house",
+     "island",
+     "jewel",
+     "kettle",
+     "key",
+     "knee",
+     "knife",
+     "knot",
+     "leaf",
+     "leg",
+     "library",
+     "line",
+     "lip",
+     "lock",
+     "map",
+     "match",
+     "monkey",
+     "moon",
+     "mouth",
+     "muscle",
+     "nail",
+     "neck",
+     "needle",
+     "nerve",
+     "net",
+     "nose",
+     "nut",
+     "office",
+     "orange",
+     "oven",
+     "parcel",
+     "pen",
+     "pencil",
+     "picture",
+     "pig",
+     "pin",
+     "pipe",
+     "plane",
+     "plate",
+     "plough",
+     "pocket",
+     "pot",
+     "potato",
+     "prison",
+     "pump",
+     "rail",
+     "rat",
+     "receipt",
+     "ring",
+     "rod",
+     "roof",
+     "root",
+     "sail",
+     "school",
+     "scissors",
+     "screw",
+     "seed",
+     "sheep",
+     "shelf",
+     "ship",
+     "shirt",
+     "shoe",
+     "skin",
+     "skirt",
+     "snake",
+     "sock",
+     "spade",
+     "sponge",
+     "spoon",
+     "spring",
+     "square",
+     "stamp",
+     "star",
+     "station",
+     "stem",
+     "stick",
+     "stocking",
+     "stomach",
+     "store",
+     "street",
+     "sun",
+     "table",
+     "tail",
+     "thread",
+     "throat",
+     "thumb",
+     "ticket",
+     "toe",
+     "tongue",
+     "tooth",
+     "town",
+     "train",
+     "tray",
+     "tree",
+     "trousers",
+     "umbrella",
+     "wall",
+     "watch",
+     "wheel",
+     "whip",
+     "whistle",
+     "window",
+     "wing",
+     "wire",
+     "worm",
+]
+
+canstarts = [
+    "Yes, you'll need ",
+    "Yes, but watch out for ",
+    "Maybe if you had ",
+    "Nope, there's too much of ",
+    "Never! Insufficient ",
+    "Perhaps try with ",
+]
+
 class YesNoPlugin(ChatPlugin):
 
     name = 'yesno'
@@ -122,6 +333,10 @@ class YesNoPlugin(ChatPlugin):
 
         responses = [
             ('Yes.', 'eq'),
+            ('How should I know?', 'eq'),
+            ('Try asking a human', 'eq'),
+            ('Eww.', 'eq'),
+            ('You\'d just do the opposite of whatever I tell you', 'eq'),
             ('No.', 'eq'),
             ('Nope.', 'eq'),
             ('Maybe.', 'eq'),
@@ -164,19 +379,45 @@ class YesNoPlugin(ChatPlugin):
         self.responses = real_resp
         self.is_question = re.compile('.*\?(\?|!)*$')
 
-    def message(self, bot, comm):
-        msg = ude(comm['message'].strip())
-        if comm['directed'] and self.is_question.search(msg):
+    def shouldq(self, bot, comm):
+        resp = random.choice(obliques)
+        bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
+        return True
+
+    def articleize(self, noun):
+        if noun[0] in ['a', 'e', 'i', 'o', 'u', 'y']:
+            return "an " + noun
+        return "a " + noun
+
+    def canq(self, bot, comm):
+        resp = random.choice(canstarts)
+        resp += self.articleize(random.choice(nouns))
+        if random.random() < .5:
+                resp += " and " + self.articleize(random.choice(nouns))
+        if random.random() < .1:    
+                resp += " and " + self.articleize(random.choice(nouns))
+        resp += random.choice(['...', '.', '?'])
+        bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
+        return True
+
+    def hamperesque(self, bot, comm):
             r = random.random()
-            if " should " in msg:
-                replies = self.advices
-            else:
-                replies = self.responses
+            replies = self.responses
             for resp, prob in replies:
                 r -= prob
                 if r < 0:
                     bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
                     return True
+
+    def message(self, bot, comm):
+        msg = ude(comm['message'].strip())
+        if comm['directed'] and self.is_question.search(msg):
+            if "should " in msg:
+                self.shouldq(bot, comm)
+            elif "can " in msg or "could" in msg:
+                self.canq(bot, comm)
+            else:
+                self.hamperesque(bot, comm)
         return False
 
 

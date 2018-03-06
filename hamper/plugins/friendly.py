@@ -12,8 +12,15 @@ class Friendly(ChatPlugin):
     priority = 0
 
     def setup(self, factory):
-        self.greetings = ['hi', 'hello', 'hey', 'sup', 'yo', 'hola', 'ping',
-                          'pong']
+        self.greetings = ['hi',
+                         'hey look a squirrel',
+                         'meh',
+                         'wb',
+                         'laundrybot',
+                         'y tho',
+                         'wat',
+                         '...',
+                         'nope']
 
     def message(self, bot, comm):
         if not comm['directed']:
@@ -60,8 +67,8 @@ class BotSnack(ChatPlugin):
 
     def setup(self, factory):
         self.rewards = {
-            'botsnack': ['yummy', 'my favorite!'],
-            'goodhamper': ['^_^', ':D'],
+            'botsnack': ['yummy', 'my favorite!', 'thanks i guess', '!humansnack'],
+            'goodhamper': ['^_^', ':D', '>.>', '<.<'],
         }
 
     def message(self, bot, comm):
