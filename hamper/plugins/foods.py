@@ -261,11 +261,11 @@ class FoodsPlugin(ChatPlugin):
 
     def discusses_food(self, msg):
         if 'eat' in msg:
-            return True
+            return "eat? " 
         if 'food' in msg:
-            return True
+            return "food? "
         if 'hungry' in msg:
-            return True
+            return "hungry? "
         return False
 
     def describe_ingredient(self):
@@ -318,17 +318,19 @@ class FoodsPlugin(ChatPlugin):
                 resp += self.articleize(random.choice(foodtools))
         return resp
 
-    def foodyreply(self, bot, comm):
-        bot.reply(comm, '{0}: {1}'.format(comm['user'], self.suggest()))
+    def foodyreply(self, bot, comm, prefix = ""):
+        resp = prefix + self.suggest()
+        bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
 
     def message(self, bot, comm):
         msg = ude(comm['message'].strip())
-        if self.discusses_food(msg):
+        prefix = self.discusses_food(msg)
+        if prefix:
                 if comm['directed']:
                     # always reply on question or comment to self about food
                     self.foodyreply(bot, comm)
                 elif random.random() < .7:
                     # often interject anyways
-                    self.foodyreply(bot, comm)
+                    self.foodyreply(bot, comm, prefix)
         return False
 
