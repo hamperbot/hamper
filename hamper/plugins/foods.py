@@ -255,6 +255,8 @@ class FoodsPlugin(ChatPlugin):
         pass
 
     def articleize(self, noun):
+        if random.random() < .3:
+            noun = random.choice(foodunits) + " of " + noun 
         if noun[0] in ['a', 'e', 'i', 'o', 'u', 'y']:
             return "an " + noun
         return "a " + noun
