@@ -245,7 +245,7 @@ suggestions = [
     "why not just",
 ]
 
-class Foods(ChatPlugin):
+class FoodsPlugin(ChatPlugin):
     """Even robots can get peckish"""
 
     name = 'foods'

@@ -22,6 +22,7 @@ setup(
             'botsnack = hamper.plugins.friendly:BotSnack',
             'channel_utils = hamper.plugins.channel_utils:ChannelUtils',
             'choices = hamper.plugins.questions:ChoicesPlugin',
+            'foods = hamper.plugins.questions:FoodsPlugin',
             'dice = hamper.plugins.commands:Dice',
             'factoids = hamper.plugins.factoids:Factoids',
             'flip = hamper.plugins.flip:Flip',
