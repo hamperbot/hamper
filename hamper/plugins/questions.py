@@ -467,6 +467,11 @@ canstarts = [
 ]
 
 affirmatives = [
+    'yes',
+    'yeah',
+    'yup',
+    'yus',
+    'mhmm',
     'Yes.',
     'Maybe.',
     'Possibly.',
@@ -479,6 +484,11 @@ affirmatives = [
 ]
 
 negatories = [
+    'no',
+    'nope',
+    'nerp',
+    'never',
+    'nah',
     'NEVAR',
     'Nope.',
     'No.',
