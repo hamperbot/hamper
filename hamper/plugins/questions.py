@@ -634,7 +634,7 @@ class ChoicesPlugin(ChatCommandPlugin):
 
         def command(self, bot, comm, groups):
             choices = self.parse(comm['message'])
-
+            print choices
             chance_of_snark = 0.05
             snarks = [
                 "I don't know, I'm just a bot",
@@ -655,6 +655,7 @@ class ChoicesPlugin(ChatCommandPlugin):
             else:
                 # no snark, give one of the original choices
                 choice = random.choice(choices) + '.'
+            print choice
             bot.reply(comm, u'{0}: {1}'.format(comm['user'], choice))
             return True
 
