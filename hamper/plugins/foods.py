@@ -256,14 +256,14 @@ class FoodsPlugin(ChatPlugin):
 
     def articleize(self, noun):
         if random.random() < .3:
-            noun = random.choice(foodunits) + " of " + noun 
+            noun = random.choice(foodunits) + " of " + noun
         if noun[0] in ['a', 'e', 'i', 'o', 'u', 'y']:
             return "an " + noun
         return "a " + noun
 
     def discusses_food(self, msg):
         if ' eat ' in msg:
-            return "eat? " 
+            return "eat? "
         if 'food' in msg:
             return "food? "
         if 'hungry' in msg:
@@ -328,11 +328,12 @@ class FoodsPlugin(ChatPlugin):
         msg = ude(comm['message'].strip())
         prefix = self.discusses_food(msg)
         if prefix:
-                if comm['directed']:
-                    # always reply on question or comment to self about food
-                    self.foodyreply(bot, comm)
-                elif random.random() < .7:
-                    # often interject anyways
-                    self.foodyreply(bot, comm, prefix)
+            if comm['directed']:
+                # always reply on question or comment to self about food
+                self.foodyreply(bot, comm)
+            elif random.random() < .7:
+                # often interject anyways
+                self.foodyreply(bot, comm, prefix)
+            return True
         return False
 
