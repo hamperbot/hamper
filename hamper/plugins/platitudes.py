@@ -168,7 +168,7 @@ class PlatitudesPlugin(ChatPlugin):
     """If you can't say something nice, don't say anything at all."""
 
     name = 'platitudes'
-    priority = 1
+    priority = -3
 
     def setup(self, *args):
         pass
