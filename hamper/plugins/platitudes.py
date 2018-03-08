@@ -191,12 +191,14 @@ class PlatitudesPlugin(ChatPlugin):
                     self.inform(bot, comm)
                 else:
                     self.contemplate(bot, comm)
+                return True
         elif random.random() < .0001:
             # Occasionally pipe up
             if random.random() < .2:
                 self.inform(bot, comm)
             else:
                 self.contemplate(bot, comm)
+            return True
         return False
 
 
