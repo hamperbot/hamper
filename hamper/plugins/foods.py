@@ -262,7 +262,7 @@ class FoodsPlugin(ChatPlugin):
         return "a " + noun
 
     def discusses_food(self, msg):
-        if 'eat' in msg:
+        if ' eat ' in msg:
             return "eat? " 
         if 'food' in msg:
             return "food? "
