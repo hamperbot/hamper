@@ -206,8 +206,6 @@ obliques = [
     "Emphasize differences.",
     "Emphasize repetitions.",
     "Emphasize the flaws.",
-    "Get your neck massaged.",
-    "Give way to your worst impulse.",
     "Go slowly all the way round the outside.",
     "Honor thy error as a hidden intention.",
     "How would you have done it?",
