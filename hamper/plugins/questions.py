@@ -611,7 +611,7 @@ class YesNoPlugin(ChatPlugin):
                         self.canq(bot, comm)
                     else:
                         self.hamperesque(bot, comm, msg)
-                elif random.random() < .2:
+                elif random.random() < .05:
                         self.shouldq(bot, comm)
         return False
 
