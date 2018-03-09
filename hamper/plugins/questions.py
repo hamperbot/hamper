@@ -480,7 +480,7 @@ affirmatives = [
     'you said it',
     'does the pope... er, is this the right channel?'
     'right',
-    'do',
+    ' do ',
 ]
 
 negatories = [
