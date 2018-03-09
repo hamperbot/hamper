@@ -595,6 +595,8 @@ class YesNoPlugin(ChatPlugin):
             for a in affirmatives:
                 if a in msg:
                     whatsay = random.choice(affirmatives)
+            if "n't" in msg:
+                whatsay = random.choice(negatories)
             if whatsay != "":
                 bot.reply(comm, '{0}: {1}'.format(comm['user'], whatsay))
             else:
