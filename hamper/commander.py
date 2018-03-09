@@ -103,6 +103,8 @@ class CommanderProtocol(irc.IRCClient):
             raw_message, re.I).groups()
 
         pm = channel == self.nickname
+        if pm:
+            directed = True
         if target:
             if target.lower() == self.nickname.lower():
                 directed = True
