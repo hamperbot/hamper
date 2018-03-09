@@ -245,6 +245,16 @@ suggestions = [
     "why not just",
 ]
 
+discussors = [
+    " eat ",
+    "food",
+    "hungry",
+    "lunch",
+    "dinner",
+    "breakfast",
+    "snack",
+]
+
 class FoodsPlugin(ChatPlugin):
     """Even robots can get peckish"""
 
@@ -262,12 +272,9 @@ class FoodsPlugin(ChatPlugin):
         return "a " + noun
 
     def discusses_food(self, msg):
-        if ' eat ' in msg:
-            return "eat? "
-        if 'food' in msg:
-            return "food? "
-        if 'hungry' in msg:
-            return "hungry? "
+        for d in discussors:
+            if d in msg:
+                return d.strip() + "? "
         return False
 
     def describe_ingredient(self):
