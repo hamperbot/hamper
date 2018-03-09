@@ -479,9 +479,12 @@ affirmatives = [
     'Heck yes!',
     'you said it',
     'does the pope... er, is this the right channel?'
+    'right',
+    'do',
 ]
 
 negatories = [
+    "don't",
     'no',
     'nope',
     'nerp',
@@ -584,6 +587,8 @@ class YesNoPlugin(ChatPlugin):
 
     def hamperesque(self, bot, comm, msg):
             whatsay = ""
+            if "n't" in msg:
+                whatsay = random.choice(negatories)
             for n in negatories:
                 if n in msg:
                     whatsay = random.choice(negatories)
