@@ -23,6 +23,7 @@ setup(
             'channel_utils = hamper.plugins.channel_utils:ChannelUtils',
             'choices = hamper.plugins.questions:ChoicesPlugin',
             'dice = hamper.plugins.commands:Dice',
+            'selfaware = hamper.plugins.selfaware:SelfAwarePlugin',
             'factoids = hamper.plugins.factoids:Factoids',
             'flip = hamper.plugins.flip:Flip',
             'foods = hamper.plugins.foods:FoodsPlugin',
