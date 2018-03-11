@@ -13,6 +13,7 @@ platitudes = [
     "At least you're not homeless.",
     "At the speed of light",
     "Better out than in",
+    "Brevity is the soul of wit.",
     "Cat got your tongue?",
     "Do as I say,not as I do.",
     "Don't dwell on it.",
