@@ -4,6 +4,13 @@ from hamper.interfaces import ChatPlugin, Command
 
 import subprocess
 
+queues = [
+    'version',
+    'update',
+    'kick',
+    'modify',
+    'reboot',
+]
 class SelfAwarePlugin(ChatPlugin):
 
     name = 'selfaware'
@@ -24,7 +31,10 @@ class SelfAwarePlugin(ChatPlugin):
         return True
 
     def message(self, bot, comm):
+        msg = comm['message'].lower()
         if comm['directed']:
-            if "version" in comm['message'] and 'you' in comm['message']:
-                return self.report_version(bot, comm)
+            if "you" in msg:
+                for q in queues:
+                    if q in msg:
+                        return self.report_version(bot, comm)
         return False
