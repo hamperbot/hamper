@@ -19,6 +19,8 @@ unfunnies = [
     'jolly',
     'laugh',
     'smile',
+    'make fun',
+    'making fun',
 ]
 
 goods = [
