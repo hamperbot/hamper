@@ -75,15 +75,15 @@ class ManiacalPlugin(ChatPlugin):
             syl = syl.upper()
         return syl
 
-    def makelaugh():
-        resp = startLaugh() + midLaugh()
+    def makelaugh(self):
+        resp = self.startLaugh() + self.midLaugh()
         for i in range(10):
             if random.random() < .5:
-                resp += midLaugh()
+                resp += self.midLaugh()
         resp += random.choice(ends)
         return resp
 
-    def laughfor(self, bot, comm)
+    def laughfor(self, bot, comm):
         resp = self.makelaugh()
         resp += " " + random.choice(goods) + " " + random.choice(unfunnies)
         if random.random() < .5:
