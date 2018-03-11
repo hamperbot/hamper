@@ -118,6 +118,7 @@ class ManiacalPlugin(ChatPlugin):
         else:
             resp = self.demurelaugh()
         resp += " " + random.choice(goods) + " " + random.choice(unfunnies)
+        resp += random.choice(ends)
         if random.random() < .5:
             resp += ", " + comm['user']
         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
