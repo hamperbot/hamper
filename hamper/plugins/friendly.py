@@ -64,7 +64,7 @@ class BotSnack(ChatPlugin):
     """Reward a good bot."""
 
     name = 'botsnack'
-    priority = -1
+    priority = 1
 
     def setup(self, factory):
         self.rewards = {
