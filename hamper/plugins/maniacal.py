@@ -131,7 +131,7 @@ class ManiacalPlugin(ChatPlugin):
                     self.laughfor(bot, comm)
         for c in chuckles:
             if c in msg:
-                if random.random() < .8:
+                if len(msg.strip()) < 6 or random.random() < .8:
                     self.laughalong()
         return False
 
