@@ -7,17 +7,18 @@ from hamper.utils import ude
 vowels = ['a','e','o','i','u', 'y']
 
 unfunnies = [
-    'joke',
-    'joking',
-    'humor',
-    'humour',
-    'laugh',
+    'chuckle',
     'funny',
     'giggle',
     'grin',
-    'smile',
+    'humor',
+    'humour',
     'jest',
+    'joke',
+    'joking',
     'jolly',
+    'laugh',
+    'smile',
 ]
 
 goods = [
@@ -25,11 +26,11 @@ goods = [
     'good',
     'grand',
     'jolly',
-    'splendid',
-    'marvelous',
-    'magnificent',
-    'superb',
     'jovial',
+    'magnificent',
+    'marvelous',
+    'splendid',
+    'superb',
 ]
 
 ends = [
@@ -42,9 +43,32 @@ ends = [
     '',
 ]
 
+chuckles = [
+    ' heh ',
+    ' hah ',
+    ' ha ',
+    'teehee',
+    'tee-hee-hee',
+    ' lol ',
+    '*snicker*',
+    ' haha',
+    'lmao',
+    'rofl',
+    'lmfao',
+    'lollerskates',
+    'lollercoasteer',
+    'loltastic',
+    'roflcopter',
+    ' lul ',
+    ' lel ',
+    ' kek ',
+    ':)',
+    ':3',
+]
+
 class ManiacalPlugin(ChatPlugin):
     """Apparently robots 'laugh manically out of the blue' sometimes?"""
-
+    # TODO: gendered laughter. Apparently girls say tee hee snicker snicker?
     name = 'maniacal'
     priority = 2
 
@@ -83,18 +107,31 @@ class ManiacalPlugin(ChatPlugin):
         resp += random.choice(ends)
         return resp
 
+    def demurelaugh(self):
+        return random.choice(chuckles) + random.choice(ends)
+
     def laughfor(self, bot, comm):
-        resp = self.makelaugh()
+        if random.random() < .01:
+            resp = self.makelaugh()
+        else:
+            resp = self.demurelaugh()
         resp += " " + random.choice(goods) + " " + random.choice(unfunnies)
         if random.random() < .5:
             resp += ", " + comm['user']
         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
 
+    def laughalong(self, bot, comm):
+        bot.reply(comm, random.choice(chuckles).strip() + random.choice(ends))
+
     def message(self, bot, comm):
-        msg = ude(comm['message'].strip()).lower()
+        msg = ude(comm['message']).lower()
         for f in unfunnies:
             if f in msg:
-                self.laughfor(bot, comm)
-
+                if comm['directed'] or random.random() > .6:
+                    self.laughfor(bot, comm)
+        for c in chuckles:
+            if c in msg:
+                if random.random() < .8:
+                    self.laughalong()
         return False
 
