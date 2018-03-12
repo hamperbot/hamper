@@ -465,22 +465,23 @@ canstarts = [
 ]
 
 affirmatives = [
-    'yes',
-    'yeah',
-    'yup',
-    'yus',
-    'mhmm',
-    'Yes.',
+    ' do ',
+    'Heck yes!',
+    'I think... Yes.',
+    'It could be.',
     'Maybe.',
     'Possibly.',
-    'It could be.',
     'Without a doubt.',
-    'I think... Yes.',
-    'Heck yes!',
-    'you said it',
+    'Yes.',
     'does the pope... er, is this the right channel?'
+    'mhmm',
     'right',
-    ' do ',
+    'sure',
+    'yeah',
+    'yes',
+    'you said it',
+    'yup',
+    'yus',
 ]
 
 negatories = [
