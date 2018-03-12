@@ -9,6 +9,7 @@ vowels = ['a','e','o','i','u', 'y']
 unfunnies = [
     'chuckle',
     'funny',
+    'hilarious',
     'giggle',
     'grin',
     'humor',
