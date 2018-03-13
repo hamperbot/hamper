@@ -6,6 +6,38 @@ import re
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 from hamper.utils import ude
 
+
+idcall = [
+    "I'd call the odds ",
+    "The odds are ",
+    "Chances might be ",
+]
+
+foragainst = [
+    "of ",
+    "for ",
+    "against ",
+]
+
+bettings = [
+    "Across the board",
+    "Act of God",
+    "As good luck would have it",
+    "Back the field",
+    "Bet your bottom dollar",
+    "Bread always falls buttered side down",
+    "Copper-bottomed",
+    "Dead ringer",
+    "Don't count your chickens before they are hatched",
+    "Draw a blank",
+    "Eeny, meeny, miny, mo",
+    "Hedge your bets",
+    "Second-guess",
+    "Take potluck",
+    "Third time lucky",
+    "Turn the tables",
+]
+
 adjs = ["able",
     "acid",
     "angry",
@@ -586,6 +618,21 @@ class YesNoPlugin(ChatPlugin):
         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
         return True
 
+    def xtoy(self):
+        x = str(int(random.random()*10))
+        y = str(int(random.random()*10))
+        return x + " to " + y
+
+    def betting(self, bot, comm):
+        resp = random.choice(bettings)
+        if random.random() < .7:
+            resp = random.choice(idcall)
+            resp += random.choice(foragainst)
+            resp += random.choice(['it ','that ','such nonsense ', 'such a thing '])
+            resp += self.xtoy()
+        bot.reply(comm, resp)
+        return True
+
     def hamperesque(self, bot, comm, msg):
             whatsay = ""
             if "n't" in msg:
@@ -609,18 +656,23 @@ class YesNoPlugin(ChatPlugin):
                         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
                         return True
 
+    def sortq(self, bot, comm, msg)
+        if "should " in msg:
+            return self.shouldq(bot, comm)
+        for b in betwords:
+            if b in msg:
+                return self.betting(bot, comm)
+        if "can " in msg or "could" in msg:
+            return self.canq(bot, comm)
+        return self.hamperesque(bot, comm, msg)
+
     def message(self, bot, comm):
         msg = ude(comm['message'].strip())
         if self.is_question.search(msg):
-                if comm['directed']:
-                    if "should " in msg:
-                        self.shouldq(bot, comm)
-                    elif "can " in msg or "could" in msg:
-                        self.canq(bot, comm)
-                    else:
-                        self.hamperesque(bot, comm, msg)
-                elif random.random() < .05:
-                        self.shouldq(bot, comm)
+            if comm['directed']:
+                self.sortq(bot, comm, msg)
+            elif random.random() < .1:
+                self.sortq(bot, comm, msg)
         return False
 
 
