@@ -6,6 +6,15 @@ import re
 from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 from hamper.utils import ude
 
+betwords = [
+    "bet ",
+    "odds",
+    "chances",
+    "wager",
+    "gamble",
+    "probability",
+    "likelihood",
+]
 
 idcall = [
     "I'd call the odds ",
