@@ -7,7 +7,7 @@ from hamper.interfaces import ChatCommandPlugin, ChatPlugin, Command
 from hamper.utils import ude
 
 betwords = [
-    "bet ",
+    "bet",
     "odds",
     "chances",
     "wager",
@@ -665,7 +665,7 @@ class YesNoPlugin(ChatPlugin):
                         bot.reply(comm, '{0}: {1}'.format(comm['user'], resp))
                         return True
 
-    def sortq(self, bot, comm, msg)
+    def sortq(self, bot, comm, msg):
         if "should " in msg:
             return self.shouldq(bot, comm)
         for b in betwords:
@@ -676,7 +676,7 @@ class YesNoPlugin(ChatPlugin):
         return self.hamperesque(bot, comm, msg)
 
     def message(self, bot, comm):
-        msg = ude(comm['message'].strip())
+        msg = ude(comm['message'].strip()).lower()
         if self.is_question.search(msg):
             if comm['directed']:
                 self.sortq(bot, comm, msg)
