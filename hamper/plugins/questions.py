@@ -632,14 +632,38 @@ class YesNoPlugin(ChatPlugin):
         y = str(int(random.random()*10))
         return x + " to " + y
 
-    def howmany(self, bot, comm):
+    def manything(self, msg):
+        parts = msg.split()
+        quantifiers = ['many', 'much']
+        for q in quantifiers:
+            if q in msg:
+                idx = parts.index(q)
+                for i in range(idx, len(parts):
+                    if len(parts[i]) > 4:
+                        # Let's pretend to plural.
+                        return parts[i].rstrip('s') + 's'
+        return None
+
+    def howmany(self, bot, comm, msg):
+        thing = self.manything(msg)
         resp = random.randint(-5, 100)
         if resp > 80:
             resp = random.randint(80, 1000)
         if resp == 0:
-            resp = "None at all."
+            if thing:
+                resp = "No " + thing + " at all."
+            else:
+                resp = "None at all."
+        if thing:
+            if resp == 1:
+                resp = "Just a single " + thing.rstrip('s')
+            else:
+                resp += " " + thing
         if random.random() < .05:
-            resp = "All of them."
+            if thing:
+                resp = "All the " + thing + "!"
+            else:
+                resp = "All of them!"
         bot.reply(comm, str(resp))
         return True
 
@@ -686,7 +710,7 @@ class YesNoPlugin(ChatPlugin):
             return self.canq(bot, comm)
         if "many" in msg or "much" in msg:
             # TODO handle "much" with units
-            return self.howmany(bot, comm)
+            return self.howmany(bot, comm, msg)
         return self.hamperesque(bot, comm, msg)
 
     def message(self, bot, comm):
