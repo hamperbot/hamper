@@ -638,7 +638,7 @@ class YesNoPlugin(ChatPlugin):
         for q in quantifiers:
             if q in msg:
                 idx = parts.index(q)
-                for i in range(idx, len(parts):
+                for i in range(idx, len(parts)):
                     if len(parts[i]) > 4:
                         # Let's pretend to plural.
                         return parts[i].rstrip('s') + 's'
