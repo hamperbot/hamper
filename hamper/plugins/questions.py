@@ -632,6 +632,17 @@ class YesNoPlugin(ChatPlugin):
         y = str(int(random.random()*10))
         return x + " to " + y
 
+    def howmany(self, bot, comm):
+        resp = random.randint(-5, 100)
+        if resp > 80:
+            resp = random.randint(80, 1000)
+        if resp == 0:
+            resp = "None at all."
+        if random.random() < .05:
+            resp = "All of them."
+        bot.reply(comm, str(resp))
+        return True
+
     def betting(self, bot, comm):
         resp = random.choice(bettings)
         if random.random() < .7:
@@ -673,6 +684,9 @@ class YesNoPlugin(ChatPlugin):
                 return self.betting(bot, comm)
         if "can " in msg or "could" in msg:
             return self.canq(bot, comm)
+        if "many" in msg or "much" in msg:
+            # TODO handle "much" with units
+            return self.howmany(bot, comm)
         return self.hamperesque(bot, comm, msg)
 
     def message(self, bot, comm):
