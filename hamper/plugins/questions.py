@@ -649,13 +649,14 @@ class YesNoPlugin(ChatPlugin):
         resp = random.randint(-5, 100)
         if resp > 80:
             resp = random.randint(80, 1000)
-        if resp == 0:
+        resp = str(resp)
+        if resp == '0':
             if thing:
                 resp = "No " + thing + " at all."
             else:
                 resp = "None at all."
         if thing:
-            if resp == 1:
+            if resp == '1':
                 resp = "Just a single " + thing.rstrip('s')
             else:
                 resp += " " + thing
@@ -664,7 +665,7 @@ class YesNoPlugin(ChatPlugin):
                 resp = "All the " + thing + "!"
             else:
                 resp = "All of them!"
-        bot.reply(comm, str(resp))
+        bot.reply(comm, resp)
         return True
 
     def betting(self, bot, comm):
