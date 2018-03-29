@@ -93,7 +93,8 @@ class Karma(ChatCommandPlugin):
             # Commit karma changes to the db
             self.update_db(karmas, comm['user'])
             # Maybe have an opinion
-            self.opinionate(bot, comm, karmas)
+            if len(karmas) > 1:
+                self.opinionate(bot, comm, karmas)
 
     def opinionate(self, bot, comm, karmas):
         print karmas
