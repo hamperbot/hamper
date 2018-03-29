@@ -90,21 +90,21 @@ class Karma(ChatCommandPlugin):
             # Notify the users they can't modify their own karma
             if comm['user'] in karmas.keys():
                 bot.reply(comm, "Nice try, no modifying your own karma")
+            # Maybe have an opinion
+            self.opine(bot, comm, karmas)
             # Commit karma changes to the db
             self.update_db(karmas, comm['user'])
-            # Maybe have an opinion
-            if len(karmas) > 1:
-                self.opinionate(bot, comm, karmas)
 
-    def opinionate(self, bot, comm, karmas):
-        print karmas
+    def opine(self, bot, comm, karmas):
+        if len(karmas) == 0:
+            return False
         resp = ' and '.join(karmas)
+        # Let's have an opinion!
+        if random.random() < .7:
+            resp = random.choice(positives) + resp + "!"
+        else:
+            resp = random.choice(negatives) + resp + "?"
         if random.random() < .3:
-            # Let's have an opinion!
-            if random.random() < .7:
-                resp = random.choice(positives) + resp + "!"
-            else:
-                resp = random.choice(negatives) + resp + "?"
             bot.reply(comm, resp)
 
     def modify_karma(self, words):
