@@ -105,7 +105,7 @@ class Karma(ChatCommandPlugin):
                 resp = random.choice(positives) + resp + "!"
             else:
                 resp = random.choice(negatives) + resp + "?"
-        bot.reply(comm, resp)
+            bot.reply(comm, resp)
 
     def modify_karma(self, words):
         """
