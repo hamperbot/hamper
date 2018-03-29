@@ -323,7 +323,7 @@ class FoodsPlugin(ChatPlugin):
             if random.random() < .5:
                 resp = random.choice(suggestions) + ' ' + resp
             if random.random() < .3:
-                resp += random.choice([' with ', ' on ', ' using '])
+                resp += random.choice([' made with ', ' on ', ' using '])
                 resp += self.articleize(random.choice(foodtools))
         return resp
 
