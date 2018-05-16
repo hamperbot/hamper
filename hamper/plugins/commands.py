@@ -163,7 +163,7 @@ class Rot13(ChatCommandPlugin):
 class Dice(ChatCommandPlugin):
     """Random dice rolls!"""
     name = 'dice'
-    priority = 0
+    priority = 5
 
     def setup(self, *args, **kwargs):
         super(Dice, self).setup(*args, **kwargs)

@@ -6,7 +6,7 @@ requires = open('requirements.txt').read().split('\n')
 
 setup(
     name='hamper',
-    version='1.11.1',
+    version='1.12.0',
     description='Yet another IRC bot',
     install_requires=requires,
     author='Mike Cooper',
@@ -23,8 +23,10 @@ setup(
             'channel_utils = hamper.plugins.channel_utils:ChannelUtils',
             'choices = hamper.plugins.questions:ChoicesPlugin',
             'dice = hamper.plugins.commands:Dice',
+            'selfaware = hamper.plugins.selfaware:SelfAwarePlugin',
             'factoids = hamper.plugins.factoids:Factoids',
             'flip = hamper.plugins.flip:Flip',
+            'foods = hamper.plugins.foods:FoodsPlugin',
             'friendly = hamper.plugins.friendly:Friendly',
             'goodbye = hamper.plugins.goodbye:GoodBye',
             'help = hamper.plugins.help:Help',
@@ -32,6 +34,8 @@ setup(
             'karma_adv = hamper.plugins.karma_adv:KarmAdv',
             'lmgtfy = hamper.plugins.commands:LetMeGoogleThatForYou',
             'lookup = hamper.plugins.dictionary:Lookup',
+            'maniacal = hamper.plugins.maniacal:ManiacalPlugin',
+            'platitudes = hamper.plugins.platitudes:PlatitudesPlugin',
             'ponies = hamper.plugins.friendly:OmgPonies',
             'quit = hamper.plugins.commands:Quit',
             'quotes = hamper.plugins.quotes:Quotes',

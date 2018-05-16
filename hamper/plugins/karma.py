@@ -1,4 +1,5 @@
 import re
+import random
 from collections import defaultdict
 
 from hamper.interfaces import ChatCommandPlugin, Command
@@ -9,7 +10,19 @@ from sqlalchemy.ext.declarative import declarative_base
 
 SQLAlchemyBase = declarative_base()
 
+positives = [
+    "Heck yeah, ",
+    "You go, ",
+    "I support ",
+    "I like ",
+    "You do you, ",
+]
 
+negatives = [
+    "Eww, why ",
+    "Who needs ",
+    "What good is ",
+]
 class Karma(ChatCommandPlugin):
     '''Give, take, and scoreboard Internet Points'''
 
@@ -77,8 +90,22 @@ class Karma(ChatCommandPlugin):
             # Notify the users they can't modify their own karma
             if comm['user'] in karmas.keys():
                 bot.reply(comm, "Nice try, no modifying your own karma")
+            # Maybe have an opinion
+            self.opine(bot, comm, karmas)
             # Commit karma changes to the db
             self.update_db(karmas, comm['user'])
+
+    def opine(self, bot, comm, karmas):
+        if len(karmas) == 0:
+            return False
+        resp = ' and '.join(karmas)
+        # Let's have an opinion!
+        if random.random() < .7:
+            resp = random.choice(positives) + resp + "!"
+        else:
+            resp = random.choice(negatives) + resp + "?"
+        if random.random() < .3:
+            bot.reply(comm, resp)
 
     def modify_karma(self, words):
         """
