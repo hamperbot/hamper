@@ -1,7 +1,6 @@
 import random
-import re
 
-from hamper.interfaces import ChatPlugin, Command
+from hamper.interfaces import ChatPlugin
 from hamper.utils import ude
 
 foodverbs = [
