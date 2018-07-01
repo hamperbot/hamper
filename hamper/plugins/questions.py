@@ -559,9 +559,9 @@ class YesNoPlugin(ChatPlugin):
         responses = [
             ('Yes.', 'eq'),
             ('How should I know?', 'eq'),
-            ('Try asking a human', 'eq'),
+            ('Try asking a human', 'eq/10'),
             ('Eww.', 'eq'),
-            ('You\'d just do the opposite of whatever I tell you', 'eq'),
+            ('You\'d just do the opposite of whatever I tell you', 'eq/50'),
             ('No.', 'eq'),
             ('Nope.', 'eq'),
             ('Maybe.', 'eq'),
@@ -576,7 +576,8 @@ class YesNoPlugin(ChatPlugin):
             ("I don't know.", 'eq/3'),
             ("I'm sorry, I was thinking of bananas", 'eq/100'),
         ]
-
+        responses += [(i.strip(), 'eq') for i in affirmatives]
+        responses += [(i.strip(), 'eq') for i in negatories]
         self.advices = [(x, 1) for x in obliques]
         total_prob = 0
         real_resp = []
