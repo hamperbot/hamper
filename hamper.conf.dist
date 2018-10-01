@@ -1,5 +1,8 @@
 # Sample configuration file for Hamper
 
+How fast can the bot type?
+wpm: 50
+
 # IRC Settings
 nickname: cool_bot
 # password: your_password

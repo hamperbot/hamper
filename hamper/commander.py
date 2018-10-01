@@ -1,4 +1,5 @@
 import logging
+import time
 import re
 import traceback
 from collections import deque, namedtuple
@@ -16,11 +17,12 @@ import hamper.plugins
 from hamper.acl import ACL, AllowAllACL
 
 log = logging.getLogger('hamper')
-
+wpm = 200
 
 def main():
     config = hamper.config.load()
     hamper.log.setup_logging()
+    wpm = config.get('wpm')
 
     if config.get('ssl', False):
         reactor.connectSSL(
@@ -194,10 +196,9 @@ class CommanderProtocol(irc.IRCClient):
 
     def _hamper_send(self, func, comm, message, encode, tag, vars, kwvars):
         if type(message) == str:
-            log.warning('Warning, passing message as ascii instead of unicode '
-                        'will cause problems. The message is: {0}'
-                        .format(message))
+            message = message.encode('utf8')
 
+        chardelay = 1.0/(wpm * (5.0/60))
         format_kwargs = {}
         format_kwargs.update(kwvars)
         format_kwargs.update(comm)
@@ -206,8 +207,7 @@ class CommanderProtocol(irc.IRCClient):
         except (ValueError, KeyError, IndexError) as e:
             log.error('Could not format message: {e}'.format(e=e))
 
-        if encode:
-            message = message.encode('utf8')
+        time.sleep(len(message) * chardelay)
 
         if comm['pm']:
             func(comm['user'], message)

@@ -22,6 +22,10 @@ class CLIProtocol(LineReceiver):
         self.loader = PluginLoader(config)
 
         self.history = {}
+        if 'wpm' in config:
+            self.wpm = config['wpm']
+        else:
+            wpm = 200
 
         if 'db' in config:
             print('Loading db from config: ' + config['db'])
@@ -68,6 +72,7 @@ class CLIProtocol(LineReceiver):
         self.stopProducing()
 
     def msg(self, user, message, length=None):
+        chardelay = 1/(self.wpm * 5.0/60)
         for line in message.splitlines():
             self._sendLine(user, line)
 
