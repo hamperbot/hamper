@@ -3,7 +3,7 @@ cryptography==1.8.1
 flake8==3.3.0
 pyOpenSSL==17.0.0
 pytz==2017.2
-PyYAML==3.12
+PyYAML==5.1
 requests==2.14.2
 SQLAlchemy==1.1.10
 Twisted==17.1.0
