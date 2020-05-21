@@ -80,6 +80,7 @@ class Seen(ChatCommandPlugin, PopulationPlugin, PresencePlugin):
             name = groups[0].strip()
             if name.lower() == bot.nickname.lower():
                 bot.reply(comm, 'I am always here!')
+                return True
 
             logs = self.plugin.queryUser(comm['channel'], name)
 
