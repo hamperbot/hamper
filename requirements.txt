@@ -6,6 +6,6 @@ pytz==2017.2
 PyYAML==3.12
 requests==2.14.2
 SQLAlchemy==1.1.10
-Twisted==17.1.0
+Twisted==22.4.0
 upsidedown==0.3
 zope.interface==4.4.1
