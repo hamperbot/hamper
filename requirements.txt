@@ -1,5 +1,5 @@
 cffi==1.10.0
-cryptography==1.8.1
+cryptography==39.0.1
 flake8==3.3.0
 pyOpenSSL==17.0.0
 pytz==2017.2
